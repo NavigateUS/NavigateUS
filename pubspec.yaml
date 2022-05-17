@@ -37,6 +37,7 @@ dependencies:
   material_floating_search_bar: ^0.3.7
   google_maps_flutter: ^2.1.5
   location: ^4.4.0
+  geolocator: ^8.2.1
 
 dev_dependencies:
   flutter_test:

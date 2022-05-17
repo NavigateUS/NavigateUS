@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:navigateus/mapFunctions/all.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 
 void main() => runApp(const NavigateUS());
@@ -24,11 +25,12 @@ class Map extends StatefulWidget {
   const Map({Key? key}) : super(key: key);
 
   @override
-  State<Map> createState() => MapSampleState();
+  State<Map> createState() => MapState();
 }
 
-class MapSampleState extends State<Map> {
+class MapState extends State<Map> {
   final Completer<GoogleMapController> _controller = Completer();
+  late GoogleMapController googleMapController;
 
   static const Marker nusMarker = Marker(
     markerId: MarkerId('nus'),
@@ -59,6 +61,7 @@ class MapSampleState extends State<Map> {
         child: const Icon(Icons.location_searching),
         onPressed: () {
           // ToDo: Go to current location
+          locatePosition();
         },
       ),
     );
@@ -68,12 +71,32 @@ class MapSampleState extends State<Map> {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: nus,
+      zoomControlsEnabled: false,
+      myLocationEnabled: true,
+      zoomGesturesEnabled: true,
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
+        googleMapController = controller;
       },
-      zoomControlsEnabled: false,
     );
   }
+
+  void locatePosition() async {
+    try {
+      Position currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      LatLng latLngPos = LatLng(
+          currentPosition.latitude, currentPosition.longitude);
+
+      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17.5);
+      googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
+    }
+    catch (e) {
+      print('Could not get location');
+      // ToDo: Request for location permission
+    }
+  }
+
 
 }
 
