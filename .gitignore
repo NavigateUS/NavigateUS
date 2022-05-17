@@ -47,4 +47,6 @@ app.*.map.json
 /android/app/release
 
 #Keys
+android/app/src/main/AndroidManifest.xml
+ios/Runner/AppDelegate.swift
 
