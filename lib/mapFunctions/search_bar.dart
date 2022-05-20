@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:navigateus/mapFunctions/place_service.dart';
+import 'package:navigateus/screens/map_screen.dart';
 
 //https://pub.dev/packages/material_floating_search_bar
 
 Widget buildFloatingSearchBar(context) {
+  final FloatingSearchBarController floatingSearchBarController =
+      FloatingSearchBarController();
+
   final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
   return FloatingSearchBar(
     hint: 'Where would you like to go?',
+    controller: floatingSearchBarController,
     automaticallyImplyDrawerHamburger: true,
     scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
     transitionDuration: const Duration(milliseconds: 300),
@@ -17,9 +23,22 @@ Widget buildFloatingSearchBar(context) {
     openAxisAlignment: 0.0,
     debounceDelay: const Duration(milliseconds: 500),
     onQueryChanged: (query) {
-      // Call your model, bloc, controller here.
+      print(query);
     },
-    transition: ExpandingFloatingSearchBarTransition(),
+    onSubmitted: (query) async {
+      // Map<String, dynamic> data = {
+      //   "p": {
+      //     "geometry": {
+      //       "location": {"lat": 22.572646, "lng": 88.36389500000001}
+      //     }
+      //   }
+      // };
+      // print(data);
+      // floatingSearchBarController.close();
+      // MapState().goToPlace(data);
+      var place = await PlaceService().getPlace(query);
+      MapState().goToPlace(place);
+    },
     actions: [
       FloatingSearchBarAction.searchToClear(
         showIfClosed: false,
@@ -33,12 +52,7 @@ Widget buildFloatingSearchBar(context) {
           elevation: 4.0,
 
           //Child: This is whatever shows up below the search bar
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: Colors.accents.map((color) {
-              return Container(height: 50, color: color);
-            }).toList(),
-          ),
+          child: Column(mainAxisSize: MainAxisSize.min),
         ),
       );
     },

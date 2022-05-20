@@ -14,7 +14,7 @@ A new Flutter project.
 In ```android/app/src/main/AndroidManifest.xml```, change ```YOURKEYHERE``` in 
 ```
 <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="YOURKEYHERE"/>
+            android:value="YOURKE   YHERE"/>
 ```
 to the API key from above.
 
