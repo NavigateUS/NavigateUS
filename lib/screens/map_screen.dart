@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/mapFunctions/search.dart';
+import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 
 class MapScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class MapState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController googleMapController;
 
-  // Inital camera position NUS
+  // Initial camera position NUS
   static const CameraPosition nusPosition = CameraPosition(
     target: LatLng(1.2966, 103.7764),
     zoom: 14.4746,
@@ -29,10 +28,11 @@ class MapState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-            fit: StackFit.expand,
-            children: [buildMap(), buildFloatingSearchBar(context)]),
+      appBar: AppBar(
+        title: const Text('NavigateUS')
+      ),
+        body: Column(
+            children: [buildSearch(), buildMap()]),
         drawer: buildDrawer(),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),
@@ -43,16 +43,18 @@ class MapState extends State<MapScreen> {
 
   // Widgets
   Widget buildMap() {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: nusPosition,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-        googleMapController = controller;
-      },
-      myLocationEnabled: true,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: false,
+    return Expanded(child:
+      GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition: nusPosition,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+          googleMapController = controller;
+        },
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+      )
     );
   }
 
