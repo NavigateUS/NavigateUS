@@ -29,7 +29,8 @@ class MapState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NavigateUS')
+        title: const Text('NavigateUS'),
+        backgroundColor: Colors.deepOrange,
       ),
         body: Column(
             children: [buildSearch(), buildMap()]),
