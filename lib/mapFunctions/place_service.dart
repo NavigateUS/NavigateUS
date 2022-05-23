@@ -16,8 +16,6 @@ class PlaceService {
     var json = convert.jsonDecode(response.body);
     var placeId = json['candidates'][0]['place_id'] as String;
 
-    print(placeId);
-
     return placeId;
   }
 
@@ -31,7 +29,6 @@ class PlaceService {
     var json = convert.jsonDecode(response.body);
     var results = json['result'] as Map<String, dynamic>;
 
-    print(results);
     return results;
   }
 }

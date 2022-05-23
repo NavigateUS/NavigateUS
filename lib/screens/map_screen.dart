@@ -6,6 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigateus/mapFunctions/search.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
+import 'package:navigateus/mapFunctions/place_service.dart';
+
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -33,7 +35,9 @@ class MapState extends State<MapScreen> {
         backgroundColor: Colors.deepOrange,
       ),
         body: Column(
-            children: [buildSearch(), buildMap()]),
+            children: [
+              buildSearch(),
+              buildMap()]),
         drawer: buildDrawer(),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),
@@ -71,12 +75,13 @@ class MapState extends State<MapScreen> {
     }
   }
 
-  Future<void> goToPlace(Map<String, dynamic> place) async {
-    final double lat = place['geometry']['location']['lat'];
-    final double lng = place['geometry']['location']['lng'];
-
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(lat, lng), zoom: 15)));
+  void goToPlace(LatLng latLngPos) async {
+    try {
+      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17.5);
+      googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
+    } catch (error) {
+      print(error);
+    }
   }
+
 }
