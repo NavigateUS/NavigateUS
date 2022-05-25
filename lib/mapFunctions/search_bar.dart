@@ -21,7 +21,7 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
   List<AutocompletePrediction> predictions = [];
 
   void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value, region: 'SG');
+    var result = await googlePlace.autocomplete.get(value, location: const LatLon(1.2966, 103.7764), radius: 1000);
     if (result != null && result.predictions != null && mounted) {
       setState(() {
         predictions = result.predictions!;
@@ -88,6 +88,9 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
               itemCount: predictions.length,
               itemBuilder: (context, index) {
                 return ListTile(
+                  leading: const CircleAvatar(
+                    child: Icon(Icons.pin_drop_outlined),
+                  ),
                   title: Text(predictions[index].description.toString()),
                   onTap: () {
                     goToPlace(index);

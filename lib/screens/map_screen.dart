@@ -65,7 +65,7 @@ class MapState extends State<MapScreen> {
 
   void goToPlace(LatLng latLngPos) async {
     try {
-      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17.5);
+      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17);
       googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
     } catch (error) {
       print(error);
