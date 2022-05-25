@@ -30,7 +30,7 @@ class MapState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(children: [buildMap(), buildFloatingSearchBar(context)]),
+        body: Stack(children: [buildMap(), FloatingSearchBarWidget()]),
         drawer: buildDrawer(context),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),

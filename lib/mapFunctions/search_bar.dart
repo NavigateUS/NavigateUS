@@ -7,9 +7,16 @@ import 'package:navigateus/screens/map_screen.dart';
 
 //https://pub.dev/packages/material_floating_search_bar
 
-Widget buildFloatingSearchBar(BuildContext context) {
+class FloatingSearchBarWidget extends StatefulWidget {
+  const FloatingSearchBarWidget({Key? key}) : super(key: key);
+
+  @override
+  State<FloatingSearchBarWidget> createState() => _FloatingSearchBarWidgetState();
+}
+
+class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
   final FloatingSearchBarController floatingSearchBarController =
-      FloatingSearchBarController();
+  FloatingSearchBarController();
   GooglePlace googlePlace = GooglePlace('AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
   List<AutocompletePrediction> predictions = [];
 
@@ -17,7 +24,9 @@ Widget buildFloatingSearchBar(BuildContext context) {
     var result = await googlePlace.autocomplete.get(value);
     if (result != null && result.predictions != null) {
       print(result.predictions!.first.description);
-      predictions = result.predictions!;
+      setState(() {
+        predictions = result.predictions!;
+      });
     }
   }
 
@@ -32,58 +41,67 @@ Widget buildFloatingSearchBar(BuildContext context) {
     }
   }
 
-  final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+  @override
+  Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
-  return FloatingSearchBar(
-    hint: 'Where would you like to go?',
-    controller: floatingSearchBarController,
-    automaticallyImplyDrawerHamburger: true,
-    scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
-    transitionDuration: const Duration(milliseconds: 300),
-    transitionCurve: Curves.bounceInOut,
-    physics: const BouncingScrollPhysics(),
-    axisAlignment: isPortrait ? 0.0 : -1.0,
-    openAxisAlignment: 0.0,
-    debounceDelay: const Duration(milliseconds: 500),
-    onQueryChanged: (value) {
-      if (value.isNotEmpty) {
-        //places api
-        autoCompleteSearch(value);
-      }
-      else {
-        //clear
-      }
-    },
-    onSubmitted: (query) async {
-      goToPlace(0);
-    },
-    actions: [
-      FloatingSearchBarAction.searchToClear(
-        showIfClosed: false,
-      ),
-    ],
-    builder: (context, transition) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Material(
-          color: Colors.white,
-          elevation: 4.0,
-
-          //Child: This is whatever shows up below the search bar
-          child:  ListView.builder(
-            shrinkWrap: true,
-            itemCount: predictions.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(predictions[index].description.toString()),
-                onTap: () {
-                  goToPlace(index);
-                },
-              );
-            },
-          ),
+    return FloatingSearchBar(
+      hint: 'Where would you like to go?',
+      controller: floatingSearchBarController,
+      automaticallyImplyDrawerHamburger: true,
+      scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+      transition: ExpandingFloatingSearchBarTransition(),
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionCurve: Curves.bounceInOut,
+      physics: const BouncingScrollPhysics(),
+      axisAlignment: isPortrait ? 0.0 : -1.0,
+      openAxisAlignment: 0.0,
+      debounceDelay: const Duration(milliseconds: 500),
+      onQueryChanged: (value) {
+        if (value.isNotEmpty) {
+          //places api
+          autoCompleteSearch(value);
+          print(predictions.length);
+        }
+        else {
+          setState(() {
+            predictions = [];
+          });
+        }
+      },
+      onSubmitted: (query) async {
+        goToPlace(0);
+      },
+      actions: [
+        FloatingSearchBarAction.searchToClear(
+          showIfClosed: false,
         ),
-      );
-    },
-  );
+      ],
+      builder: (context, transition) {
+        return ClipRRect(
+          child: Material(
+            color: Colors.white,
+            elevation: 2.0,
+            // Child: This is whatever shows up below the search bar
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: predictions.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(predictions[index].description.toString()),
+                  onTap: () {
+                    goToPlace(index);
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );;
+  }
 }
+
+
+
