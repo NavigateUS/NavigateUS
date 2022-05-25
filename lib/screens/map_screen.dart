@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigateus/mapFunctions/search.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
+import 'package:navigateus/mapFunctions/search_bar.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/mapFunctions/place_service.dart';
 
@@ -29,23 +30,18 @@ class MapState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('NavigateUS'),
-          backgroundColor: Colors.deepOrange,
-        ),
-        body: Column(children: [buildSearch(), buildMap()]),
+        body: Stack(children: [buildMap(), buildFloatingSearchBar(context)]),
         drawer: buildDrawer(),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),
             onPressed: () {
               locateUserPosition();
-            }));
+    }));
   }
 
   // Widgets
   Widget buildMap() {
-    return Expanded(
-        child: GoogleMap(
+    return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: nusPosition,
       onMapCreated: (GoogleMapController controller) {
@@ -55,7 +51,7 @@ class MapState extends State<MapScreen> {
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
-    ));
+    );
   }
 
   // Map Functions

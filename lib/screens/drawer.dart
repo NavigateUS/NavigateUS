@@ -16,6 +16,13 @@ Widget buildDrawer() {
         ),
       ),
         ListTile(
+          title: const Text('Indoor Maps'),
+          onTap: () {
+            // ToDo: Add settings here
+            // ...
+          },
+        ),
+        ListTile(
           title: const Text('Timetable'),
           onTap: () {
             // ToDo: Add timetabling function here
