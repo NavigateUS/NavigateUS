@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
-import 'package:navigateus/mapFunctions/search.dart';
+import 'package:navigateus/mapFunctions/search_bar.dart';
 import 'package:navigateus/screens/drawer.dart';
 
 class MapScreen extends StatefulWidget {
