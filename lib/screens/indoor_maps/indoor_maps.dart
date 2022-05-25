@@ -8,7 +8,9 @@ class IndoorMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Indoor Maps")),
+        appBar: AppBar(
+            title: const Text("Indoor Maps"),
+            backgroundColor: Colors.deepOrange,),
         body: SingleChildScrollView(
             child: Column(children: const [
           ImageButton(
@@ -21,7 +23,7 @@ class IndoorMap extends StatelessWidget {
             name: "COM2",
             image: "assets/indoor_maps/COM2_Cover.jpg",
             newScreen:
-                FloorMap(building: "COM1", floorNum: 2, hasBasement: false),
+                FloorMap(building: "COM2", floorNum: 4, hasBasement: true),
           ),
         ])));
   }

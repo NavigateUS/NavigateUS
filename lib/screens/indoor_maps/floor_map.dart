@@ -27,7 +27,8 @@ class FloorMap extends StatelessWidget {
     }
 
     return Scaffold(
-        appBar: AppBar(title: Text(building)),
+        appBar: AppBar(title: Text(building),
+                      backgroundColor: Colors.deepOrange,),
         body: SingleChildScrollView(
             child: Column(children: [
           for (String floor in textList)

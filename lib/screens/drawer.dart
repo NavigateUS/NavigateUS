@@ -14,7 +14,8 @@ Widget buildDrawer(BuildContext context) {
           ),
           child: Text(
             'NavigateUS',
-            style: TextStyle(fontSize: 24),),
+            style: TextStyle(fontSize: 24),
+          ),
         ),
       ),
         ListTile(
@@ -22,7 +23,6 @@ Widget buildDrawer(BuildContext context) {
           onTap: () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (context) => const IndoorMap()));
-
           },
         ),
         ListTile(
