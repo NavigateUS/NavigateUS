@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
+import 'package:navigateus/screens/map_screen.dart';
 
-Widget buildDrawer() {
+Widget buildDrawer(BuildContext context) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -18,8 +20,9 @@ Widget buildDrawer() {
         ListTile(
           title: const Text('Indoor Maps'),
           onTap: () {
-            // ToDo: Add settings here
-            // ...
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const IndoorMap()));
+
           },
         ),
         ListTile(

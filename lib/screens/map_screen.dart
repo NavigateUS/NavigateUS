@@ -31,7 +31,7 @@ class MapState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(children: [buildMap(), buildFloatingSearchBar(context)]),
-        drawer: buildDrawer(),
+        drawer: buildDrawer(context),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),
             onPressed: () {

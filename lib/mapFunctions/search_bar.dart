@@ -7,7 +7,7 @@ import 'package:navigateus/screens/map_screen.dart';
 
 //https://pub.dev/packages/material_floating_search_bar
 
-Widget buildFloatingSearchBar(context) {
+Widget buildFloatingSearchBar(BuildContext context) {
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
   GooglePlace googlePlace = GooglePlace('AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
