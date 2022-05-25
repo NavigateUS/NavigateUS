@@ -41,6 +41,7 @@ dependencies:
   permission_handler: ^9.2.0
   http: ^0.13.4
   photo_view: ^0.14.0
+  google_place: ^0.4.7
 
 dev_dependencies:
   flutter_test:

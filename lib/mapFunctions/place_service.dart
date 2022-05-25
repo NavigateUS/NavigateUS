@@ -6,7 +6,7 @@ import 'dart:convert' as convert;
 // unable to access google APIs
 
 class PlaceService {
-  final String key = 'AIzaSyDrBnx4xe2w3jKJBHX5r31fQd5z7ar1JMA';
+  final String key = 'AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM';
 
   Future<String> getPlaceId(String input) async {
     final String url =
@@ -29,7 +29,6 @@ class PlaceService {
     var json = convert.jsonDecode(response.body);
     var results = json['result'] as Map<String, dynamic>;
 
-    print(results);
     return results;
   }
 }

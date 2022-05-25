@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:navigateus/mapFunctions/search.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
-import 'package:navigateus/mapFunctions/search_bar.dart';
 import 'package:navigateus/screens/drawer.dart';
+import 'package:navigateus/mapFunctions/place_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -19,7 +19,7 @@ class MapState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController googleMapController;
 
-  // Inital camera position NUS
+  // Initial camera position NUS
   static const CameraPosition nusPosition = CameraPosition(
     target: LatLng(1.2966, 103.7764),
     zoom: 14.4746,
@@ -29,10 +29,11 @@ class MapState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-            fit: StackFit.expand,
-            children: [buildMap(), buildFloatingSearchBar(context)]),
+        appBar: AppBar(
+          title: const Text('NavigateUS'),
+          backgroundColor: Colors.deepOrange,
+        ),
+        body: Column(children: [buildSearch(), buildMap()]),
         drawer: buildDrawer(),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.location_searching),
@@ -43,7 +44,8 @@ class MapState extends State<MapScreen> {
 
   // Widgets
   Widget buildMap() {
-    return GoogleMap(
+    return Expanded(
+        child: GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: nusPosition,
       onMapCreated: (GoogleMapController controller) {
@@ -53,7 +55,7 @@ class MapState extends State<MapScreen> {
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
-    );
+    ));
   }
 
   // Map Functions
@@ -68,12 +70,12 @@ class MapState extends State<MapScreen> {
     }
   }
 
-  Future<void> goToPlace(Map<String, dynamic> place) async {
-    final double lat = place['geometry']['location']['lat'];
-    final double lng = place['geometry']['location']['lng'];
-
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(lat, lng), zoom: 15)));
+  void goToPlace(LatLng latLngPos) async {
+    try {
+      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17.5);
+      googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
+    } catch (error) {
+      print(error);
+    }
   }
 }
