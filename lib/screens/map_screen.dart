@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:navigateus/mapFunctions/search.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/mapFunctions/search_bar.dart';
 import 'package:navigateus/screens/drawer.dart';
-import 'package:navigateus/mapFunctions/place_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -17,7 +15,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class MapState extends State<MapScreen> {
-  late GoogleMapController googleMapController;
+  late final Completer<GoogleMapController> _controller = Completer();
 
   // Initial camera position NUS
   static const CameraPosition nusPosition = CameraPosition(
@@ -25,12 +23,13 @@ class MapState extends State<MapScreen> {
     zoom: 14.4746,
   );
 
+  //Map
   Widget buildMap() {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: nusPosition,
       onMapCreated: (GoogleMapController controller) {
-        googleMapController = controller;
+        _controller.complete(controller);
       },
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
@@ -65,8 +64,9 @@ class MapState extends State<MapScreen> {
 
   void goToPlace(LatLng latLngPos) async {
     try {
+      GoogleMapController controller = await _controller.future;
       CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17);
-      googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
+      controller.animateCamera(CameraUpdate.newCameraPosition(pos));
     } catch (error) {
       print(error);
     }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
-import 'package:navigateus/mapFunctions/place_service.dart';
 import 'package:navigateus/screens/map_screen.dart';
 
 //https://pub.dev/packages/material_floating_search_bar
@@ -15,6 +14,8 @@ class FloatingSearchBarWidget extends StatefulWidget {
 }
 
 class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
+  final MapState map = MapState();
+
   final FloatingSearchBarController floatingSearchBarController =
   FloatingSearchBarController();
   GooglePlace googlePlace = GooglePlace('AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
@@ -36,7 +37,7 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
       double? lat = details.result!.geometry!.location!.lat;
       double? lng = details.result!.geometry!.location!.lng;
       LatLng latLngPos = LatLng(lat!, lng!);
-      MapState().goToPlace(latLngPos);
+      map.goToPlace(latLngPos);
     }
   }
 
@@ -62,12 +63,14 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
           autoCompleteSearch(value);
         }
         else {
+          //clear predictions
           setState(() {
             predictions = [];
           });
         }
       },
       onSubmitted: (query) async {
+        floatingSearchBarController.close();
         goToPlace(0);
       },
       actions: [
@@ -93,6 +96,7 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
                   ),
                   title: Text(predictions[index].description.toString()),
                   onTap: () {
+                    floatingSearchBarController.close();
                     goToPlace(index);
                   },
                 );
