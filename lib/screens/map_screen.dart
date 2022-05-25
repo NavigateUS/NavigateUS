@@ -17,7 +17,6 @@ class MapScreen extends StatefulWidget {
 }
 
 class MapState extends State<MapScreen> {
-  final Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController googleMapController;
 
   // Initial camera position NUS
@@ -26,26 +25,11 @@ class MapState extends State<MapScreen> {
     zoom: 14.4746,
   );
 
-  // Page Layout
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(children: [buildMap(), FloatingSearchBarWidget()]),
-        drawer: buildDrawer(context),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.location_searching),
-            onPressed: () {
-              locateUserPosition();
-    }));
-  }
-
-  // Widgets
   Widget buildMap() {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: nusPosition,
       onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
         googleMapController = controller;
       },
       myLocationEnabled: true,
@@ -54,13 +38,26 @@ class MapState extends State<MapScreen> {
     );
   }
 
+  // Page Layout
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Stack(children: [buildMap(), const FloatingSearchBarWidget()]),
+        drawer: buildDrawer(context),
+        floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.location_searching),
+            onPressed: () {
+              locateUserPosition();
+    }));
+  }
+
+
   // Map Functions
   void locateUserPosition() async {
     try {
       Position userPosition = await GeolocatorService().getCurrentLocation();
       LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
-      CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17.5);
-      googleMapController.animateCamera(CameraUpdate.newCameraPosition(pos));
+      goToPlace(latLngPos);
     } catch (error) {
       print(error);
     }

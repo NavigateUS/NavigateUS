@@ -21,9 +21,8 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
   List<AutocompletePrediction> predictions = [];
 
   void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-    if (result != null && result.predictions != null) {
-      print(result.predictions!.first.description);
+    var result = await googlePlace.autocomplete.get(value, region: 'SG');
+    if (result != null && result.predictions != null && mounted) {
       setState(() {
         predictions = result.predictions!;
       });
@@ -50,7 +49,7 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
       controller: floatingSearchBarController,
       automaticallyImplyDrawerHamburger: true,
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
-      transition: ExpandingFloatingSearchBarTransition(),
+      transition: SlideFadeFloatingSearchBarTransition(),
       transitionDuration: const Duration(milliseconds: 300),
       transitionCurve: Curves.bounceInOut,
       physics: const BouncingScrollPhysics(),
@@ -61,7 +60,6 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
         if (value.isNotEmpty) {
           //places api
           autoCompleteSearch(value);
-          print(predictions.length);
         }
         else {
           setState(() {
@@ -79,6 +77,7 @@ class _FloatingSearchBarWidgetState extends State<FloatingSearchBarWidget> {
       ],
       builder: (context, transition) {
         return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
           child: Material(
             color: Colors.white,
             elevation: 2.0,
