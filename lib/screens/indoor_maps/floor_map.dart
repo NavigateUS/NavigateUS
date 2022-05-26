@@ -27,8 +27,10 @@ class FloorMap extends StatelessWidget {
     }
 
     return Scaffold(
-        appBar: AppBar(title: Text(building),
-                      backgroundColor: Colors.deepOrange,),
+        appBar: AppBar(
+          title: Text(building),
+          backgroundColor: Colors.deepOrange,
+        ),
         body: SingleChildScrollView(
             child: Column(children: [
           for (String floor in textList)
@@ -36,6 +38,7 @@ class FloorMap extends StatelessWidget {
               name: floor,
               image: "assets/indoor_maps/$building\_$floor.jpg",
               newScreen: DetailScreen(
+                  floor: "$building $floor",
                   image: "assets/indoor_maps/$building\_$floor.jpg"),
             ),
         ])));

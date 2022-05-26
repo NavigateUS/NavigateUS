@@ -9,8 +9,9 @@ class IndoorMap extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: const Text("Indoor Maps"),
-            backgroundColor: Colors.deepOrange,),
+          title: const Text("Indoor Maps"),
+          backgroundColor: Colors.deepOrange,
+        ),
         body: SingleChildScrollView(
             child: Column(children: const [
           ImageButton(

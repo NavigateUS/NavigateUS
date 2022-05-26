@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
+import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
-import 'package:navigateus/mapFunctions/search_bar.dart';
 import 'package:navigateus/screens/drawer.dart';
 
 class MapScreen extends StatefulWidget {
@@ -15,7 +16,28 @@ class MapScreen extends StatefulWidget {
 }
 
 class MapState extends State<MapScreen> {
-  late final Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
+  final FloatingSearchBarController floatingSearchBarController =
+      FloatingSearchBarController();
+  GooglePlace googlePlace =
+      GooglePlace('AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+  List<AutocompletePrediction> predictions = [];
+
+  // Page Layout
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Stack(children: [
+          buildMap(),
+          buildSearchBar(context),
+        ]),
+        drawer: buildDrawer(context),
+        floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.location_searching),
+            onPressed: () {
+              locateUserPosition();
+            }));
+  }
 
   // Initial camera position NUS
   static const CameraPosition nusPosition = CameraPosition(
@@ -37,20 +59,6 @@ class MapState extends State<MapScreen> {
     );
   }
 
-  // Page Layout
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Stack(children: [buildMap(), const FloatingSearchBarWidget()]),
-        drawer: buildDrawer(context),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.location_searching),
-            onPressed: () {
-              locateUserPosition();
-    }));
-  }
-
-
   // Map Functions
   void locateUserPosition() async {
     try {
@@ -70,5 +78,93 @@ class MapState extends State<MapScreen> {
     } catch (error) {
       print(error);
     }
+  }
+
+  // Search Bar
+  Widget buildSearchBar(BuildContext context) {
+    // Search Bar Functions
+    void autoCompleteSearch(String value) async {
+      var result = await googlePlace.autocomplete
+          .get(value, location: const LatLon(1.2966, 103.7764), radius: 1000);
+      if (result != null && result.predictions != null && mounted) {
+        setState(() {
+          predictions = result.predictions!;
+        });
+      }
+    }
+
+    Future<LatLng> getPlacePosition(index) async {
+      final placeID = predictions[index].placeId!;
+      final details = await googlePlace.details.get(placeID);
+      if (details != null && details.result != null) {
+        double? lat = details.result!.geometry!.location!.lat;
+        double? lng = details.result!.geometry!.location!.lng;
+        LatLng latLngPos = LatLng(lat!, lng!);
+        return latLngPos;
+      } else {
+        return Future.error("Cannot find");
+      }
+    }
+
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    return FloatingSearchBar(
+      hint: 'Where would you like to go?',
+      controller: floatingSearchBarController,
+      automaticallyImplyDrawerHamburger: true,
+      scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+      transition: SlideFadeFloatingSearchBarTransition(),
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionCurve: Curves.bounceInOut,
+      physics: const BouncingScrollPhysics(),
+      axisAlignment: isPortrait ? 0.0 : -1.0,
+      openAxisAlignment: 0.0,
+      debounceDelay: const Duration(milliseconds: 500),
+      onQueryChanged: (value) {
+        if (value.isNotEmpty) {
+          //places api
+          autoCompleteSearch(value);
+        } else {
+          //clear predictions
+          setState(() {
+            predictions = [];
+          });
+        }
+      },
+      actions: [
+        FloatingSearchBarAction.searchToClear(
+          showIfClosed: false,
+        ),
+      ],
+      builder: (context, transition) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Material(
+            color: Colors.white,
+            elevation: 2.0,
+            // Child: This is whatever shows up below the search bar
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: predictions.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: const CircleAvatar(
+                    child: Icon(Icons.pin_drop_outlined),
+                  ),
+                  title: Text(predictions[index].description.toString()),
+                  onTap: () async {
+                    LatLng position = await getPlacePosition(index);
+                    goToPlace(position);
+                    floatingSearchBarController.close();
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 }
