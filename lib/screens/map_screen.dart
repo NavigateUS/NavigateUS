@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:navigateus/mapFunctions/bottom_sheet.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 
@@ -137,6 +138,14 @@ class MapState extends State<MapScreen> {
           showIfClosed: false,
         ),
       ],
+      onSubmitted: (value) async {
+        LatLng position = await getPlacePosition(0);
+        goToPlace(position);
+        floatingSearchBarController.close();
+        String name = predictions[0].description.toString();
+        var id = predictions[0].placeId;
+        bottomSheet(context, name, id);
+      },
       builder: (context, transition) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(10),
@@ -155,9 +164,12 @@ class MapState extends State<MapScreen> {
                   ),
                   title: Text(predictions[index].description.toString()),
                   onTap: () async {
+                    String name = predictions[index].description.toString();
+                    var id = predictions[index].placeId;
                     LatLng position = await getPlacePosition(index);
                     goToPlace(position);
                     floatingSearchBarController.close();
+                    bottomSheet(context, name, id);
                   },
                 );
               },
