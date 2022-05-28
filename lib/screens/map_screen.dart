@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,7 +30,10 @@ class MapState extends State<MapScreen> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   bool visibility = false;
-
+  String totalDistance = '';
+  String totalDuration = '';
+  String destination = '';
+  String modeOfTransit = '';
 
   // Page Layout
   @override
@@ -41,11 +45,16 @@ class MapState extends State<MapScreen> {
           buildDirections(),
         ]),
         drawer: buildDrawer(context),
-        floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.location_searching),
-            onPressed: () {
-              locateUserPosition();
-            }));
+        floatingActionButton: Padding(
+          padding: visibility ? const EdgeInsets.only(bottom: 100) : const EdgeInsets.only(bottom: 0),
+            child: FloatingActionButton(
+                child: const Icon(Icons.location_searching),
+                onPressed: () {
+                  locateUserPosition();
+                }
+            ),
+        )
+    );
   }
 
 
@@ -322,11 +331,33 @@ class MapState extends State<MapScreen> {
         markerId: const MarkerId('End'),
         position: latLngPosEnd);
 
+    Dio dio = Dio();
+    String endLat = latLngPosEnd.latitude.toString();
+    String endLng = latLngPosEnd.longitude.toString();
+    String stLat = latLngPosStart.latitude.toString();
+    String stLng = latLngPosStart.longitude.toString();
+
+    if (mode == TravelMode.driving) {
+      setState(() => modeOfTransit = 'driving');
+    }
+    else if (mode == TravelMode.walking) {
+      setState(() => modeOfTransit = 'walking');
+    }
+
+    Response response = await dio.get(
+        'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+
+    String distance = response.data['rows'][0]['elements'][0]['distance']['text'];
+    String duration = response.data['rows'][0]['elements'][0]['duration']['text'];
+
     setState(() {
+      totalDistance = distance;
+      totalDuration = duration;
       markers = {startMarker, endMarker};
+      destination = details!.result!.name!;
     });
 
-    _getPolyline(latLngPosStart, latLngPosEnd, mode);
+    _getPolyline(latLngPosStart, latLngPosEnd, mode, );
     floatingSearchBarController.hide();
     visibility = true;
     locateUserPosition();
@@ -340,7 +371,7 @@ class MapState extends State<MapScreen> {
     setState(() {});
   }
 
-  _getPolyline(LatLng start, LatLng end, TravelMode mode) async {
+  _getPolyline(LatLng start, LatLng end, TravelMode mode,) async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         key,
         PointLatLng(start.latitude, start.longitude),
@@ -375,13 +406,36 @@ class MapState extends State<MapScreen> {
           height: 100,
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            color: Colors.grey[400],
+            color: Colors.grey[300],
           ),
-          child: IconButton(
-              onPressed: () {
-                closeDirections();
-              },
-              icon: const Icon(Icons.close))
+          child: Column(
+            children: [
+              Text(destination, style: const TextStyle(fontSize: 20),),
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.grey[400],
+                ),
+                child: Wrap(
+                  children: [
+                    if (modeOfTransit == 'walking') ...[
+                      const Icon(Icons.directions_walk, size: 20,)
+                    ] else if(modeOfTransit == 'driving')...[
+                      const Icon(Icons.directions_car)
+                    ],
+                    Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  closeDirections();
+                },
+                icon: const Icon(Icons.close)
+              ),
+            ],
+          )
         ),
       ),
     );
