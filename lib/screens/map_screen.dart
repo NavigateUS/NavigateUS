@@ -268,6 +268,7 @@ class MapState extends State<MapScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                  getDirections(id, TravelMode.transit);
                                 },
                                 style: ButtonStyle(
                                   shape: MaterialStateProperty.all(const StadiumBorder()),
@@ -342,6 +343,9 @@ class MapState extends State<MapScreen> {
     }
     else if (mode == TravelMode.walking) {
       setState(() => modeOfTransit = 'walking');
+    }
+    else if (mode == TravelMode.transit) {
+      setState(() => modeOfTransit = 'transit');
     }
 
     Response response = await dio.get(
@@ -423,6 +427,8 @@ class MapState extends State<MapScreen> {
                       const Icon(Icons.directions_walk, size: 20,)
                     ] else if(modeOfTransit == 'driving')...[
                       const Icon(Icons.directions_car)
+                    ] else if(modeOfTransit == 'transit')...[
+                      const Icon(Icons.directions_bus)
                     ],
                     Text(totalDuration, style: const TextStyle(fontSize: 18),),
                   ],
