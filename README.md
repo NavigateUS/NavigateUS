@@ -25,25 +25,25 @@ To set your current location, click the ellipsis (...) on the menu on the right.
 You can now test the app with different user positions.
 
 
-## Getting Started
+~~## Getting Started
 
-### Google Maps API Key
+~~### Google Maps API Key
 
-- Get an [API key](https://cloud.google.com/maps-platform/) from Google Maps Platform
-- Enable Google Map SDK for each platform according to [this guide](https://pub.dev/packages/google_maps_flutter).
+~~- Get an [API key](https://cloud.google.com/maps-platform/) from Google Maps Platform
+~~- Enable Google Map SDK for each platform according to [this guide](https://pub.dev/packages/google_maps_flutter).
 
-#### Android
+~~#### Android
 
-In ```android/app/src/main/AndroidManifest.xml```, change ```YOURKEYHERE``` in 
+~~In ```android/app/src/main/AndroidManifest.xml```, change ```YOURKEYHERE``` in 
 ```
 <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="YOURKE   YHERE"/>
 ```
 to the API key from above.
 
-#### iOS
+~~#### iOS
 
-In ```ios/Runner/AppDelegate.swift```, change ```YOURKEYHERE``` in
+~~In ```ios/Runner/AppDelegate.swift```, change ```YOURKEYHERE``` in
 ```
 GMSServices.provideAPIKey("YOURKEYHERE")
 ```
