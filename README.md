@@ -2,7 +2,7 @@
 
 A new Flutter project.
 
-## For Orbital Evuluators
+## For Orbital Evaluators
 
 ### Downloading and installing android studio and emulator
 
