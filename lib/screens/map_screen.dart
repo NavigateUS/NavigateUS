@@ -9,6 +9,7 @@ import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
+import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -348,20 +349,31 @@ class MapState extends State<MapScreen> {
       setState(() => modeOfTransit = 'transit');
     }
 
-    Response response = await dio.get(
-        'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-    String distance = response.data['rows'][0]['elements'][0]['distance']['text'];
-    String duration = response.data['rows'][0]['elements'][0]['duration']['text'];
+    if (mode == TravelMode.driving || mode == TravelMode.walking) {
+      _getPolyline(latLngPosStart, latLngPosEnd, mode);
+      Response response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-    setState(() {
-      totalDistance = distance;
-      totalDuration = duration;
-      markers = {startMarker, endMarker};
-      destination = details!.result!.name!;
-    });
+      String distance = response
+          .data['rows'][0]['elements'][0]['distance']['text'];
+      String duration = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
 
-    _getPolyline(latLngPosStart, latLngPosEnd, mode, );
+      setState(() {
+        totalDistance = distance;
+        totalDuration = duration;
+        markers = {startMarker, endMarker};
+        destination = details!.result!.name!;});
+    }
+    else { //Transit
+      findRoute("COM 2", "Kent Ridge MRT");
+      setState(() {
+        totalDistance = '0';
+        totalDuration = '0';
+        markers = {startMarker, endMarker};
+        destination = details!.result!.name!;});
+    }
     floatingSearchBarController.hide();
     visibility = true;
     locateUserPosition();

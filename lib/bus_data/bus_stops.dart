@@ -51,10 +51,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "University Town",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "Yusof Ishak House",
-    },
-    {
       "bus": "K",
       "nextBusStop": "University Health Centre",
     },
@@ -117,10 +113,12 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "A2",
       "nextBusStop": "TCOMS",
     },
-    {"bus": "D2", "nextBusStop": null},
+    {
+      "bus": "D2",
+      "nextBusStop": ""},
     {
       "bus": "K",
-      "nextBusStop": null,
+      "nextBusStop": "",
     },
   ],
   "TCOMS": [
@@ -187,10 +185,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "University Health Centre",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "Raffles Hall",
-    },
-    {
       "bus": "E",
       "nextBusStop": "Raffles Hall",
     },
@@ -198,10 +192,6 @@ Map<String, List<Map<String, String>>> graph = {
   "Yusof Ishak House": [
     {
       "bus": "D1",
-      "nextBusStop": "Central Library",
-    },
-    {
-      "bus": "BTC",
       "nextBusStop": "Central Library",
     },
     {
@@ -219,10 +209,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "LT 13",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "LT 13",
-    },
-    {
       "bus": "K",
       "nextBusStop": "Opp SDE 3",
     },
@@ -237,10 +223,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "AS 5",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "AS 5",
-    },
-    {
       "bus": "A1",
       "nextBusStop": "AS 5",
     },
@@ -251,10 +233,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "COM 2",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "BIZ 2",
-    },
-    {
       "bus": "A1",
       "nextBusStop": "COM 2",
     },
@@ -262,11 +240,7 @@ Map<String, List<Map<String, String>>> graph = {
   "BIZ 2": [
     {
       "bus": "D1",
-      "nextBusStop": null,
-    },
-    {
-      "bus": "BTC",
-      "nextBusStop": "Prince George's Park",
+      "nextBusStop": "",
     },
     {
       "bus": "A1",
@@ -277,10 +251,6 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "D2",
       "nextBusStop": "Kent Ridge MRT",
-    },
-    {
-      "bus": "BTC",
-      "nextBusStop": "College Green",
     },
     {
       "bus": "K",
@@ -294,10 +264,6 @@ Map<String, List<Map<String, String>>> graph = {
   "Kent Ridge MRT": [
     {
       "bus": "D2",
-      "nextBusStop": "LT 27",
-    },
-    {
-      "bus": "BTC",
       "nextBusStop": "LT 27",
     },
     {
@@ -315,10 +281,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "University Hall",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "University Hall",
-    },
-    {
       "bus": "K",
       "nextBusStop": "University Hall",
     },
@@ -330,10 +292,6 @@ Map<String, List<Map<String, String>>> graph = {
   "University Hall": [
     {
       "bus": "D2",
-      "nextBusStop": "Opp University Health Centre",
-    },
-    {
-      "bus": "BTC",
       "nextBusStop": "Opp University Health Centre",
     },
     {
@@ -351,10 +309,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "Museum",
     },
     {
-      "bus": "BTC",
-      "nextBusStop": "University Town",
-    },
-    {
       "bus": "K",
       "nextBusStop": "Yusof Ishak House",
     },
@@ -363,31 +317,7 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "Yusof Ishak House",
     },
   ],
-  "Oei Tiong Ham Building": [
-    {
-      "bus": "BTC",
-      "nextBusStop": "Botanic Gardens MRT",
-    },
-    {
-      "bus": "L",
-      "nextBusStop": "Botanic Gardens MRT",
-    },
-  ],
-  "Botanic Gardens MRT": [
-    {
-      "bus": "BTC",
-      "nextBusStop": "Kent Ridge MRT",
-    },
-    {
-      "bus": "L",
-      "nextBusStop": "College Green",
-    },
-  ],
   "Raffles Hall": [
-    {
-      "bus": "BTC",
-      "nextBusStop": "Kent Vale",
-    },
     {
       "bus": "E",
       "nextBusStop": "Kent Vale",
@@ -395,26 +325,12 @@ Map<String, List<Map<String, String>>> graph = {
   ],
   "Kent Vale": [
     {
-      "bus": "BTC",
-      "nextBusStop": "Museum",
-    },
-    {
       "bus": "E",
       "nextBusStop": "EA",
     },
     {
       "bus": "K",
       "nextBusStop": "Museum",
-    },
-  ],
-  "College Green": [
-    {
-      "bus": "BTC",
-      "nextBusStop": "Oei Tiong Ham Building",
-    },
-    {
-      "bus": "L",
-      "nextBusStop": "Oei Tiong Ham Building",
     },
   ],
   "EA": [
