@@ -15,9 +15,19 @@ class Node implements Comparable{
   String toString() {
     return '($stops, $name)';
   }
-
-
 }
+
+class DirectionInstructions{
+  List<String> bus;
+  int stops;
+
+  DirectionInstructions(this.bus, this.stops);
+
+  String toString() {
+    return 'Take bus(es) $bus for $stops stops.';
+  }
+}
+
 
 List<Map<String, String>>? getNeighbours(String stopName) {
   return graph[stopName];
@@ -89,5 +99,41 @@ List<List<String>> findRoute(String source, String destination) {  //Djikstra's 
   print('Route is: ');
   print(route);
   return route;
+}
+
+List<DirectionInstructions> getBestRoute(List<List<String>> route) {
+  List<String> onBus = route[0];
+  int counter = 0;
+  List<DirectionInstructions> instructions = [];
+
+
+
+  for (int i = 0; i < route.length; i++) {
+    List<String> current = route[i];
+
+    if (route[i] == onBus) {
+      counter++;
+    }
+    else {
+      List<String> testCurrent = [];
+      for (String bus in current) { //track buses that continue the route
+        if (onBus.contains(bus)) {
+          testCurrent.add(bus);
+        }
+      }
+      if (testCurrent.isNotEmpty) { //if there are buses that continue the route
+        onBus = testCurrent;  //only include buses that do not need to change bus
+        counter++;
+      }
+      else { //forced to change buses
+        instructions.add(DirectionInstructions(onBus, counter));
+        counter = 1;
+        onBus = current;
+      }
+    }
+  }
+  instructions.add(DirectionInstructions(onBus, counter));
+  print(instructions);
+  return instructions;
 }
 

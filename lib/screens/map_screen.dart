@@ -107,7 +107,7 @@ class MapState extends State<MapScreen> {
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-    void autoCompleteSearch(String value) async {
+    void autoCompleteSearch(String value) async {  //Rework to get only NUS locations. (Have list of locations in NUS?)
       var result = await googlePlace.autocomplete
           .get(value, location: const LatLon(1.2966, 103.7764), radius: 1000);
       if (result != null && result.predictions != null && mounted) {
@@ -367,7 +367,8 @@ class MapState extends State<MapScreen> {
         destination = details!.result!.name!;});
     }
     else { //Transit
-      findRoute("COM 2", "Kent Ridge MRT");
+      var route = findRoute("COM 2", "Kent Vale");
+      getBestRoute(route);
       setState(() {
         totalDistance = '0';
         totalDuration = '0';
@@ -405,8 +406,8 @@ class MapState extends State<MapScreen> {
 
   void viewIndoorMap(id) {
     var available = [
-      'ChIJW-fkx_ga2jERSjkkKeJjaUM', //com1
-      'ChIJRafctPga2jER8aiJ3XzHihM' //com2
+      'COM 1',
+      'COM 2'
     ];
 
     //ToDo: navigate to indoor map
@@ -436,13 +437,24 @@ class MapState extends State<MapScreen> {
                 child: Wrap(
                   children: [
                     if (modeOfTransit == 'walking') ...[
-                      const Icon(Icons.directions_walk, size: 20,)
+                      const Icon(Icons.directions_walk, size: 20,),
+                      Text(totalDuration, style: const TextStyle(fontSize: 18),),
                     ] else if(modeOfTransit == 'driving')...[
-                      const Icon(Icons.directions_car)
+                      const Icon(Icons.directions_car),
+                      Text(totalDuration, style: const TextStyle(fontSize: 18),),
                     ] else if(modeOfTransit == 'transit')...[
-                      const Icon(Icons.directions_bus)
+                      //Walk to nearest bus stop(s)
+                      // const Icon(Icons.directions_walk, size: 20,),
+                      // Text(totalDuration, style: const TextStyle(fontSize: 18),),
+
+                      //Bus, use bus_directions_service
+                      const Icon(Icons.directions_bus),
+
+                      //Walk to destination
+                      // const Icon(Icons.directions_walk, size: 20,),
+                      // Text(totalDuration, style: const TextStyle(fontSize: 18),),
+
                     ],
-                    Text(totalDuration, style: const TextStyle(fontSize: 18),),
                   ],
                 ),
               ),
