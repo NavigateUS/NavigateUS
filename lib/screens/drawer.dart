@@ -6,23 +6,25 @@ Widget buildDrawer(BuildContext context) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
-      children: [const SizedBox(
-        height: 125,
-        child: DrawerHeader(
-          decoration: BoxDecoration(
-            color: Colors.deepOrange,
-          ),
-          child: Text(
-            'NavigateUS',
-            style: TextStyle(fontSize: 24),
+      children: [
+        const SizedBox(
+          height: 125,
+          child: DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.deepOrange,
+            ),
+            child: Text(
+              'NavigateUS',
+              style: TextStyle(fontSize: 24),
+            ),
           ),
         ),
-      ),
         ListTile(
           title: const Text('Indoor Maps'),
           onTap: () {
             Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const IndoorMap()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => IndoorMap()));
           },
         ),
         ListTile(

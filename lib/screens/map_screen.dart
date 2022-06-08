@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show cos, sqrt, asin;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
+import 'package:navigateus/screens/bus_stop_info.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -22,8 +24,7 @@ class MapState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
-  late GooglePlace googlePlace =
-      GooglePlace(key);
+  late GooglePlace googlePlace = GooglePlace(key);
   List<AutocompletePrediction> predictions = [];
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
@@ -46,18 +47,17 @@ class MapState extends State<MapScreen> {
         ]),
         drawer: buildDrawer(context),
         floatingActionButton: Padding(
-          padding: visibility ? const EdgeInsets.only(bottom: 100) : const EdgeInsets.only(bottom: 0),
-            child: FloatingActionButton(
-                child: const Icon(Icons.location_searching),
-                onPressed: () {
-                  locateUserPosition();
-                }
-            ),
-        )
-    );
+          padding: visibility
+              ? const EdgeInsets.only(bottom: 100)
+              : const EdgeInsets.only(bottom: 0),
+          child: FloatingActionButton(
+              child: const Icon(Icons.location_searching),
+              onPressed: () {
+                locateUserPosition();
+                markBusStops();
+              }),
+        ));
   }
-
-
 
   // Initial camera position NUS
   static const CameraPosition nusPosition = CameraPosition(
@@ -80,7 +80,6 @@ class MapState extends State<MapScreen> {
       polylines: Set<Polyline>.of(polylines.values),
     );
   }
-
 
   // Map Functions
   void locateUserPosition() async {
@@ -202,135 +201,143 @@ class MapState extends State<MapScreen> {
     );
   }
 
+  // Location Result Bottom Dheet
   void bottomSheet(BuildContext context, String name, var id) {
     showModalBottomSheet(
         context: context,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         isScrollControlled: true,
         builder: (context) {
-          return Wrap(
+          return Wrap(children: [
+            Center(
+                child: Column(
               children: [
+                Text(
+                  name,
+                  style: const TextStyle(fontSize: 20.0),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(fontSize: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //walk
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(id, TravelMode.walking);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
                         ),
-                        const SizedBox(height: 10,),
-                        Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              //walk
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  getDirections(id, TravelMode.walking);
-                                },
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(const StadiumBorder()),
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.directions_walk),
-                                    Text('Walk')
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10,),
-
-                              //drive
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  getDirections(id, TravelMode.driving);
-                                },
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(const StadiumBorder()),
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.directions_car),
-                                    Text('Drive')
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10,),
-
-                              //transit
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  getDirections(id, TravelMode.transit);
-                                },
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(const StadiumBorder()),
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.directions_bus),
-                                    Text('Transit')
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_walk),
+                            Text('Walk')
+                          ],
                         ),
-                        const SizedBox(height: 3,),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
 
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            viewIndoorMap(id);
-                          },
-                          style: ButtonStyle(
-                              shape: MaterialStateProperty.all(const StadiumBorder()),
-                              backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-                              maximumSize: MaterialStateProperty.all(const Size.fromWidth(300))
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.map_outlined),
-                              Text('View Indoor Map')
-                            ],
-                          ),
+                      //drive
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(id, TravelMode.driving);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
                         ),
-                        const SizedBox(height: 10,),
-                      ],
-                    )
-                )
-              ]
-          );
-        }
-    );
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_car),
+                            Text('Drive')
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+
+                      //transit
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(id, TravelMode.transit);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_bus),
+                            Text('Transit')
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    viewIndoorMap(id);
+                  },
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all(const StadiumBorder()),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.deepOrange),
+                      maximumSize:
+                          MaterialStateProperty.all(const Size.fromWidth(300))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.map_outlined),
+                      Text('View Indoor Map')
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ))
+          ]);
+        });
   }
-
 
   Future<void> getDirections(var endID, TravelMode mode) async {
     Position userPosition = await GeolocatorService().getCurrentLocation();
-    LatLng latLngPosStart = LatLng(
-        userPosition.latitude, userPosition.longitude);
-    Marker startMarker = Marker(
-        markerId: const MarkerId('Start'),
-        position: latLngPosStart);
+    LatLng latLngPosStart =
+        LatLng(userPosition.latitude, userPosition.longitude);
+    Marker startMarker =
+        Marker(markerId: const MarkerId('Start'), position: latLngPosStart);
 
     final details = await googlePlace.details.get(endID);
     LatLng latLngPosEnd = LatLng(details!.result!.geometry!.location!.lat!,
         details!.result!.geometry!.location!.lng!);
 
-    Marker endMarker = Marker(
-        markerId: const MarkerId('End'),
-        position: latLngPosEnd);
+    Marker endMarker =
+        Marker(markerId: const MarkerId('End'), position: latLngPosEnd);
 
     Dio dio = Dio();
     String endLat = latLngPosEnd.latitude.toString();
@@ -340,19 +347,19 @@ class MapState extends State<MapScreen> {
 
     if (mode == TravelMode.driving) {
       setState(() => modeOfTransit = 'driving');
-    }
-    else if (mode == TravelMode.walking) {
+    } else if (mode == TravelMode.walking) {
       setState(() => modeOfTransit = 'walking');
-    }
-    else if (mode == TravelMode.transit) {
+    } else if (mode == TravelMode.transit) {
       setState(() => modeOfTransit = 'transit');
     }
 
     Response response = await dio.get(
         'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-    String distance = response.data['rows'][0]['elements'][0]['distance']['text'];
-    String duration = response.data['rows'][0]['elements'][0]['duration']['text'];
+    String distance =
+        response.data['rows'][0]['elements'][0]['distance']['text'];
+    String duration =
+        response.data['rows'][0]['elements'][0]['duration']['text'];
 
     setState(() {
       totalDistance = distance;
@@ -361,7 +368,11 @@ class MapState extends State<MapScreen> {
       destination = details!.result!.name!;
     });
 
-    _getPolyline(latLngPosStart, latLngPosEnd, mode, );
+    _getPolyline(
+      latLngPosStart,
+      latLngPosEnd,
+      mode,
+    );
     floatingSearchBarController.hide();
     visibility = true;
     locateUserPosition();
@@ -370,18 +381,25 @@ class MapState extends State<MapScreen> {
   _addPolyLine() {
     PolylineId id = PolylineId("poly");
     Polyline polyline = Polyline(
-        polylineId: id, color: Colors.blue, points: polylineCoordinates, width: 7);
+        polylineId: id,
+        color: Colors.blue,
+        points: polylineCoordinates,
+        width: 7);
     polylines[id] = polyline;
     setState(() {});
   }
 
-  _getPolyline(LatLng start, LatLng end, TravelMode mode,) async {
+  _getPolyline(
+    LatLng start,
+    LatLng end,
+    TravelMode mode,
+  ) async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        key,
-        PointLatLng(start.latitude, start.longitude),
-        PointLatLng(end.latitude, end.longitude),
-        travelMode: mode,);
-
+      key,
+      PointLatLng(start.latitude, start.longitude),
+      PointLatLng(end.latitude, end.longitude),
+      travelMode: mode,
+    );
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -389,7 +407,6 @@ class MapState extends State<MapScreen> {
     }
     _addPolyLine();
   }
-
 
   void viewIndoorMap(id) {
     var available = [
@@ -406,43 +423,51 @@ class MapState extends State<MapScreen> {
       child: Visibility(
         visible: visibility, // Set it to false
         child: Container(
-          width: 400,
-          height: 100,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            color: Colors.grey[300],
-          ),
-          child: Column(
-            children: [
-              Text(destination, style: const TextStyle(fontSize: 20),),
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.grey[400],
+            width: 400,
+            height: 100,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              color: Colors.grey[300],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  destination,
+                  style: const TextStyle(fontSize: 20),
                 ),
-                child: Wrap(
-                  children: [
-                    if (modeOfTransit == 'walking') ...[
-                      const Icon(Icons.directions_walk, size: 20,)
-                    ] else if(modeOfTransit == 'driving')...[
-                      const Icon(Icons.directions_car)
-                    ] else if(modeOfTransit == 'transit')...[
-                      const Icon(Icons.directions_bus)
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.grey[400],
+                  ),
+                  child: Wrap(
+                    children: [
+                      if (modeOfTransit == 'walking') ...[
+                        const Icon(
+                          Icons.directions_walk,
+                          size: 20,
+                        )
+                      ] else if (modeOfTransit == 'driving') ...[
+                        const Icon(Icons.directions_car)
+                      ] else if (modeOfTransit == 'transit') ...[
+                        const Icon(Icons.directions_bus)
+                      ],
+                      Text(
+                        totalDuration,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ],
-                    Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                  ],
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  closeDirections();
-                },
-                icon: const Icon(Icons.close)
-              ),
-            ],
-          )
-        ),
+                IconButton(
+                    onPressed: () {
+                      closeDirections();
+                    },
+                    icon: const Icon(Icons.close)),
+              ],
+            )),
       ),
     );
   }
@@ -455,7 +480,78 @@ class MapState extends State<MapScreen> {
       markers = {};
       polylineCoordinates = [];
     });
-
   }
 
+  // calculate distance with latitude and longitude values
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
+  // Get a list of two Nearest Bus Btops based on users location
+  // sample output: [{University Town: LatLng(1., 103.)}, {Museum: LatLng(1., 103.)}]
+  List<Map<String, LatLng>> getNearestBusStop(LatLng currentLocation) {
+    // define result variables
+    double nearestDistance = 999;
+
+    String firstName = "";
+    // ignore: prefer_const_constructors, random latlng value will be replaced.
+    LatLng firstLocation = LatLng(37.419857, -122.078827);
+
+    late String secondName;
+    late LatLng secondLocation;
+
+    // import bus stop information
+    const List<Map<String, dynamic>> busStopList = busStops;
+
+    // loop to find the nearest two location and name
+    for (Map<String, dynamic> busStop in busStopList) {
+      print(busStop);
+      if (calculateDistance(busStop["latitude"], busStop["longitude"],
+              currentLocation.latitude, currentLocation.longitude) <=
+          nearestDistance) {
+        secondName = firstName;
+        secondLocation = firstLocation;
+
+        firstName = busStop["caption"];
+        firstLocation = LatLng(busStop["latitude"], busStop["longitude"]);
+
+        nearestDistance = calculateDistance(
+            busStop["latitude"],
+            busStop["longitude"],
+            currentLocation.latitude,
+            currentLocation.longitude);
+      }
+      print(firstName);
+      print(firstLocation);
+    }
+    List<Map<String, LatLng>> result = [
+      {firstName: firstLocation},
+      {secondName: secondLocation}
+    ];
+    print(result);
+    return result;
+  }
+
+  // Map Function to Mark the nearest two bus stops on the map.
+  void markBusStops() async {
+    try {
+      Position userPosition = await GeolocatorService().getCurrentLocation();
+      LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
+      List<Map<String, LatLng>> busStopList = getNearestBusStop(latLngPos);
+      for (Map<String, LatLng> busStop in busStopList) {
+        setState(() {
+          markers.add(Marker(
+              markerId: MarkerId(busStop.keys.first),
+              position: busStop.values.first));
+        });
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
 }
