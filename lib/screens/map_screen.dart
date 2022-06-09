@@ -188,6 +188,7 @@ class MapState extends State<MapScreen> {
                     String name = predictions[index].description.toString();
                     var id = predictions[index].placeId;
                     LatLng position = await getPlacePosition(index);
+                    markLocationBusStops(position);
                     goToPlace(position);
                     floatingSearchBarController.close();
                     bottomSheet(context, name, id);
@@ -492,9 +493,9 @@ class MapState extends State<MapScreen> {
     return 12742 * asin(sqrt(a));
   }
 
-  // Get a list of two Nearest Bus Btops based on users location
+  // Get a list of two Nearest Bus Btops based on the given location
   // sample output: [{University Town: LatLng(1., 103.)}, {Museum: LatLng(1., 103.)}]
-  List<Map<String, LatLng>> getNearestBusStop(LatLng currentLocation) {
+  List<Map<String, LatLng>> getNearestBusStop(LatLng givenLocation) {
     // define result variables
     double nearestDistance = 999;
 
@@ -510,9 +511,8 @@ class MapState extends State<MapScreen> {
 
     // loop to find the nearest two location and name
     for (Map<String, dynamic> busStop in busStopList) {
-      print(busStop);
       if (calculateDistance(busStop["latitude"], busStop["longitude"],
-              currentLocation.latitude, currentLocation.longitude) <=
+              givenLocation.latitude, givenLocation.longitude) <=
           nearestDistance) {
         secondName = firstName;
         secondLocation = firstLocation;
@@ -523,22 +523,21 @@ class MapState extends State<MapScreen> {
         nearestDistance = calculateDistance(
             busStop["latitude"],
             busStop["longitude"],
-            currentLocation.latitude,
-            currentLocation.longitude);
+            givenLocation.latitude,
+            givenLocation.longitude);
       }
-      print(firstName);
-      print(firstLocation);
     }
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
       {secondName: secondLocation}
     ];
-    print(result);
     return result;
   }
 
-  // Map Function to Mark the nearest two bus stops on the map.
+  // Map Function to Mark the nearest two bus stops on the map based on user's location.
   void markBusStops() async {
+    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), 'assets/icons/bus.png');
     try {
       Position userPosition = await GeolocatorService().getCurrentLocation();
       LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
@@ -547,7 +546,32 @@ class MapState extends State<MapScreen> {
         setState(() {
           markers.add(Marker(
               markerId: MarkerId(busStop.keys.first),
-              position: busStop.values.first));
+              position: busStop.values.first,
+              icon: busIcon));
+        });
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  // Map Function to Mark the nearest two bus stops on the map based on given location.
+  void markLocationBusStops(LatLng location) async {
+    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), 'assets/icons/bus.png');
+    try {
+      List<Map<String, LatLng>> busStopList = getNearestBusStop(location);
+      setState(() {
+        markers.clear();
+        markers.add(Marker(
+            markerId: const MarkerId("Destination"), position: location));
+      });
+      for (Map<String, LatLng> busStop in busStopList) {
+        setState(() {
+          markers.add(Marker(
+              markerId: MarkerId(busStop.keys.first),
+              position: busStop.values.first,
+              icon: busIcon));
         });
       }
     } catch (error) {
@@ -555,3 +579,4 @@ class MapState extends State<MapScreen> {
     }
   }
 }
+//<a target="_blank" href="https://icons8.com/icon/SIvn6TBf7q6F/bus-stop">Bus Stop</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
