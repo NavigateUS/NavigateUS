@@ -95,9 +95,6 @@ List<List<String>> findRoute(String source, String destination) {  //Djikstra's 
   }
   route.add(pBus[tracking]!);
   route = List.from(route.reversed);
-
-  print('Route is: ');
-  print(route);
   return route;
 }
 
@@ -133,7 +130,6 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route) {
     }
   }
   instructions.add(DirectionInstructions(onBus, counter));
-  print(instructions);
   return instructions;
 }
 

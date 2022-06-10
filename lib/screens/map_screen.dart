@@ -374,8 +374,6 @@ class MapState extends State<MapScreen> {
         destination = details!.result!.name!;});
     }
     else { //Transit
-      var route = findRoute("COM 2", "Kent Vale");
-
       //Get 2 bus stops closest to start
       Position userPosition = await GeolocatorService().getCurrentLocation();
       LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
@@ -383,22 +381,63 @@ class MapState extends State<MapScreen> {
       markBusStops();
 
       //Get 2 bus stops closest to end
-      //List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
-      //markLocationBusStops(latLngPosEnd);
+      List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
+      markLocationBusStops(latLngPosEnd);
 
-      print(busStopListStart[0]['firstName']);
-      print(busStopListStart[0]['secondName']);
+      String start1 = busStopListStart[0].keys.first;
+      String start2 = busStopListStart[1].keys.first;
 
-      var route1 = '';
-      var route2 = '';
-      var route3 = '';
-      var route4 = '';
+      String end1 = busStopListEnd[0].keys.first;
+      String end2 = busStopListEnd[1].keys.first;
+
+      List<List<String>>? route0 = findRoute(start1, end1);
+      List<List<String>>? route1 = findRoute(start1, end2);
+      List<List<String>>? route2 = findRoute(start2, end1);
+      List<List<String>>? route3 = findRoute(start2, end2);
+
+      var routes = [route0, route1, route2, route3];
+      var valid = [true, true, true, true];
+
+      //do not consider impossible routes
+      for (int i = 0; i < 4; i++) {
+        if (routes[i].first.isEmpty) {
+          valid[i] = false;
+        }
+      }
+
+      if (valid == [false, false, false, false]) {
+        throw Exception('No routes found');
+      }
+
+      //find min stops
+      int bestRoute = -1;
+      for (int i = 0; i < 4; i++){
+        if (valid[i]) {
+          if (bestRoute == -1) {
+            bestRoute = i;
+          }
+          else {
+            if (routes[i].length < routes[bestRoute].length) {
+              bestRoute = i;
+            }
+          }
+        }
+      }
+
+      String? start, end;
+      var route = routes[bestRoute];
+      if (bestRoute == 0) {start = start1; end = end1;}
+      else if (bestRoute == 1) {start = start1; end = end2;}
+      else if (bestRoute == 2) {start = start2; end = end1;}
+      else if (bestRoute == 3) {start = start2; end = end2;}
 
 
+      print(route);
+      print(getBestRoute(route));
+      print('Start stop: ' + start! + ' End stop: ' + end!);
 
 
-
-      getBestRoute(route);
+      //getBestRoute(route);
       setState(() {
         totalDistance = '0';
         totalDuration = '0';
@@ -535,10 +574,6 @@ class MapState extends State<MapScreen> {
     double nearestDistance = 999;
     double nearestDistance2 = 999;
 
-    String firstName = "";
-    // ignore: prefer_const_constructors, random latlng value will be replaced.
-    LatLng firstLocation = LatLng(37.419857, -122.078827);
-
     late String secondName;
     late LatLng secondLocation;
 
@@ -546,16 +581,13 @@ class MapState extends State<MapScreen> {
     List<Map<String, dynamic>> busStopList = busStops;
 
     //Set 1st element to be nearest
-    firstName = busStopList[0]['LongName'];
-    firstLocation = LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
+    String firstName = busStopList[0]['LongName'];
+    LatLng firstLocation = LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
     nearestDistance = calculateDistance(busStopList[0]["latitude"], busStopList[0]["longitude"],
         givenLocation.latitude, givenLocation.longitude);
 
     //loop to find the nearest two location and name
     for (Map<String, dynamic> busStop in busStopList) {
-      print('${'Place =' + busStop['LongName']} Distance = ${calculateDistance(busStop["latitude"], busStop["longitude"],
-          givenLocation.latitude, givenLocation.longitude)}');
-
       double currDist = calculateDistance(
           busStop["latitude"],
           busStop["longitude"],
@@ -584,8 +616,6 @@ class MapState extends State<MapScreen> {
       {firstName: firstLocation},
       {secondName: secondLocation}
     ];
-
-    print(result);
     return result;
   }
 
