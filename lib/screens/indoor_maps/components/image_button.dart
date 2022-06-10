@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ImageButton extends StatelessWidget {
+  final String name;
+  final String image;
+  final Widget newScreen;
+
   const ImageButton({
     Key? key,
     required this.name,
@@ -8,9 +12,6 @@ class ImageButton extends StatelessWidget {
     required this.newScreen,
   }) : super(key: key);
 
-  final String name;
-  final String image;
-  final Widget newScreen;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
