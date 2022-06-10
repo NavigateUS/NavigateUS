@@ -12,6 +12,7 @@ import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_info.dart';
+import 'package:collection/collection.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -56,7 +57,6 @@ class MapState extends State<MapScreen> {
               child: const Icon(Icons.location_searching),
               onPressed: () {
                 locateUserPosition();
-                markBusStops();
               }),
         ));
   }
@@ -190,7 +190,6 @@ class MapState extends State<MapScreen> {
                     String name = predictions[index].description.toString();
                     var id = predictions[index].placeId;
                     LatLng position = await getPlacePosition(index);
-                    markLocationBusStops(position);
                     goToPlace(position);
                     floatingSearchBarController.close();
                     bottomSheet(context, name, id);
@@ -204,7 +203,7 @@ class MapState extends State<MapScreen> {
     );
   }
 
-  // Location Result Bottom Dheet
+  // Location Result Bottom Sheet
   void bottomSheet(BuildContext context, String name, var id) {
     showModalBottomSheet(
         context: context,
@@ -376,6 +375,29 @@ class MapState extends State<MapScreen> {
     }
     else { //Transit
       var route = findRoute("COM 2", "Kent Vale");
+
+      //Get 2 bus stops closest to start
+      Position userPosition = await GeolocatorService().getCurrentLocation();
+      LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
+      List<Map<String, LatLng>> busStopListStart = getNearestBusStop(latLngPos);
+      markBusStops();
+
+      //Get 2 bus stops closest to end
+      //List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
+      //markLocationBusStops(latLngPosEnd);
+
+      print(busStopListStart[0]['firstName']);
+      print(busStopListStart[0]['secondName']);
+
+      var route1 = '';
+      var route2 = '';
+      var route3 = '';
+      var route4 = '';
+
+
+
+
+
       getBestRoute(route);
       setState(() {
         totalDistance = '0';
@@ -506,11 +528,12 @@ class MapState extends State<MapScreen> {
     return 12742 * asin(sqrt(a));
   }
 
-  // Get a list of two Nearest Bus Btops based on the given location
+  // Get a list of two Nearest Bus stops based on the given location
   // sample output: [{University Town: LatLng(1., 103.)}, {Museum: LatLng(1., 103.)}]
   List<Map<String, LatLng>> getNearestBusStop(LatLng givenLocation) {
     // define result variables
     double nearestDistance = 999;
+    double nearestDistance2 = 999;
 
     String firstName = "";
     // ignore: prefer_const_constructors, random latlng value will be replaced.
@@ -520,30 +543,49 @@ class MapState extends State<MapScreen> {
     late LatLng secondLocation;
 
     // import bus stop information
-    const List<Map<String, dynamic>> busStopList = busStops;
+    List<Map<String, dynamic>> busStopList = busStops;
 
-    // loop to find the nearest two location and name
+    //Set 1st element to be nearest
+    firstName = busStopList[0]['LongName'];
+    firstLocation = LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
+    nearestDistance = calculateDistance(busStopList[0]["latitude"], busStopList[0]["longitude"],
+        givenLocation.latitude, givenLocation.longitude);
+
+    //loop to find the nearest two location and name
     for (Map<String, dynamic> busStop in busStopList) {
-      if (calculateDistance(busStop["latitude"], busStop["longitude"],
-              givenLocation.latitude, givenLocation.longitude) <=
-          nearestDistance) {
+      print('${'Place =' + busStop['LongName']} Distance = ${calculateDistance(busStop["latitude"], busStop["longitude"],
+          givenLocation.latitude, givenLocation.longitude)}');
+
+      double currDist = calculateDistance(
+          busStop["latitude"],
+          busStop["longitude"],
+          givenLocation.latitude,
+          givenLocation.longitude);
+
+      if (currDist <= nearestDistance) {
         secondName = firstName;
         secondLocation = firstLocation;
 
-        firstName = busStop["caption"];
+        firstName = busStop["LongName"];
         firstLocation = LatLng(busStop["latitude"], busStop["longitude"]);
 
-        nearestDistance = calculateDistance(
-            busStop["latitude"],
-            busStop["longitude"],
-            givenLocation.latitude,
-            givenLocation.longitude);
+        nearestDistance = currDist;
+      }
+      else if (currDist <= nearestDistance2) {
+        secondName = busStop["LongName"];
+        secondLocation = LatLng(busStop["latitude"], busStop["longitude"]);
+
+        nearestDistance2 = currDist;
       }
     }
+
+
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
       {secondName: secondLocation}
     ];
+
+    print(result);
     return result;
   }
 
