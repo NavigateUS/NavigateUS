@@ -172,7 +172,7 @@ const List<Map<String, dynamic>> busStops = [
     "latitude": 1.29180002212524,
     "longitude": 103.780502319336,
     "name": "PGPT",
-    "LongName": "Prince George’s Park",
+    "LongName": "Prince George's Park",
     "ShortName": "PGP"
   },
   {
@@ -180,7 +180,7 @@ const List<Map<String, dynamic>> busStops = [
     "latitude": 1.29099925112011,
     "longitude": 103.780964493752,
     "name": "PGP",
-    "LongName": "Prince George Park Residences",
+    "LongName": "Prince George's Park Residences",
     "ShortName": "PGPR"
   },
   {

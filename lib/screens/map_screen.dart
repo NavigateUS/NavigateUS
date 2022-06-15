@@ -8,10 +8,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_info.dart';
+import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:collection/collection.dart';
 
 
@@ -38,6 +40,7 @@ class MapState extends State<MapScreen> {
   String totalDuration = '';
   String destination = '';
   String modeOfTransit = '';
+  late List<DirectionInstructions> instructions;
 
   // Page Layout
   @override
@@ -372,17 +375,22 @@ class MapState extends State<MapScreen> {
         totalDuration = duration;
         markers = {startMarker, endMarker};
         destination = details!.result!.name!;});
+
+      _getPolyline(
+        latLngPosStart,
+        latLngPosEnd,
+        mode,
+      );
+
     }
     else { //Transit
       //Get 2 bus stops closest to start
       Position userPosition = await GeolocatorService().getCurrentLocation();
       LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
       List<Map<String, LatLng>> busStopListStart = getNearestBusStop(latLngPos);
-      markBusStops();
 
       //Get 2 bus stops closest to end
       List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
-      markLocationBusStops(latLngPosEnd);
 
       String start1 = busStopListStart[0].keys.first;
       String start2 = busStopListStart[1].keys.first;
@@ -409,6 +417,7 @@ class MapState extends State<MapScreen> {
         throw Exception('No routes found');
       }
 
+
       //find min stops
       int bestRoute = -1;
       for (int i = 0; i < 4; i++){
@@ -424,32 +433,30 @@ class MapState extends State<MapScreen> {
         }
       }
 
-      String? start, end;
+      String? startStop, endStop;
       var route = routes[bestRoute];
-      if (bestRoute == 0) {start = start1; end = end1;}
-      else if (bestRoute == 1) {start = start1; end = end2;}
-      else if (bestRoute == 2) {start = start2; end = end1;}
-      else if (bestRoute == 3) {start = start2; end = end2;}
+      if (bestRoute == 0) {startStop = start1; endStop = end1;}
+      else if (bestRoute == 1) {startStop = start1; endStop = end2;}
+      else if (bestRoute == 2) {startStop = start2; endStop = end1;}
+      else if (bestRoute == 3) {startStop = start2; endStop = end2;}
 
 
       print(route);
       print(getBestRoute(route));
-      print('Start stop: ' + start! + ' End stop: ' + end!);
+      print('Start stop: ' + startStop! + ' End stop: ' + endStop!);
+      markSelectedBusStops([startStop, endStop]);
 
 
-      //getBestRoute(route);
       setState(() {
         totalDistance = '0';
         totalDuration = '0';
         markers = {startMarker, endMarker};
-        destination = details!.result!.name!;});
+        destination = details!.result!.name!;
+        instructions = getBestRoute(route);});
+
+      _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
     }
 
-    _getPolyline(
-      latLngPosStart,
-      latLngPosEnd,
-      mode,
-    );
 
     floatingSearchBarController.hide();
     visibility = true;
@@ -462,7 +469,7 @@ class MapState extends State<MapScreen> {
         polylineId: id,
         color: Colors.blue,
         points: polylineCoordinates,
-        width: 7);
+        width: 5);
     polylines[id] = polyline;
     setState(() {});
   }
@@ -478,6 +485,89 @@ class MapState extends State<MapScreen> {
       PointLatLng(end.latitude, end.longitude),
       travelMode: mode,
     );
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+    _addPolyLine();
+  }
+
+  _getPolylineTransit(
+      LatLng start,
+      LatLng end,
+      String startStop,
+      String endStop,
+      List<List<String>> route
+      ) async {
+
+    //Points from walking from start to startStop
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      key,
+      PointLatLng(start.latitude, start.longitude),
+      busStopsLatLng[startStop]!,
+      travelMode: TravelMode.walking,
+    );
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+
+    //Points from startStop to endStop
+    //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
+    //until endStop
+    String currStop = startStop;
+    String nextStop = "";
+
+
+    for (List<String> stop in route) { //for each stop along the way
+      var nextStops = graph[currStop]; //get the list of stops that are next
+      for (var busStop in nextStops!) {
+        print(busStop);
+        if (busStop["bus"] == stop[0]) {
+          nextStop = busStop["nextBusStop"]!; //find the correct next stop
+          //Ignore warning. Without the \' dart will call e.g. busStopsLatLng[Prince George] instead
+          if (nextStop == "Prince George's Park") {
+            nextStop = "Prince George\'s Park";
+          }
+          if (nextStop == "Prince George's Park Residences") {
+            nextStop = "Prince George\'s Park Residences";
+          }
+          break;
+        }
+      }
+
+      print('Curr: $currStop(${busStopsLatLng[currStop]?.longitude}, ${busStopsLatLng[currStop]?.latitude}) , Next: $nextStop(${busStopsLatLng[nextStop]?.longitude}, ${busStopsLatLng[nextStop]?.latitude})');
+
+      result = await polylinePoints.getRouteBetweenCoordinates(
+        key,
+        busStopsLatLng[currStop]!,
+        busStopsLatLng[nextStop]!,
+        travelMode: TravelMode.driving,
+      ); //get driving instructions to the next stop
+
+      if (result.points.isNotEmpty) {
+        for (var point in result.points) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        }
+      } //add polyline
+      else {
+        throw Exception('Cannot find route from $currStop to $nextStop');
+      }
+
+      currStop = nextStop;
+    }
+
+
+    //Points from walking from endStop to end
+    result = await polylinePoints.getRouteBetweenCoordinates(
+      key,
+      busStopsLatLng[endStop]!,
+      PointLatLng(end.latitude, end.longitude),
+      travelMode: TravelMode.walking,
+    );
+
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -661,6 +751,29 @@ class MapState extends State<MapScreen> {
       }
     } catch (error) {
       print(error);
+    }
+  }
+
+  void markSelectedBusStops(List<String> locations) async {
+    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), 'assets/icons/bus.png');
+    for (String location in locations) {
+      if (location == "Prince George's Park") {
+        location = "Prince George\'s Park";
+      }
+      if (location == "Prince George's Park Residences") {
+        location = "Prince George\'s Park Residences";
+      }
+      try {
+        setState(() {
+          markers.add(Marker(
+              markerId: MarkerId(location),
+              position: LatLng(busStopsLatLng[location]!.latitude, busStopsLatLng[location]!.longitude),
+              icon: busIcon));
+        });
+      } catch (error) {
+        print(error);
+      }
     }
   }
 }
