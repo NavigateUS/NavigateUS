@@ -15,6 +15,8 @@ import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_info.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:collection/collection.dart';
+import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:navigateus/widgets/bus_directions.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -40,6 +42,7 @@ class MapState extends State<MapScreen> {
   String totalDuration = '';
   String destination = '';
   String modeOfTransit = '';
+  String totalDuration2 = '';
   late List<DirectionInstructions> instructions;
 
   // Page Layout
@@ -54,7 +57,7 @@ class MapState extends State<MapScreen> {
         drawer: buildDrawer(context),
         floatingActionButton: Padding(
           padding: visibility
-              ? const EdgeInsets.only(bottom: 100)
+              ? const EdgeInsets.only(bottom: 120)
               : const EdgeInsets.only(bottom: 0),
           child: FloatingActionButton(
               child: const Icon(Icons.location_searching),
@@ -447,16 +450,68 @@ class MapState extends State<MapScreen> {
       markSelectedBusStops([startStop, endStop]);
 
 
-      setState(() {
-        totalDistance = '0';
-        totalDuration = '0';
-        markers = {startMarker, endMarker};
-        destination = details!.result!.name!;
-        instructions = getBestRoute(route);});
+      //check if just walking is faster, assumption: each stop ~ 2 mins
+      //Just walking
+      Response response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+      print(response);
+      String durationWalkStr = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
 
-      _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
+      if (startStop == "Prince George's Park") {
+        startStop = "Prince George\'s Park";
+      }
+      if (startStop == "Prince George's Park Residences") {
+        startStop = "Prince George\'s Park Residences";
+      }
+      if (endStop == "Prince George's Park") {
+        endStop = "Prince George\'s Park";
+      }
+      if (endStop == "Prince George's Park Residences") {
+        endStop = "Prince George\'s Park Residences";
+      }
+
+      //From start to startStop
+      String startStopLat = busStopsLatLng[startStop]!.latitude.toString();
+      String startStopLng = busStopsLatLng[startStop]!.longitude.toString();
+      response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$startStopLat,$startStopLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+      print(response);
+      String durationBus1Str = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationBus1Int = int.parse(durationBus1Str.substring(0, 2));
+
+      //Wait before sending next request, otherwise we will exceed request rate limit
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      //From endStop to end
+      String endStopLat = busStopsLatLng[endStop]!.latitude.toString();
+      String endStopLng = busStopsLatLng[endStop]!.longitude.toString();
+
+      response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$endStopLat,$endStopLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+      print(response);
+      String durationBus2Str = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationBus2Int = int.parse(durationBus2Str.substring(0, 2));
+
+
+      if (durationWalkInt < durationBus1Int + durationBus2Int + 2 * route.length) {
+        //Walking is faster, walk
+        getDirections(endID, TravelMode.walking);
+      }
+      else {
+        setState(() {
+          totalDuration = durationBus1Str;
+          totalDuration2 = durationBus2Str;
+          markers = {startMarker, endMarker};
+          destination = details!.result!.name!;
+          instructions = getBestRoute(route);});
+
+        _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
+      }
     }
-
 
     floatingSearchBarController.hide();
     visibility = true;
@@ -591,48 +646,111 @@ class MapState extends State<MapScreen> {
       child: Visibility(
         visible: visibility, // Set it to false
         child: Container(
-            width: 400,
-            height: 100,
+            width: MediaQuery.of(context).size.width,
+            height: 125,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
               color: Colors.grey[300],
             ),
-            child: Column(
+            child: Stack(
               children: [
-                Text(
-                  destination,
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Wrap(
+                Column(
                   children: [
-                    if (modeOfTransit == 'walking') ...[
-                      const Icon(Icons.directions_walk, size: 20,),
-                      Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                    ] else if(modeOfTransit == 'driving')...[
-                      const Icon(Icons.directions_car),
-                      Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                    ] else if(modeOfTransit == 'transit')...[
-                      //Walk to nearest bus stop(s)
-                      // const Icon(Icons.directions_walk, size: 20,),
-                      // Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                    Text(
+                      destination,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (modeOfTransit == 'walking') ...[
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
 
-                      //Bus, use bus_directions_service
-                      const Icon(Icons.directions_bus),
+                          ] else if(modeOfTransit == 'driving')...[
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_car),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
 
-                      //Walk to destination
-                      // const Icon(Icons.directions_walk, size: 20,),
-                      // Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                          ] else if(modeOfTransit == 'transit')...[
+                            //Walk to nearest bus stop(s)
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            ),
 
-                    ],
-                  ]),
-                IconButton(
+                            const Icon(Icons.keyboard_arrow_right_sharp),
+
+                            //Bus, use bus_directions_service
+                            BusDirections(instructions: instructions),
+
+                            //Walk to destination
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration2, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
+                          ],
+                        ]
+                    )
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(10),
+                    ),
+                    child: const Icon(Icons.close),
                     onPressed: () {
                       closeDirections();
                     },
-                    icon: const Icon(Icons.close)),
+                  ),
+                ),
               ],
-            )),
+            )
+        ),
       ),
     );
   }
