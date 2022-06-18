@@ -455,6 +455,7 @@ class MapState extends State<MapScreen> {
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
       print(response);
+
       String durationWalkStr = response
           .data['rows'][0]['elements'][0]['duration']['text'];
       int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
@@ -579,7 +580,7 @@ class MapState extends State<MapScreen> {
     for (List<String> stop in route) { //for each stop along the way
       var nextStops = graph[currStop]; //get the list of stops that are next
       for (var busStop in nextStops!) {
-        print(busStop);
+        // print(busStop);
         if (busStop["bus"] == stop[0]) {
           nextStop = busStop["nextBusStop"]!; //find the correct next stop
           //Ignore warning. Without the \' dart will call e.g. busStopsLatLng[Prince George] instead
@@ -593,7 +594,7 @@ class MapState extends State<MapScreen> {
         }
       }
 
-      print('Curr: $currStop(${busStopsLatLng[currStop]?.longitude}, ${busStopsLatLng[currStop]?.latitude}) , Next: $nextStop(${busStopsLatLng[nextStop]?.longitude}, ${busStopsLatLng[nextStop]?.latitude})');
+      //print('Curr: $currStop(${busStopsLatLng[currStop]?.longitude}, ${busStopsLatLng[currStop]?.latitude}) , Next: $nextStop(${busStopsLatLng[nextStop]?.longitude}, ${busStopsLatLng[nextStop]?.latitude})');
 
       result = await polylinePoints.getRouteBetweenCoordinates(
         key,
@@ -664,7 +665,7 @@ class MapState extends State<MapScreen> {
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (modeOfTransit == 'walking') ...[
+                          if (modeOfTransit == 'walking' && visibility) ...[
                             Container(
                               padding: const EdgeInsets.all(2),
                               decoration:  BoxDecoration(
@@ -679,7 +680,7 @@ class MapState extends State<MapScreen> {
                               ),
                             )
 
-                          ] else if(modeOfTransit == 'driving')...[
+                          ] else if(modeOfTransit == 'driving' && visibility)...[
                             Container(
                               padding: const EdgeInsets.all(2),
                               decoration:  BoxDecoration(
@@ -694,7 +695,7 @@ class MapState extends State<MapScreen> {
                               ),
                             )
 
-                          ] else if(modeOfTransit == 'transit')...[
+                          ] else if(modeOfTransit == 'transit' && visibility)...[
                             //Walk to nearest bus stop(s)
                             Container(
                               padding: const EdgeInsets.all(2),
