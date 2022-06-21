@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,8 +17,8 @@ import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_info.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:collection/collection.dart';
-import 'package:navigateus/widgets/bus_tile.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
+import 'package:navigateus/places.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -32,7 +34,7 @@ class MapState extends State<MapScreen> {
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
   late GooglePlace googlePlace = GooglePlace(key);
-  List<AutocompletePrediction> predictions = [];
+  List<Place> predictions = [];
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -113,27 +115,15 @@ class MapState extends State<MapScreen> {
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-    void autoCompleteSearch(String value) async {  //Rework to get only NUS locations. (Have list of locations in NUS?)
-      var result = await googlePlace.autocomplete
-          .get(value, location: const LatLon(1.2966, 103.7764), radius: 1000);
-      if (result != null && result.predictions != null && mounted) {
-        setState(() {
-          predictions = result.predictions!;
-        });
-      }
-    }
+    void autoCompleteSearch2(String query) {
+      final suggestions = locations.where((place) {
+        final name = place.name.toLowerCase();
+        final input = query.toLowerCase();
 
-    Future<LatLng> getPlacePosition(index) async {
-      final placeID = predictions[index].placeId!;
-      final details = await googlePlace.details.get(placeID);
-      if (details != null && details.result != null) {
-        double? lat = details.result!.geometry!.location!.lat;
-        double? lng = details.result!.geometry!.location!.lng;
-        LatLng latLngPos = LatLng(lat!, lng!);
-        return latLngPos;
-      } else {
-        return Future.error("Cannot find");
-      }
+        return name.contains(input);
+      }).toList();
+
+      setState(() => predictions = suggestions);
     }
 
     final isPortrait =
@@ -150,11 +140,10 @@ class MapState extends State<MapScreen> {
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
-      debounceDelay: const Duration(milliseconds: 500),
       onQueryChanged: (value) {
         if (value.isNotEmpty) {
           //places api
-          autoCompleteSearch(value);
+          autoCompleteSearch2(value);
         } else {
           //clear predictions
           setState(() {
@@ -168,12 +157,11 @@ class MapState extends State<MapScreen> {
         ),
       ],
       onSubmitted: (value) async {
-        LatLng position = await getPlacePosition(0);
-        goToPlace(position);
+        Place destination = predictions[0];
+        goToPlace(destination.latLng);
         floatingSearchBarController.close();
-        String name = predictions[0].description.toString();
-        var id = predictions[0].placeId;
-        bottomSheet(context, name, id);
+        String name = destination.name;
+        bottomSheet(context, destination);
       },
       builder: (context, transition) {
         return ClipRRect(
@@ -191,14 +179,13 @@ class MapState extends State<MapScreen> {
                   leading: const CircleAvatar(
                     child: Icon(Icons.pin_drop_outlined),
                   ),
-                  title: Text(predictions[index].description.toString()),
+                  title: Text(predictions[index].name),
                   onTap: () async {
-                    String name = predictions[index].description.toString();
-                    var id = predictions[index].placeId;
-                    LatLng position = await getPlacePosition(index);
+                    String name = predictions[index].name;
+                    LatLng position = predictions[index].latLng;
                     goToPlace(position);
                     floatingSearchBarController.close();
-                    bottomSheet(context, name, id);
+                    bottomSheet(context, predictions[index]);
                   },
                 );
               },
@@ -210,7 +197,7 @@ class MapState extends State<MapScreen> {
   }
 
   // Location Result Bottom Sheet
-  void bottomSheet(BuildContext context, String name, var id) {
+  void bottomSheet(BuildContext context, Place place) {
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -221,7 +208,7 @@ class MapState extends State<MapScreen> {
                 child: Column(
               children: [
                 Text(
-                  name,
+                  place.name,
                   style: const TextStyle(fontSize: 20.0),
                 ),
                 const SizedBox(
@@ -235,7 +222,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.walking);
+                          getDirections(place, TravelMode.walking);
                         },
                         style: ButtonStyle(
                           shape:
@@ -259,7 +246,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.driving);
+                          getDirections(place, TravelMode.driving);
                         },
                         style: ButtonStyle(
                           shape:
@@ -283,7 +270,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.transit);
+                          getDirections(place, TravelMode.transit);
                         },
                         style: ButtonStyle(
                           shape:
@@ -308,7 +295,7 @@ class MapState extends State<MapScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    viewIndoorMap(id);
+                    viewIndoorMap(destination);
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(const StadiumBorder()),
@@ -333,16 +320,15 @@ class MapState extends State<MapScreen> {
         });
   }
 
-  Future<void> getDirections(var endID, TravelMode mode) async {
+  Future<void> getDirections(Place place, TravelMode mode) async {
     Position userPosition = await GeolocatorService().getCurrentLocation();
     LatLng latLngPosStart =
         LatLng(userPosition.latitude, userPosition.longitude);
     Marker startMarker =
         Marker(markerId: const MarkerId('Start'), position: latLngPosStart);
 
-    final details = await googlePlace.details.get(endID);
-    LatLng latLngPosEnd = LatLng(details!.result!.geometry!.location!.lat!,
-        details!.result!.geometry!.location!.lng!);
+
+    LatLng latLngPosEnd = place.latLng;
 
     Marker endMarker =
         Marker(markerId: const MarkerId('End'), position: latLngPosEnd);
@@ -377,7 +363,7 @@ class MapState extends State<MapScreen> {
         totalDistance = distance;
         totalDuration = duration;
         markers = {startMarker, endMarker};
-        destination = details!.result!.name!;});
+        destination = place.name;});
 
       _getPolyline(
         latLngPosStart,
@@ -500,14 +486,14 @@ class MapState extends State<MapScreen> {
 
       if (durationWalkInt < durationBus1Int + durationBus2Int + 2 * route.length) {
         //Walking is faster, walk
-        getDirections(endID, TravelMode.walking);
+        getDirections(place, TravelMode.walking);
       }
       else {
         setState(() {
           totalDuration = durationBus1Str;
           totalDuration2 = durationBus2Str;
           markers = {startMarker, endMarker};
-          destination = details!.result!.name!;
+          destination = place.name;
           instructions = getBestRoute(route);});
 
         _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
