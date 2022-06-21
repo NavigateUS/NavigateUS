@@ -1,16 +1,26 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
-import 'package:navigateus/screens/bus_stop_info.dart';
+import 'package:navigateus/mapFunctions/bus_directions_service.dart';
+import 'package:navigateus/bus_data/bus_stop_info.dart';
+import 'package:navigateus/bus_data/bus_stop_latlng.dart';
+import 'package:collection/collection.dart';
+import 'package:navigateus/screens/indoor_maps/floor_map.dart';
+import 'package:navigateus/widgets/bus_directions.dart';
+import 'package:navigateus/places.dart';
+
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -25,16 +35,18 @@ class MapState extends State<MapScreen> {
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
   late GooglePlace googlePlace = GooglePlace(key);
-  List<AutocompletePrediction> predictions = [];
+  List<Place> predictions = [];
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   bool visibility = false;
+  Place destination = Place('NUS', const LatLng(1.2966, 103.7764));
   String totalDistance = '';
   String totalDuration = '';
-  String destination = '';
   String modeOfTransit = '';
+  String totalDuration2 = '';
+  late List<DirectionInstructions> instructions;
 
   // Page Layout
   @override
@@ -48,13 +60,12 @@ class MapState extends State<MapScreen> {
         drawer: buildDrawer(context),
         floatingActionButton: Padding(
           padding: visibility
-              ? const EdgeInsets.only(bottom: 100)
+              ? const EdgeInsets.only(bottom: 120)
               : const EdgeInsets.only(bottom: 0),
           child: FloatingActionButton(
               child: const Icon(Icons.location_searching),
               onPressed: () {
                 locateUserPosition();
-                markBusStops();
               }),
         ));
   }
@@ -105,27 +116,15 @@ class MapState extends State<MapScreen> {
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-    void autoCompleteSearch(String value) async {
-      var result = await googlePlace.autocomplete
-          .get(value, location: const LatLon(1.2966, 103.7764), radius: 1000);
-      if (result != null && result.predictions != null && mounted) {
-        setState(() {
-          predictions = result.predictions!;
-        });
-      }
-    }
+    void autoCompleteSearch(String query) {
+      final suggestions = locations.where((place) {
+        final name = place.name.toLowerCase();
+        final input = query.toLowerCase();
 
-    Future<LatLng> getPlacePosition(index) async {
-      final placeID = predictions[index].placeId!;
-      final details = await googlePlace.details.get(placeID);
-      if (details != null && details.result != null) {
-        double? lat = details.result!.geometry!.location!.lat;
-        double? lng = details.result!.geometry!.location!.lng;
-        LatLng latLngPos = LatLng(lat!, lng!);
-        return latLngPos;
-      } else {
-        return Future.error("Cannot find");
-      }
+        return name.contains(input);
+      }).toList();
+
+      setState(() => predictions = suggestions);
     }
 
     final isPortrait =
@@ -142,7 +141,6 @@ class MapState extends State<MapScreen> {
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
-      debounceDelay: const Duration(milliseconds: 500),
       onQueryChanged: (value) {
         if (value.isNotEmpty) {
           //places api
@@ -160,12 +158,11 @@ class MapState extends State<MapScreen> {
         ),
       ],
       onSubmitted: (value) async {
-        LatLng position = await getPlacePosition(0);
-        goToPlace(position);
+        Place place = predictions[0];
+        goToPlace(place.latLng);
         floatingSearchBarController.close();
-        String name = predictions[0].description.toString();
-        var id = predictions[0].placeId;
-        bottomSheet(context, name, id);
+        String name = place.name;
+        bottomSheet(context, place);
       },
       builder: (context, transition) {
         return ClipRRect(
@@ -183,15 +180,13 @@ class MapState extends State<MapScreen> {
                   leading: const CircleAvatar(
                     child: Icon(Icons.pin_drop_outlined),
                   ),
-                  title: Text(predictions[index].description.toString()),
+                  title: Text(predictions[index].name),
                   onTap: () async {
-                    String name = predictions[index].description.toString();
-                    var id = predictions[index].placeId;
-                    LatLng position = await getPlacePosition(index);
-                    markLocationBusStops(position);
+                    String name = predictions[index].name;
+                    LatLng position = predictions[index].latLng;
                     goToPlace(position);
                     floatingSearchBarController.close();
-                    bottomSheet(context, name, id);
+                    bottomSheet(context, predictions[index]);
                   },
                 );
               },
@@ -202,8 +197,9 @@ class MapState extends State<MapScreen> {
     );
   }
 
-  // Location Result Bottom Dheet
-  void bottomSheet(BuildContext context, String name, var id) {
+  // Location Result Bottom Sheet
+  void bottomSheet(BuildContext context, Place place) {
+    setState(() => destination = place);
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -214,7 +210,7 @@ class MapState extends State<MapScreen> {
                 child: Column(
               children: [
                 Text(
-                  name,
+                  place.name,
                   style: const TextStyle(fontSize: 20.0),
                 ),
                 const SizedBox(
@@ -228,7 +224,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.walking);
+                          getDirections(place, TravelMode.walking);
                         },
                         style: ButtonStyle(
                           shape:
@@ -252,7 +248,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.driving);
+                          getDirections(place, TravelMode.driving);
                         },
                         style: ButtonStyle(
                           shape:
@@ -276,7 +272,7 @@ class MapState extends State<MapScreen> {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          getDirections(id, TravelMode.transit);
+                          getDirections(place, TravelMode.transit);
                         },
                         style: ButtonStyle(
                           shape:
@@ -300,8 +296,7 @@ class MapState extends State<MapScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    viewIndoorMap(id);
+                    viewIndoorMap(place);
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(const StadiumBorder()),
@@ -326,16 +321,15 @@ class MapState extends State<MapScreen> {
         });
   }
 
-  Future<void> getDirections(var endID, TravelMode mode) async {
+  Future<void> getDirections(Place place, TravelMode mode) async {
     Position userPosition = await GeolocatorService().getCurrentLocation();
     LatLng latLngPosStart =
         LatLng(userPosition.latitude, userPosition.longitude);
     Marker startMarker =
         Marker(markerId: const MarkerId('Start'), position: latLngPosStart);
 
-    final details = await googlePlace.details.get(endID);
-    LatLng latLngPosEnd = LatLng(details!.result!.geometry!.location!.lat!,
-        details!.result!.geometry!.location!.lng!);
+
+    LatLng latLngPosEnd = place.latLng;
 
     Marker endMarker =
         Marker(markerId: const MarkerId('End'), position: latLngPosEnd);
@@ -354,26 +348,165 @@ class MapState extends State<MapScreen> {
       setState(() => modeOfTransit = 'transit');
     }
 
-    Response response = await dio.get(
-        'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-    String distance =
-        response.data['rows'][0]['elements'][0]['distance']['text'];
-    String duration =
-        response.data['rows'][0]['elements'][0]['duration']['text'];
 
-    setState(() {
-      totalDistance = distance;
-      totalDuration = duration;
-      markers = {startMarker, endMarker};
-      destination = details!.result!.name!;
-    });
+    if (mode == TravelMode.driving || mode == TravelMode.walking) {
+      _getPolyline(latLngPosStart, latLngPosEnd, mode);
+      Response response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-    _getPolyline(
-      latLngPosStart,
-      latLngPosEnd,
-      mode,
-    );
+      String distance = response
+          .data['rows'][0]['elements'][0]['distance']['text'];
+      String duration = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+
+      setState(() {
+        totalDistance = distance;
+        totalDuration = duration;
+        markers = {startMarker, endMarker};});
+
+      _getPolyline(
+        latLngPosStart,
+        latLngPosEnd,
+        mode,
+      );
+
+    }
+    else { //Transit
+      //Get 2 bus stops closest to start
+      Position userPosition = await GeolocatorService().getCurrentLocation();
+      LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
+      List<Map<String, LatLng>> busStopListStart = getNearestBusStop(latLngPos);
+
+      //Get 2 bus stops closest to end
+      List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
+
+      String start1 = busStopListStart[0].keys.first;
+      String start2 = busStopListStart[1].keys.first;
+
+      String end1 = busStopListEnd[0].keys.first;
+      String end2 = busStopListEnd[1].keys.first;
+
+      List<List<String>>? route0 = findRoute(start1, end1);
+      List<List<String>>? route1 = findRoute(start1, end2);
+      List<List<String>>? route2 = findRoute(start2, end1);
+      List<List<String>>? route3 = findRoute(start2, end2);
+
+      var routes = [route0, route1, route2, route3];
+      var valid = [true, true, true, true];
+
+      //do not consider impossible routes
+      for (int i = 0; i < 4; i++) {
+        if (routes[i].first.isEmpty) {
+          valid[i] = false;
+        }
+      }
+
+      if (valid == [false, false, false, false]) {
+        throw Exception('No routes found');
+      }
+
+
+      //find min stops
+      int bestRoute = -1;
+      for (int i = 0; i < 4; i++){
+        if (valid[i]) {
+          if (bestRoute == -1) {
+            bestRoute = i;
+          }
+          else {
+            if (routes[i].length < routes[bestRoute].length) {
+              bestRoute = i;
+            }
+          }
+        }
+      }
+
+      String? startStop, endStop;
+      var route = routes[bestRoute];
+      if (bestRoute == 0) {startStop = start1; endStop = end1;}
+      else if (bestRoute == 1) {startStop = start1; endStop = end2;}
+      else if (bestRoute == 2) {startStop = start2; endStop = end1;}
+      else if (bestRoute == 3) {startStop = start2; endStop = end2;}
+
+
+      print(route);
+      print(getBestRoute(route));
+      print('Start stop: ' + startStop! + ' End stop: ' + endStop!);
+      markSelectedBusStops([startStop, endStop]);
+
+
+      //check if just walking is faster, assumption: each stop ~ 2 mins
+      //Just walking
+      Response response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
+
+      String durationWalkStr = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
+
+      if (startStop == "Prince George's Park") {
+        startStop = "Prince George\'s Park";
+      }
+      if (startStop == "Prince George's Park Residences") {
+        startStop = "Prince George\'s Park Residences";
+      }
+      if (endStop == "Prince George's Park") {
+        endStop = "Prince George\'s Park";
+      }
+      if (endStop == "Prince George's Park Residences") {
+        endStop = "Prince George\'s Park Residences";
+      }
+
+      //From start to startStop
+      String startStopLat = busStopsLatLng[startStop]!.latitude.toString();
+      String startStopLng = busStopsLatLng[startStop]!.longitude.toString();
+      response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$startStopLat,$startStopLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
+      String durationBus1Str = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationBus1Int = int.parse(durationBus1Str.substring(0, 2));
+
+      //Wait before sending next request, otherwise we will exceed request rate limit
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      //From endStop to end
+      String endStopLat = busStopsLatLng[endStop]!.latitude.toString();
+      String endStopLng = busStopsLatLng[endStop]!.longitude.toString();
+
+      response = await dio.get(
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$endStopLat,$endStopLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
+      String durationBus2Str = response
+          .data['rows'][0]['elements'][0]['duration']['text'];
+      int durationBus2Int = int.parse(durationBus2Str.substring(0, 2));
+
+
+      if (durationWalkInt < durationBus1Int + durationBus2Int + 2 * route.length) {
+        //Walking is faster, walk
+        getDirections(place, TravelMode.walking);
+      }
+      else {
+        setState(() {
+          totalDuration = durationBus1Str;
+          totalDuration2 = durationBus2Str;
+          markers = {startMarker, endMarker};
+          instructions = getBestRoute(route);});
+
+        _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
+      }
+    }
+
     floatingSearchBarController.hide();
     visibility = true;
     locateUserPosition();
@@ -385,7 +518,7 @@ class MapState extends State<MapScreen> {
         polylineId: id,
         color: Colors.blue,
         points: polylineCoordinates,
-        width: 7);
+        width: 5);
     polylines[id] = polyline;
     setState(() {});
   }
@@ -409,12 +542,111 @@ class MapState extends State<MapScreen> {
     _addPolyLine();
   }
 
-  void viewIndoorMap(id) {
-    var available = [
-      'ChIJW-fkx_ga2jERSjkkKeJjaUM', //com1
-      'ChIJRafctPga2jER8aiJ3XzHihM' //com2
-    ];
+  _getPolylineTransit(
+      LatLng start,
+      LatLng end,
+      String startStop,
+      String endStop,
+      List<List<String>> route
+      ) async {
 
+    //Points from walking from start to startStop
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      key,
+      PointLatLng(start.latitude, start.longitude),
+      busStopsLatLng[startStop]!,
+      travelMode: TravelMode.walking,
+    );
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+
+    //Points from startStop to endStop
+    //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
+    //until endStop
+    String currStop = startStop;
+    String nextStop = "";
+
+
+    for (List<String> stop in route) { //for each stop along the way
+      var nextStops = graph[currStop]; //get the list of stops that are next
+      for (var busStop in nextStops!) {
+        // print(busStop);
+        if (busStop["bus"] == stop[0]) {
+          nextStop = busStop["nextBusStop"]!; //find the correct next stop
+          //Ignore warning. Without the \' dart will call e.g. busStopsLatLng[Prince George] instead
+          if (nextStop == "Prince George's Park") {
+            nextStop = "Prince George\'s Park";
+          }
+          if (nextStop == "Prince George's Park Residences") {
+            nextStop = "Prince George\'s Park Residences";
+          }
+          break;
+        }
+      }
+
+      //print('Curr: $currStop(${busStopsLatLng[currStop]?.longitude}, ${busStopsLatLng[currStop]?.latitude}) , Next: $nextStop(${busStopsLatLng[nextStop]?.longitude}, ${busStopsLatLng[nextStop]?.latitude})');
+
+      result = await polylinePoints.getRouteBetweenCoordinates(
+        key,
+        busStopsLatLng[currStop]!,
+        busStopsLatLng[nextStop]!,
+        travelMode: TravelMode.driving,
+      ); //get driving instructions to the next stop
+
+      if (result.points.isNotEmpty) {
+        for (var point in result.points) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        }
+      } //add polyline
+      else {
+        throw Exception('Cannot find route from $currStop to $nextStop');
+      }
+
+      currStop = nextStop;
+    }
+
+
+    //Points from walking from endStop to end
+    result = await polylinePoints.getRouteBetweenCoordinates(
+      key,
+      busStopsLatLng[endStop]!,
+      PointLatLng(end.latitude, end.longitude),
+      travelMode: TravelMode.walking,
+    );
+
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+    _addPolyLine();
+  }
+
+  void viewIndoorMap(Place place) {
+    if (place.indoorMap != null) {
+      var newScreen = place.indoorMap;
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => newScreen!));
+    }
+    else {
+      showDialog
+        (context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Indoor Map not Available'),
+            content: Text('Indoor map for ${place.name} is not available yet.'),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16.0))),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'))
+            ],
+          )
+      );
+    }
     //ToDo: navigate to indoor map
   }
 
@@ -424,51 +656,111 @@ class MapState extends State<MapScreen> {
       child: Visibility(
         visible: visibility, // Set it to false
         child: Container(
-            width: 400,
-            height: 100,
+            width: MediaQuery.of(context).size.width,
+            height: 125,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
               color: Colors.grey[300],
             ),
-            child: Column(
+            child: Stack(
               children: [
-                Text(
-                  destination,
-                  style: const TextStyle(fontSize: 20),
+                Column(
+                  children: [
+                    Text(
+                      destination.name,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (modeOfTransit == 'walking' && visibility) ...[
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
+
+                          ] else if(modeOfTransit == 'driving' && visibility)...[
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_car),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
+
+                          ] else if(modeOfTransit == 'transit' && visibility)...[
+                            //Walk to nearest bus stop(s)
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            ),
+
+                            const Icon(Icons.keyboard_arrow_right_sharp),
+
+                            //Bus, use bus_directions_service
+                            BusDirections(instructions: instructions),
+
+                            //Walk to destination
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration:  BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_walk, size: 20,),
+                                  Text(totalDuration2, style: const TextStyle(fontSize: 18),),
+                                ],
+                              ),
+                            )
+                          ],
+                        ]
+                    )
+                  ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.grey[400],
-                  ),
-                  child: Wrap(
-                    children: [
-                      if (modeOfTransit == 'walking') ...[
-                        const Icon(
-                          Icons.directions_walk,
-                          size: 20,
-                        )
-                      ] else if (modeOfTransit == 'driving') ...[
-                        const Icon(Icons.directions_car)
-                      ] else if (modeOfTransit == 'transit') ...[
-                        const Icon(Icons.directions_bus)
-                      ],
-                      Text(
-                        totalDuration,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(10),
+                    ),
+                    child: const Icon(Icons.close),
                     onPressed: () {
                       closeDirections();
                     },
-                    icon: const Icon(Icons.close)),
+                  ),
+                ),
               ],
-            )),
+            )
+        ),
       ),
     );
   }
@@ -493,40 +785,51 @@ class MapState extends State<MapScreen> {
     return 12742 * asin(sqrt(a));
   }
 
-  // Get a list of two Nearest Bus Btops based on the given location
+  // Get a list of two Nearest Bus stops based on the given location
   // sample output: [{University Town: LatLng(1., 103.)}, {Museum: LatLng(1., 103.)}]
   List<Map<String, LatLng>> getNearestBusStop(LatLng givenLocation) {
     // define result variables
     double nearestDistance = 999;
-
-    String firstName = "";
-    // ignore: prefer_const_constructors, random latlng value will be replaced.
-    LatLng firstLocation = LatLng(37.419857, -122.078827);
+    double nearestDistance2 = 999;
 
     late String secondName;
     late LatLng secondLocation;
 
     // import bus stop information
-    const List<Map<String, dynamic>> busStopList = busStops;
+    List<Map<String, dynamic>> busStopList = busStops;
 
-    // loop to find the nearest two location and name
+    //Set 1st element to be nearest
+    String firstName = busStopList[0]['LongName'];
+    LatLng firstLocation = LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
+    nearestDistance = calculateDistance(busStopList[0]["latitude"], busStopList[0]["longitude"],
+        givenLocation.latitude, givenLocation.longitude);
+
+    //loop to find the nearest two location and name
     for (Map<String, dynamic> busStop in busStopList) {
-      if (calculateDistance(busStop["latitude"], busStop["longitude"],
-              givenLocation.latitude, givenLocation.longitude) <=
-          nearestDistance) {
+      double currDist = calculateDistance(
+          busStop["latitude"],
+          busStop["longitude"],
+          givenLocation.latitude,
+          givenLocation.longitude);
+
+      if (currDist <= nearestDistance) {
         secondName = firstName;
         secondLocation = firstLocation;
 
-        firstName = busStop["caption"];
+        firstName = busStop["LongName"];
         firstLocation = LatLng(busStop["latitude"], busStop["longitude"]);
 
-        nearestDistance = calculateDistance(
-            busStop["latitude"],
-            busStop["longitude"],
-            givenLocation.latitude,
-            givenLocation.longitude);
+        nearestDistance = currDist;
+      }
+      else if (currDist <= nearestDistance2) {
+        secondName = busStop["LongName"];
+        secondLocation = LatLng(busStop["latitude"], busStop["longitude"]);
+
+        nearestDistance2 = currDist;
       }
     }
+
+
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
       {secondName: secondLocation}
@@ -576,6 +879,29 @@ class MapState extends State<MapScreen> {
       }
     } catch (error) {
       print(error);
+    }
+  }
+
+  void markSelectedBusStops(List<String> locations) async {
+    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), 'assets/icons/bus.png');
+    for (String location in locations) {
+      if (location == "Prince George's Park") {
+        location = "Prince George\'s Park";
+      }
+      if (location == "Prince George's Park Residences") {
+        location = "Prince George\'s Park Residences";
+      }
+      try {
+        setState(() {
+          markers.add(Marker(
+              markerId: MarkerId(location),
+              position: LatLng(busStopsLatLng[location]!.latitude, busStopsLatLng[location]!.longitude),
+              icon: busIcon));
+        });
+      } catch (error) {
+        print(error);
+      }
     }
   }
 }

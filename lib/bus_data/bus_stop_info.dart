@@ -16,36 +16,12 @@ const List<Map<String, dynamic>> busStops = [
     "ShortName": "BIZ 2"
   },
   {
-    "caption": "Botanic Gardens MRT",
-    "latitude": 1.32270002365112,
-    "longitude": 103.815101623535,
-    "name": "BG-MRT",
-    "LongName": "Botanic Garden MRT",
-    "ShortName": "BG MRT"
-  },
-  {
-    "caption": "BTC - Oei Tiong Ham Building",
-    "latitude": 1.31974358180187,
-    "longitude": 103.817929506302,
-    "name": "BUKITTIMAH-BTC2",
-    "LongName": "Oei Tiong Ham Building",
-    "ShortName": "OTH Bldg"
-  },
-  {
     "caption": "Central Library",
     "latitude": 1.29639995098114,
     "longitude": 103.772201538086,
     "name": "CENLIB",
     "LongName": "Central Library",
     "ShortName": "CLB"
-  },
-  {
-    "caption": "College Green",
-    "latitude": 1.32333302497864,
-    "longitude": 103.816307067871,
-    "name": "CGH",
-    "LongName": "College Green",
-    "ShortName": "College Green"
   },
   {
     "caption": "COM2",
@@ -196,7 +172,7 @@ const List<Map<String, dynamic>> busStops = [
     "latitude": 1.29180002212524,
     "longitude": 103.780502319336,
     "name": "PGPT",
-    "LongName": "Prince George’s Park",
+    "LongName": "Prince George's Park",
     "ShortName": "PGP"
   },
   {
@@ -204,7 +180,7 @@ const List<Map<String, dynamic>> busStops = [
     "latitude": 1.29099925112011,
     "longitude": 103.780964493752,
     "name": "PGP",
-    "LongName": "Prince George Park Residences",
+    "LongName": "Prince George's Park Residences",
     "ShortName": "PGPR"
   },
   {
