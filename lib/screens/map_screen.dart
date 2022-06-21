@@ -41,9 +41,9 @@ class MapState extends State<MapScreen> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   bool visibility = false;
+  Place destination = Place('NUS', const LatLng(1.2966, 103.7764));
   String totalDistance = '';
   String totalDuration = '';
-  String destination = '';
   String modeOfTransit = '';
   String totalDuration2 = '';
   late List<DirectionInstructions> instructions;
@@ -116,7 +116,7 @@ class MapState extends State<MapScreen> {
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-    void autoCompleteSearch2(String query) {
+    void autoCompleteSearch(String query) {
       final suggestions = locations.where((place) {
         final name = place.name.toLowerCase();
         final input = query.toLowerCase();
@@ -144,7 +144,7 @@ class MapState extends State<MapScreen> {
       onQueryChanged: (value) {
         if (value.isNotEmpty) {
           //places api
-          autoCompleteSearch2(value);
+          autoCompleteSearch(value);
         } else {
           //clear predictions
           setState(() {
@@ -158,11 +158,11 @@ class MapState extends State<MapScreen> {
         ),
       ],
       onSubmitted: (value) async {
-        Place destination = predictions[0];
-        goToPlace(destination.latLng);
+        Place place = predictions[0];
+        goToPlace(place.latLng);
         floatingSearchBarController.close();
-        String name = destination.name;
-        bottomSheet(context, destination);
+        String name = place.name;
+        bottomSheet(context, place);
       },
       builder: (context, transition) {
         return ClipRRect(
@@ -199,6 +199,7 @@ class MapState extends State<MapScreen> {
 
   // Location Result Bottom Sheet
   void bottomSheet(BuildContext context, Place place) {
+    setState(() => destination = place);
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -362,8 +363,7 @@ class MapState extends State<MapScreen> {
       setState(() {
         totalDistance = distance;
         totalDuration = duration;
-        markers = {startMarker, endMarker};
-        destination = place.name;});
+        markers = {startMarker, endMarker};});
 
       _getPolyline(
         latLngPosStart,
@@ -440,7 +440,9 @@ class MapState extends State<MapScreen> {
       //Just walking
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
-      print(response);
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
 
       String durationWalkStr = response
           .data['rows'][0]['elements'][0]['duration']['text'];
@@ -464,7 +466,10 @@ class MapState extends State<MapScreen> {
       String startStopLng = busStopsLatLng[startStop]!.longitude.toString();
       response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$startStopLat,$startStopLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
-      print(response);
+
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
       String durationBus1Str = response
           .data['rows'][0]['elements'][0]['duration']['text'];
       int durationBus1Int = int.parse(durationBus1Str.substring(0, 2));
@@ -478,7 +483,10 @@ class MapState extends State<MapScreen> {
 
       response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$endStopLat,$endStopLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
-      print(response);
+
+      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
+        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      }
       String durationBus2Str = response
           .data['rows'][0]['elements'][0]['duration']['text'];
       int durationBus2Int = int.parse(durationBus2Str.substring(0, 2));
@@ -493,7 +501,6 @@ class MapState extends State<MapScreen> {
           totalDuration = durationBus1Str;
           totalDuration2 = durationBus2Str;
           markers = {startMarker, endMarker};
-          destination = place.name;
           instructions = getBestRoute(route);});
 
         _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
@@ -661,7 +668,7 @@ class MapState extends State<MapScreen> {
                 Column(
                   children: [
                     Text(
-                      destination,
+                      destination.name,
                       style: const TextStyle(fontSize: 20),
                     ),
                     Row(
