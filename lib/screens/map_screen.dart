@@ -17,6 +17,7 @@ import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_info.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:collection/collection.dart';
+import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 
@@ -294,8 +295,7 @@ class MapState extends State<MapScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    viewIndoorMap(destination);
+                    viewIndoorMap(place);
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(const StadiumBorder()),
@@ -618,12 +618,28 @@ class MapState extends State<MapScreen> {
     _addPolyLine();
   }
 
-  void viewIndoorMap(id) {
-    var available = [
-      'COM 1',
-      'COM 2'
-    ];
-
+  void viewIndoorMap(Place place) {
+    if (place.indoorMap != null) {
+      var newScreen = place.indoorMap;
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => newScreen!));
+    }
+    else {
+      showDialog
+        (context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Indoor Map not Available'),
+            content: Text('Indoor map for ${place.name} is not available yet.'),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16.0))),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'))
+            ],
+          )
+      );
+    }
     //ToDo: navigate to indoor map
   }
 
