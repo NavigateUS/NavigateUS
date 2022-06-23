@@ -26,3 +26,6 @@ const allBuildings = [
     newScreen: FloorMap(building: "COM2", floorNum: 4, hasBasement: true),
   ),
 ];
+
+List<Building> selected =
+    allBuildings.where((element) => element.name.contains("1")).toList();
