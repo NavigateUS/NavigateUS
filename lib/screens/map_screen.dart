@@ -21,7 +21,6 @@ import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 
-
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
 
@@ -328,7 +327,6 @@ class MapState extends State<MapScreen> {
     Marker startMarker =
         Marker(markerId: const MarkerId('Start'), position: latLngPosStart);
 
-
     LatLng latLngPosEnd = place.latLng;
 
     Marker endMarker =
@@ -348,38 +346,31 @@ class MapState extends State<MapScreen> {
       setState(() => modeOfTransit = 'transit');
     }
 
-
-
     if (mode == TravelMode.driving || mode == TravelMode.walking) {
       _getPolyline(latLngPosStart, latLngPosEnd, mode);
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-      String distance = response
-          .data['rows'][0]['elements'][0]['distance']['text'];
-      String duration = response
-          .data['rows'][0]['elements'][0]['duration']['text'];
+      String distance =
+          response.data['rows'][0]['elements'][0]['distance']['text'];
+      String duration =
+          response.data['rows'][0]['elements'][0]['duration']['text'];
 
       setState(() {
         totalDistance = distance;
         totalDuration = duration;
-        markers = {startMarker, endMarker};});
-
-      _getPolyline(
-        latLngPosStart,
-        latLngPosEnd,
-        mode,
-      );
-
-    }
-    else { //Transit
+        markers = {startMarker, endMarker};
+      });
+    } else {
+      //Transit
       //Get 2 bus stops closest to start
       Position userPosition = await GeolocatorService().getCurrentLocation();
       LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
       List<Map<String, LatLng>> busStopListStart = getNearestBusStop(latLngPos);
 
       //Get 2 bus stops closest to end
-      List<Map<String, LatLng>> busStopListEnd = getNearestBusStop(latLngPosEnd);
+      List<Map<String, LatLng>> busStopListEnd =
+          getNearestBusStop(latLngPosEnd);
 
       String start1 = busStopListStart[0].keys.first;
       String start2 = busStopListStart[1].keys.first;
@@ -406,15 +397,13 @@ class MapState extends State<MapScreen> {
         throw Exception('No routes found');
       }
 
-
       //find min stops
       int bestRoute = -1;
-      for (int i = 0; i < 4; i++){
+      for (int i = 0; i < 4; i++) {
         if (valid[i]) {
           if (bestRoute == -1) {
             bestRoute = i;
-          }
-          else {
+          } else {
             if (routes[i].length < routes[bestRoute].length) {
               bestRoute = i;
             }
@@ -424,28 +413,37 @@ class MapState extends State<MapScreen> {
 
       String? startStop, endStop;
       var route = routes[bestRoute];
-      if (bestRoute == 0) {startStop = start1; endStop = end1;}
-      else if (bestRoute == 1) {startStop = start1; endStop = end2;}
-      else if (bestRoute == 2) {startStop = start2; endStop = end1;}
-      else if (bestRoute == 3) {startStop = start2; endStop = end2;}
-
+      if (bestRoute == 0) {
+        startStop = start1;
+        endStop = end1;
+      } else if (bestRoute == 1) {
+        startStop = start1;
+        endStop = end2;
+      } else if (bestRoute == 2) {
+        startStop = start2;
+        endStop = end1;
+      } else if (bestRoute == 3) {
+        startStop = start2;
+        endStop = end2;
+      }
 
       print(route);
       print(getBestRoute(route));
       print('Start stop: ' + startStop! + ' End stop: ' + endStop!);
       markSelectedBusStops([startStop, endStop]);
 
-
       //check if just walking is faster, assumption: each stop ~ 2 mins
       //Just walking
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
-      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
-        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      if (response.data['error_message'] ==
+          "You have exceeded your rate-limit for this API.") {
+        throw Exception(
+            'Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
       }
 
-      String durationWalkStr = response
-          .data['rows'][0]['elements'][0]['duration']['text'];
+      String durationWalkStr =
+          response.data['rows'][0]['elements'][0]['duration']['text'];
       int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
 
       if (startStop == "Prince George's Park") {
@@ -467,11 +465,13 @@ class MapState extends State<MapScreen> {
       response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$startStopLat,$startStopLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
-        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      if (response.data['error_message'] ==
+          "You have exceeded your rate-limit for this API.") {
+        throw Exception(
+            'Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
       }
-      String durationBus1Str = response
-          .data['rows'][0]['elements'][0]['duration']['text'];
+      String durationBus1Str =
+          response.data['rows'][0]['elements'][0]['duration']['text'];
       int durationBus1Int = int.parse(durationBus1Str.substring(0, 2));
 
       //Wait before sending next request, otherwise we will exceed request rate limit
@@ -484,26 +484,29 @@ class MapState extends State<MapScreen> {
       response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$endStopLat,$endStopLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
 
-      if (response.data['error_message'] == "You have exceeded your rate-limit for this API.") {
-        throw Exception('Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
+      if (response.data['error_message'] ==
+          "You have exceeded your rate-limit for this API.") {
+        throw Exception(
+            'Cannot get data from Google Distance Matrix API because you have exceeded the rate-limit. Try again later');
       }
-      String durationBus2Str = response
-          .data['rows'][0]['elements'][0]['duration']['text'];
+      String durationBus2Str =
+          response.data['rows'][0]['elements'][0]['duration']['text'];
       int durationBus2Int = int.parse(durationBus2Str.substring(0, 2));
 
-
-      if (durationWalkInt < durationBus1Int + durationBus2Int + 2 * route.length) {
+      if (durationWalkInt <
+          durationBus1Int + durationBus2Int + 2 * route.length) {
         //Walking is faster, walk
         getDirections(place, TravelMode.walking);
-      }
-      else {
+      } else {
         setState(() {
           totalDuration = durationBus1Str;
           totalDuration2 = durationBus2Str;
           markers = {startMarker, endMarker};
-          instructions = getBestRoute(route);});
+          instructions = getBestRoute(route);
+        });
 
-        _getPolylineTransit(latLngPosStart, latLngPosEnd, startStop, endStop, route);
+        _getPolylineTransit(
+            latLngPosStart, latLngPosEnd, startStop, endStop, route);
       }
     }
 
@@ -542,14 +545,8 @@ class MapState extends State<MapScreen> {
     _addPolyLine();
   }
 
-  _getPolylineTransit(
-      LatLng start,
-      LatLng end,
-      String startStop,
-      String endStop,
-      List<List<String>> route
-      ) async {
-
+  _getPolylineTransit(LatLng start, LatLng end, String startStop,
+      String endStop, List<List<String>> route) async {
     //Points from walking from start to startStop
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       key,
@@ -569,8 +566,8 @@ class MapState extends State<MapScreen> {
     String currStop = startStop;
     String nextStop = "";
 
-
-    for (List<String> stop in route) { //for each stop along the way
+    for (List<String> stop in route) {
+      //for each stop along the way
       var nextStops = graph[currStop]; //get the list of stops that are next
       for (var busStop in nextStops!) {
         // print(busStop);
@@ -608,7 +605,6 @@ class MapState extends State<MapScreen> {
       currStop = nextStop;
     }
 
-
     //Points from walking from endStop to end
     result = await polylinePoints.getRouteBetweenCoordinates(
       key,
@@ -628,24 +624,23 @@ class MapState extends State<MapScreen> {
   void viewIndoorMap(Place place) {
     if (place.indoorMap != null) {
       var newScreen = place.indoorMap;
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => newScreen!));
-    }
-    else {
-      showDialog
-        (context: context,
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => newScreen!));
+    } else {
+      showDialog(
+          context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Indoor Map not Available'),
-            content: Text('Indoor map for ${place.name} is not available yet.'),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16.0))),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'))
-            ],
-          )
-      );
+                title: const Text('Indoor Map not Available'),
+                content:
+                    Text('Indoor map for ${place.name} is not available yet.'),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'))
+                ],
+              ));
     }
     //ToDo: navigate to indoor map
   }
@@ -671,77 +666,93 @@ class MapState extends State<MapScreen> {
                       destination.name,
                       style: const TextStyle(fontSize: 20),
                     ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (modeOfTransit == 'walking' && visibility) ...[
-                            Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration:  BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.grey[400],
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      if (modeOfTransit == 'walking' && visibility) ...[
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.grey[400],
+                          ),
+                          child: Wrap(
+                            children: [
+                              const Icon(
+                                Icons.directions_walk,
+                                size: 20,
                               ),
-                              child: Wrap(
-                                children: [
-                                  const Icon(Icons.directions_walk, size: 20,),
-                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                                ],
+                              Text(
+                                totalDuration,
+                                style: const TextStyle(fontSize: 18),
                               ),
-                            )
+                            ],
+                          ),
+                        )
+                      ] else if (modeOfTransit == 'driving' && visibility) ...[
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.grey[400],
+                          ),
+                          child: Wrap(
+                            children: [
+                              const Icon(Icons.directions_car),
+                              Text(
+                                totalDuration,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        )
+                      ] else if (modeOfTransit == 'transit' && visibility) ...[
+                        //Walk to nearest bus stop(s)
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.grey[400],
+                          ),
+                          child: Wrap(
+                            children: [
+                              const Icon(
+                                Icons.directions_walk,
+                                size: 20,
+                              ),
+                              Text(
+                                totalDuration,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                          ] else if(modeOfTransit == 'driving' && visibility)...[
-                            Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration:  BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.grey[400],
-                              ),
-                              child: Wrap(
-                                children: [
-                                  const Icon(Icons.directions_car),
-                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                                ],
-                              ),
-                            )
+                        const Icon(Icons.keyboard_arrow_right_sharp),
 
-                          ] else if(modeOfTransit == 'transit' && visibility)...[
-                            //Walk to nearest bus stop(s)
-                            Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration:  BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.grey[400],
-                              ),
-                              child: Wrap(
-                                children: [
-                                  const Icon(Icons.directions_walk, size: 20,),
-                                  Text(totalDuration, style: const TextStyle(fontSize: 18),),
-                                ],
-                              ),
-                            ),
+                        //Bus, use bus_directions_service
+                        BusDirections(instructions: instructions),
 
-                            const Icon(Icons.keyboard_arrow_right_sharp),
-
-                            //Bus, use bus_directions_service
-                            BusDirections(instructions: instructions),
-
-                            //Walk to destination
-                            Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration:  BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.grey[400],
+                        //Walk to destination
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.grey[400],
+                          ),
+                          child: Wrap(
+                            children: [
+                              const Icon(
+                                Icons.directions_walk,
+                                size: 20,
                               ),
-                              child: Wrap(
-                                children: [
-                                  const Icon(Icons.directions_walk, size: 20,),
-                                  Text(totalDuration2, style: const TextStyle(fontSize: 18),),
-                                ],
+                              Text(
+                                totalDuration2,
+                                style: const TextStyle(fontSize: 18),
                               ),
-                            )
-                          ],
-                        ]
-                    )
+                            ],
+                          ),
+                        )
+                      ],
+                    ])
                   ],
                 ),
                 Positioned(
@@ -759,8 +770,7 @@ class MapState extends State<MapScreen> {
                   ),
                 ),
               ],
-            )
-        ),
+            )),
       ),
     );
   }
@@ -800,9 +810,13 @@ class MapState extends State<MapScreen> {
 
     //Set 1st element to be nearest
     String firstName = busStopList[0]['LongName'];
-    LatLng firstLocation = LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
-    nearestDistance = calculateDistance(busStopList[0]["latitude"], busStopList[0]["longitude"],
-        givenLocation.latitude, givenLocation.longitude);
+    LatLng firstLocation =
+        LatLng(busStopList[0]['latitude'], busStopList[0]['longitude']);
+    nearestDistance = calculateDistance(
+        busStopList[0]["latitude"],
+        busStopList[0]["longitude"],
+        givenLocation.latitude,
+        givenLocation.longitude);
 
     //loop to find the nearest two location and name
     for (Map<String, dynamic> busStop in busStopList) {
@@ -820,15 +834,13 @@ class MapState extends State<MapScreen> {
         firstLocation = LatLng(busStop["latitude"], busStop["longitude"]);
 
         nearestDistance = currDist;
-      }
-      else if (currDist <= nearestDistance2) {
+      } else if (currDist <= nearestDistance2) {
         secondName = busStop["LongName"];
         secondLocation = LatLng(busStop["latitude"], busStop["longitude"]);
 
         nearestDistance2 = currDist;
       }
     }
-
 
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
@@ -896,7 +908,8 @@ class MapState extends State<MapScreen> {
         setState(() {
           markers.add(Marker(
               markerId: MarkerId(location),
-              position: LatLng(busStopsLatLng[location]!.latitude, busStopsLatLng[location]!.longitude),
+              position: LatLng(busStopsLatLng[location]!.latitude,
+                  busStopsLatLng[location]!.longitude),
               icon: busIcon));
         });
       } catch (error) {
