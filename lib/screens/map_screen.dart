@@ -434,7 +434,6 @@ class MapState extends State<MapScreen> {
       print(route);
       print(getBestRoute(route));
       print('Start stop: ' + startStop! + ' End stop: ' + endStop!);
-      markSelectedBusStops([startStop, endStop]);
 
       //check if just walking is faster, assumption: each stop ~ 2 mins
       //Just walking
@@ -511,6 +510,8 @@ class MapState extends State<MapScreen> {
 
         _getPolylineTransit(
             latLngPosStart, latLngPosEnd, startStop, endStop, route);
+
+        markSelectedBusStops([startStop, endStop]);
       }
     }
 
