@@ -17,7 +17,7 @@ List<Place> locations = [
       indoorMap:
           const FloorMap(building: "COM2", floorNum: 4, hasBasement: true)),
   Place("COM 3", const LatLng(1.2954803776871135, 103.77468480930364)),
-  Place("Icube Building", const LatLng(1.2924834421459082, 103.77532597934874),
+  Place("Icube Building", const LatLng(1.2923243394779413, 103.77536909282506),
     indoorMap: FloorMap(building: "ICUBE", floorNum: 3, hasBasement: false)),
   Place("BIZ 1, Mochtar Riady Building",
       const LatLng(1.2926680252746072, 103.77425677288579)),
