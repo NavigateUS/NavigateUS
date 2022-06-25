@@ -198,7 +198,11 @@ class MapState extends State<MapScreen> {
 
   // Location Result Bottom Sheet
   void bottomSheet(BuildContext context, Place place) {
-    setState(() => destination = place);
+    Marker marker = Marker(markerId: const MarkerId('search'), position: place.latLng);
+    setState(() {
+      destination = place;
+      markers.add(marker);
+    });
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -317,7 +321,7 @@ class MapState extends State<MapScreen> {
               ],
             ))
           ]);
-        });
+        }).whenComplete(() => setState(() => markers.remove(marker)));
   }
 
   Future<void> getDirections(Place place, TravelMode mode) async {
