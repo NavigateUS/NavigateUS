@@ -92,7 +92,7 @@ List<Place> locations = [
   Place("LT10", const LatLng(1.2948844584090413, 103.77201663145598)),
   Place("LT11", const LatLng(1.2954589248518809, 103.77140788818951)),
   Place(
-      "Computer Cebtre", const LatLng(1.2975978252094893, 103.77250941773869)),
+      "Computer Centre", const LatLng(1.2975978252094893, 103.77250941773869)),
   Place("LT13", const LatLng(1.2951114375092163, 103.77082256350303)),
   Place("LT12", const LatLng(1.295083281509476, 103.77095935615412)),
   Place(
@@ -149,7 +149,7 @@ List<Place> locations = [
       const LatLng(1.292221360619686, 103.77657846669928)),
   Place("Temasek Life Sciences Laboratory",
       const LatLng(1.294281932817939, 103.77702858776357)),
-  Place("NUS Enterprise Incubato",
+  Place("NUS Enterprise Incubator",
       const LatLng(1.2931556104321842, 103.77797289583887)),
   Place("Institute For Mathematical Sciences",
       const LatLng(1.2929425521253117, 103.77934323104577)),
@@ -185,7 +185,7 @@ List<Place> locations = [
   Place("MD2", const LatLng(1.2950818044187127, 103.78189612144347)),
   Place("MD3", const LatLng(1.2956312763024285, 103.7815508087525)),
   Place("MD4", const LatLng(1.2956524377057002, 103.78134875655618)),
-  Place("Falculty of Dentistry",
+  Place("Faculty of Dentistry",
       const LatLng(1.2968540510700888, 103.78200853139842)),
   Place("S17", const LatLng(1.2977254867342594, 103.78059181005091)),
   Place("LT34", const LatLng(1.2977809221877168, 103.78069038724905)),

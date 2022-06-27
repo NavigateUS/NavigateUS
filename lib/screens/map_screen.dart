@@ -377,11 +377,13 @@ class MapState extends State<MapScreen> {
       List<Map<String, LatLng>> busStopListEnd =
           getNearestBusStop(latLngPosEnd);
 
+
       String start1 = busStopListStart[0].keys.first;
       String start2 = busStopListStart[1].keys.first;
 
       String end1 = busStopListEnd[0].keys.first;
       String end2 = busStopListEnd[1].keys.first;
+
 
       List<List<String>>? route0 = findRoute(start1, end1);
       List<List<String>>? route1 = findRoute(start1, end2);
