@@ -37,7 +37,7 @@ class MapState extends State<MapScreen> {
   late GooglePlace googlePlace = GooglePlace(key);
   List<Place> predictions = [];
   Set<Marker> markers = {};
-  Map<PolylineId, Polyline> polylines = {};
+  Set<Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   bool visibility = false;
@@ -88,7 +88,7 @@ class MapState extends State<MapScreen> {
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       markers: Set.from(markers),
-      polylines: Set<Polyline>.of(polylines.values),
+      polylines: polylines,
     );
   }
 
@@ -199,7 +199,8 @@ class MapState extends State<MapScreen> {
 
   // Location Result Bottom Sheet
   void bottomSheet(BuildContext context, Place place) {
-    Marker marker = Marker(markerId: const MarkerId('search'), position: place.latLng);
+    Marker marker =
+        Marker(markerId: const MarkerId('search'), position: place.latLng);
     setState(() {
       destination = place;
       markers.add(marker);
@@ -377,13 +378,11 @@ class MapState extends State<MapScreen> {
       List<Map<String, LatLng>> busStopListEnd =
           getNearestBusStop(latLngPosEnd);
 
-
       String start1 = busStopListStart[0].keys.first;
       String start2 = busStopListStart[1].keys.first;
 
       String end1 = busStopListEnd[0].keys.first;
       String end2 = busStopListEnd[1].keys.first;
-
 
       List<List<String>>? route0 = findRoute(start1, end1);
       List<List<String>>? route1 = findRoute(start1, end2);
@@ -530,8 +529,15 @@ class MapState extends State<MapScreen> {
         color: Colors.blue,
         points: polylineCoordinates,
         width: 5);
-    polylines[id] = polyline;
-    setState(() {});
+    setState(() {
+      polylines.add(polyline);
+    });
+  }
+
+  _addMultiPolyLine(Set<Polyline> polylines) {
+    setState(() {
+      polylines.addAll(polylines);
+    });
   }
 
   _getPolyline(
@@ -555,6 +561,7 @@ class MapState extends State<MapScreen> {
 
   _getPolylineTransit(LatLng start, LatLng end, String startStop,
       String endStop, List<List<String>> route) async {
+    Set<Polyline> polylineSet = {};
     //Points from walking from start to startStop
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       key,
@@ -567,6 +574,16 @@ class MapState extends State<MapScreen> {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
     }
+
+    final newPolyline = Polyline(
+      polylineId: const PolylineId("walk"),
+      color: Colors.blue,
+      points: polylineCoordinates,
+      width: 5,
+    );
+
+    polylineSet.add(newPolyline);
+    polylineCoordinates.clear();
 
     //Points from startStop to endStop
     //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
@@ -609,9 +626,18 @@ class MapState extends State<MapScreen> {
       else {
         throw Exception('Cannot find route from $currStop to $nextStop');
       }
-
       currStop = nextStop;
     }
+
+    final midPolyline = Polyline(
+      polylineId: const PolylineId("bus"),
+      color: Colors.orange,
+      points: polylineCoordinates,
+      width: 5,
+    );
+
+    polylineSet.add(midPolyline);
+    polylineCoordinates.clear();
 
     //Points from walking from endStop to end
     result = await polylinePoints.getRouteBetweenCoordinates(
@@ -626,7 +652,16 @@ class MapState extends State<MapScreen> {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       }
     }
-    _addPolyLine();
+
+    final endPolyline = Polyline(
+      polylineId: const PolylineId("walk2"),
+      color: Colors.blue,
+      points: polylineCoordinates,
+      width: 5,
+    );
+
+    polylineSet.add(endPolyline);
+    _addMultiPolyLine(polylineSet);
   }
 
   void viewIndoorMap(Place place) {
@@ -796,10 +831,8 @@ class MapState extends State<MapScreen> {
   // calculate distance with latitude and longitude values
   double calculateDistance(lat1, lon1, lat2, lon2) {
     const GDistance distance = GDistance();
-    final double meter = distance(
-        GeoLatLng(lat1, lon1),
-        GeoLatLng(lat2, lon2)
-    ) as double;
+    final double meter =
+        distance(GeoLatLng(lat1, lon1), GeoLatLng(lat2, lon2)) as double;
     return meter;
   }
 
@@ -809,14 +842,10 @@ class MapState extends State<MapScreen> {
     List<Map<String, double>> distances = [];
 
     busStopsLatLng.forEach((key, value) {
-      double currDist = calculateDistance(
-          givenLocation.latitude,
-          givenLocation.longitude,
-          value.latitude,
-          value.longitude);
+      double currDist = calculateDistance(givenLocation.latitude,
+          givenLocation.longitude, value.latitude, value.longitude);
 
       distances.add({key: currDist});
-
     });
 
     String firstName = '';
@@ -830,15 +859,17 @@ class MapState extends State<MapScreen> {
         secondName = firstName;
         firstDistance = stop.values.first;
         firstName = stop.keys.first;
-      }
-      else if (stop.values.first < secondDistance && stop.values.first != firstDistance) {
+      } else if (stop.values.first < secondDistance &&
+          stop.values.first != firstDistance) {
         secondDistance = stop.values.first;
         secondName = stop.keys.first;
       }
     }
 
-    LatLng firstLocation = LatLng(busStopsLatLng[firstName]!.latitude, busStopsLatLng[firstName]!.longitude);
-    LatLng secondLocation = LatLng(busStopsLatLng[secondName]!.latitude, busStopsLatLng[secondName]!.longitude);
+    LatLng firstLocation = LatLng(busStopsLatLng[firstName]!.latitude,
+        busStopsLatLng[firstName]!.longitude);
+    LatLng secondLocation = LatLng(busStopsLatLng[secondName]!.latitude,
+        busStopsLatLng[secondName]!.longitude);
 
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
