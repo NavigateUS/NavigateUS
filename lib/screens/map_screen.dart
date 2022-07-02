@@ -47,7 +47,7 @@ class MapState extends State<MapScreen> {
   String totalDuration = '';
   String modeOfTransit = '';
   String totalDuration2 = '';
-  late List<DirectionInstructions> instructions;
+  late List<DirectionInstructions> instructions = [];
 
   // Page Layout
   @override
