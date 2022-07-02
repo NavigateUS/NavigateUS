@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' show asin, cos, pi, pow, sin, sqrt;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -199,7 +200,8 @@ class MapState extends State<MapScreen> {
 
   // Location Result Bottom Sheet
   void bottomSheet(BuildContext context, Place place) {
-    Marker marker = Marker(markerId: const MarkerId('search'), position: place.latLng);
+    Marker marker =
+        Marker(markerId: const MarkerId('search'), position: place.latLng);
     setState(() {
       destination = place;
       markers.add(marker);
@@ -377,13 +379,11 @@ class MapState extends State<MapScreen> {
       List<Map<String, LatLng>> busStopListEnd =
           getNearestBusStop(latLngPosEnd);
 
-
       String start1 = busStopListStart[0].keys.first;
       String start2 = busStopListStart[1].keys.first;
 
       String end1 = busStopListEnd[0].keys.first;
       String end2 = busStopListEnd[1].keys.first;
-
 
       List<List<String>>? route0 = findRoute(start1, end1);
       List<List<String>>? route1 = findRoute(start1, end2);
@@ -655,132 +655,157 @@ class MapState extends State<MapScreen> {
 
   Widget buildDirections() {
     return Positioned(
-      bottom: 0,
-      child: Visibility(
-        visible: visibility, // Set it to false
-        child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: 125,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              color: Colors.grey[300],
-            ),
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      destination.name,
-                      style: const TextStyle(fontSize: 20),
+        bottom: 0,
+        child: Visibility(
+            visible: visibility, // Set it to false
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 125,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20)),
+                  color: Colors.grey[300],
+                ),
+                child: Stack(children: [
+                  Column(children: [
+                    Center(
+                      child: Text(
+                        destination.name,
+                        style: const TextStyle(fontSize: 20),
+                      ),
                     ),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      if (modeOfTransit == 'walking' && visibility) ...[
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.grey[400],
-                          ),
-                          child: Wrap(
+                    const SizedBox(height: 10),
+                    if (modeOfTransit == 'walking' && visibility) ...[
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(
+                                    Icons.directions_walk,
+                                    size: 20,
+                                  ),
+                                  Text(
+                                    totalDuration,
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ])
+                    ] else if (modeOfTransit == 'driving' && visibility) ...[
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                              ),
+                              child: Wrap(
+                                children: [
+                                  const Icon(Icons.directions_car),
+                                  Text(
+                                    totalDuration,
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ])
+                    ] else if (modeOfTransit == 'transit' && visibility) ...[
+                      Scrollbar(
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.directions_walk,
-                                size: 20,
-                              ),
-                              Text(
-                                totalDuration,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        )
-                      ] else if (modeOfTransit == 'driving' && visibility) ...[
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.grey[400],
-                          ),
-                          child: Wrap(
-                            children: [
-                              const Icon(Icons.directions_car),
-                              Text(
-                                totalDuration,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        )
-                      ] else if (modeOfTransit == 'transit' && visibility) ...[
-                        //Walk to nearest bus stop(s)
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.grey[400],
-                          ),
-                          child: Wrap(
-                            children: [
-                              const Icon(
-                                Icons.directions_walk,
-                                size: 20,
-                              ),
-                              Text(
-                                totalDuration,
-                                style: const TextStyle(fontSize: 18),
+                              Wrap(
+                                children: [
+                                  //Walk to nearest bus stop(s)
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.grey[400],
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        const Icon(
+                                          Icons.directions_walk,
+                                          size: 20,
+                                        ),
+                                        Text(
+                                          totalDuration,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const Icon(Icons.keyboard_arrow_right_sharp),
+
+                                  //Bus, use bus_directions_service
+                                  BusDirections(instructions: instructions),
+                                  //Walk to destination
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.grey[400],
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        const Icon(
+                                          Icons.directions_walk,
+                                          size: 20,
+                                        ),
+                                        Text(
+                                          totalDuration2,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
                               ),
                             ],
                           ),
                         ),
-
-                        const Icon(Icons.keyboard_arrow_right_sharp),
-
-                        //Bus, use bus_directions_service
-                        BusDirections(instructions: instructions),
-
-                        //Walk to destination
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.grey[400],
-                          ),
-                          child: Wrap(
-                            children: [
-                              const Icon(
-                                Icons.directions_walk,
-                                size: 20,
-                              ),
-                              Text(
-                                totalDuration2,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ])
-                  ],
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(10),
+                      )
+                    ],
+                    if (BusDirections(instructions: instructions).getLength() >=
+                        3) ...[
+                      const SizedBox(height: 5),
+                      const Text("<<< Scroll >>>",
+                          style: TextStyle(color: Colors.black54))
+                    ]
+                  ]),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(10),
+                      ),
+                      child: const Icon(Icons.close),
+                      onPressed: () {
+                        closeDirections();
+                      },
                     ),
-                    child: const Icon(Icons.close),
-                    onPressed: () {
-                      closeDirections();
-                    },
-                  ),
-                ),
-              ],
-            )),
-      ),
-    );
+                  )
+                ]))));
   }
 
   void closeDirections() {
@@ -796,10 +821,8 @@ class MapState extends State<MapScreen> {
   // calculate distance with latitude and longitude values
   double calculateDistance(lat1, lon1, lat2, lon2) {
     const GDistance distance = GDistance();
-    final double meter = distance(
-        GeoLatLng(lat1, lon1),
-        GeoLatLng(lat2, lon2)
-    ) as double;
+    final double meter =
+        distance(GeoLatLng(lat1, lon1), GeoLatLng(lat2, lon2)) as double;
     return meter;
   }
 
@@ -809,14 +832,10 @@ class MapState extends State<MapScreen> {
     List<Map<String, double>> distances = [];
 
     busStopsLatLng.forEach((key, value) {
-      double currDist = calculateDistance(
-          givenLocation.latitude,
-          givenLocation.longitude,
-          value.latitude,
-          value.longitude);
+      double currDist = calculateDistance(givenLocation.latitude,
+          givenLocation.longitude, value.latitude, value.longitude);
 
       distances.add({key: currDist});
-
     });
 
     String firstName = '';
@@ -830,15 +849,17 @@ class MapState extends State<MapScreen> {
         secondName = firstName;
         firstDistance = stop.values.first;
         firstName = stop.keys.first;
-      }
-      else if (stop.values.first < secondDistance && stop.values.first != firstDistance) {
+      } else if (stop.values.first < secondDistance &&
+          stop.values.first != firstDistance) {
         secondDistance = stop.values.first;
         secondName = stop.keys.first;
       }
     }
 
-    LatLng firstLocation = LatLng(busStopsLatLng[firstName]!.latitude, busStopsLatLng[firstName]!.longitude);
-    LatLng secondLocation = LatLng(busStopsLatLng[secondName]!.latitude, busStopsLatLng[secondName]!.longitude);
+    LatLng firstLocation = LatLng(busStopsLatLng[firstName]!.latitude,
+        busStopsLatLng[firstName]!.longitude);
+    LatLng secondLocation = LatLng(busStopsLatLng[secondName]!.latitude,
+        busStopsLatLng[secondName]!.longitude);
 
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
