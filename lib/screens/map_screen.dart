@@ -1,11 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math' show asin, cos, pi, pow, sin, sqrt;
-
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,10 +10,7 @@ import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/mapFunctions/bus_directions_service.dart';
-import 'package:navigateus/bus_data/bus_stop_info.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
-import 'package:collection/collection.dart';
-import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
@@ -48,16 +40,20 @@ class MapState extends State<MapScreen> {
   String modeOfTransit = '';
   String totalDuration2 = '';
   late List<DirectionInstructions> instructions = [];
-
+  late StreamSubscription<Position> locationStream;
   // Page Layout
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(children: [
-          buildMap(),
-          buildSearchBar(context),
-          buildDirections(),
-        ]),
+        body: Listener(
+            onPointerDown: (drag) {
+              locationStream.cancel();
+            },
+            child: Stack(children: [
+              buildMap(),
+              buildSearchBar(context),
+              buildDirections(),
+            ])),
         drawer: buildDrawer(context),
         floatingActionButton: Padding(
           padding: visibility
@@ -96,9 +92,11 @@ class MapState extends State<MapScreen> {
   // Map Functions
   void locateUserPosition() async {
     try {
-      Position userPosition = await GeolocatorService().getCurrentLocation();
-      LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
-      goToPlace(latLngPos);
+      await GeolocatorService().getCurrentLocation();
+      locationStream =
+          GeolocatorService().getLocationStream().listen((latLngPos) {
+        goToPlace(LatLng(latLngPos.latitude, latLngPos.longitude));
+      });
     } catch (error) {
       print(error);
     }
