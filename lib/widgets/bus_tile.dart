@@ -1,5 +1,19 @@
 import 'package:flutter/material.dart';
 
+Color busColor(String service) {
+  Map<String, Color> busColors =
+  {
+    'A1' : Colors.red.shade400,
+    'A2' : Colors.yellow.shade600,
+    'D1' : Colors.purpleAccent,
+    'D2' : Colors.deepPurpleAccent,
+    'K' : Colors.blue,
+    'E' : Colors.green
+  };
+
+  return busColors[service] ?? Colors.orange;
+}
+
 class BusTile extends StatelessWidget {
   final String stops;
   final String service;
@@ -23,29 +37,6 @@ class BusTile extends StatelessWidget {
       text += 'stops';
     }
 
-    Color col;
-    if (service == 'A1') {
-      col = Colors.red.shade400;
-    }
-    else if (service == 'A2') {
-      col = Colors.yellow.shade600;
-    }
-    else if (service == 'D1') {
-      col = Colors.purpleAccent;
-    }
-    else if (service == 'D2') {
-      col = Colors.deepPurpleAccent;
-    }
-    else if (service == 'K') {
-      col = Colors.blue;
-    }
-    else if (service == 'E') {
-      col = Colors.green;
-    }
-    else {
-      col = Colors.orange;
-    }
-
 
     return Row(
       children: [
@@ -61,7 +52,7 @@ class BusTile extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 decoration:  BoxDecoration(
                   borderRadius: BorderRadius.circular(3),
-                  color: col,
+                  color: busColor(service),
                 ),
                 child: Wrap(
                   children: [
