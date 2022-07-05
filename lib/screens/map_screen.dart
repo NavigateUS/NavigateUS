@@ -14,6 +14,7 @@ import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
+import 'package:navigateus/widgets/bus_tile.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class MapState extends State<MapScreen> {
   late GooglePlace googlePlace = GooglePlace(key);
   List<Place> predictions = [];
   Set<Marker> markers = {};
-  Map<PolylineId, Polyline> polylines = {};
+  Set<Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   bool visibility = false;
@@ -85,7 +86,7 @@ class MapState extends State<MapScreen> {
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       markers: Set.from(markers),
-      polylines: Set<Polyline>.of(polylines.values),
+      polylines: polylines,
     );
   }
 
@@ -528,8 +529,16 @@ class MapState extends State<MapScreen> {
         color: Colors.blue,
         points: polylineCoordinates,
         width: 5);
-    polylines[id] = polyline;
-    setState(() {});
+    setState(() {
+      polylines.add(polyline);
+    });
+  }
+
+  _addMultiPolyLine(Set<Polyline> polylineSet) {
+    setState(() {
+      polylines.addAll(polylineSet);
+    });
+    print(polylines);
   }
 
   _getPolyline(
@@ -553,7 +562,13 @@ class MapState extends State<MapScreen> {
 
   _getPolylineTransit(LatLng start, LatLng end, String startStop,
       String endStop, List<List<String>> route) async {
+
+    print(route);
+
+    Set<Polyline> polylineSet = {};
+
     //Points from walking from start to startStop
+    List<LatLng> polylineCoordinatesStart = [];
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       key,
       PointLatLng(start.latitude, start.longitude),
@@ -562,17 +577,39 @@ class MapState extends State<MapScreen> {
     );
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        polylineCoordinatesStart.add(LatLng(point.latitude, point.longitude));
       }
     }
+
+    final newPolyline = Polyline(
+      polylineId: const PolylineId("walk"),
+      color: Colors.blue,
+      points: polylineCoordinatesStart,
+      width: 5,
+    );
+
+    polylineSet.add(newPolyline);
 
     //Points from startStop to endStop
     //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
     //until endStop
+    List<LatLng> polylineCoordinatesMid = [];
+    List<Polyline> midPolylines = [];
     String currStop = startStop;
     String nextStop = "";
+    int lastStop = 0;
+    List<int> segments = [];
+    int counter = 0;
 
-    for (List<String> stop in route) {
+    //Calculate stop number to change bus
+    for (DirectionInstructions instruction in instructions) {
+      int stops = instruction.stops + segments.sum;
+      segments.add(stops - 1);
+    }
+
+
+    for (int i = 0; i < route.length; i++) {
+      var stop = route[i];
       //for each stop along the way
       var nextStops = graph[currStop]; //get the list of stops that are next
       for (var busStop in nextStops!) {
@@ -601,17 +638,38 @@ class MapState extends State<MapScreen> {
 
       if (result.points.isNotEmpty) {
         for (var point in result.points) {
-          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+          polylineCoordinatesMid.add(LatLng(point.latitude, point.longitude));
         }
       } //add polyline
       else {
         throw Exception('Cannot find route from $currStop to $nextStop');
       }
 
+      if (i == route.length - 1 || i == segments[counter]) {
+        Color col = busColor('');
+        if (instructions[counter].bus.length == 1) {
+          col = busColor(instructions[counter].bus[0]);
+        }
+        midPolylines.add(
+            Polyline(
+              polylineId: PolylineId("bus$counter"),
+              color: col,
+              points: polylineCoordinatesMid.sublist(lastStop, polylineCoordinatesMid.length),
+              width: 5,
+            )
+        );
+
+        lastStop = polylineCoordinatesMid.length;
+        counter++;
+      }
       currStop = nextStop;
     }
 
+    polylineSet.addAll(midPolylines);
+
     //Points from walking from endStop to end
+    List<LatLng> polylineCoordinatesEnd= [];
+
     result = await polylinePoints.getRouteBetweenCoordinates(
       key,
       busStopsLatLng[endStop]!,
@@ -621,10 +679,19 @@ class MapState extends State<MapScreen> {
 
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        polylineCoordinatesEnd.add(LatLng(point.latitude, point.longitude));
       }
     }
-    _addPolyLine();
+
+    final endPolyline = Polyline(
+      polylineId: const PolylineId("walk2"),
+      color: Colors.blue,
+      points: polylineCoordinatesEnd,
+      width: 5,
+    );
+
+    polylineSet.add(endPolyline);
+    _addMultiPolyLine(polylineSet);
   }
 
   void viewIndoorMap(Place place) {
