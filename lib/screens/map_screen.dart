@@ -867,6 +867,7 @@ class MapState extends State<MapScreen> {
                       child: const Icon(Icons.close),
                       onPressed: () {
                         closeDirections();
+                        locationStream.cancel();
                       },
                     ),
                   )
