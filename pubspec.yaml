@@ -45,6 +45,8 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   dio: ^4.0.6
   geopointer: ^0.0.2
+  syncfusion_flutter_calendar: ^20.2.36
+  provider: ^6.0.3
 
 
 dev_dependencies:
