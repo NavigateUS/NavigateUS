@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:navigateus/screens/event_data_source.dart';
-import 'package:navigateus/screens/event_provider.dart';
+import 'package:navigateus/screens/timetable/components/module_data_source.dart';
+import 'package:navigateus/screens/timetable/components/module_provider.dart';
+import 'package:navigateus/screens/timetable/event_viewin.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 class TaskWidget extends StatefulWidget {
+  const TaskWidget({Key? key}) : super(key: key);
+
   @override
-  _TaskWidgetState createState() => _TaskWidgetState();
+  TaskWidgetState createState() => TaskWidgetState();
 }
 
-class _TaskWidgetState extends State<TaskWidget> {
+class TaskWidgetState extends State<TaskWidget> {
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<EventProvider>(context);
+    final provider = Provider.of<ModuleProvider>(context);
     final selectedEvents = provider.eventsOfSelectedDate;
 
     if (selectedEvents.isEmpty) {
-      return Center(
+      return const Center(
           child: Text('No Events Found!',
               style: TextStyle(color: Colors.black, fontSize: 24)));
     }
 
     return SfCalendarTheme(
       data: SfCalendarThemeData(
-          timeTextStyle: TextStyle(fontSize: 16, color: Colors.black)),
+          timeTextStyle: const TextStyle(fontSize: 16, color: Colors.black)),
       child: SfCalendar(
         view: CalendarView.timelineDay,
-        dataSource: EventDataSource(provider.events),
+        dataSource: DataSource(provider.events),
         initialDisplayDate: provider.selectedDate,
         appointmentBuilder: appointmentBuilder,
         headerHeight: 0,
@@ -53,7 +56,7 @@ class _TaskWidgetState extends State<TaskWidget> {
       width: details.bounds.width,
       height: details.bounds.height,
       decoration: BoxDecoration(
-        color: event.backgroundColor.withOpacity(0.5),
+        color: event.background.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
@@ -61,7 +64,7 @@ class _TaskWidgetState extends State<TaskWidget> {
           event.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.bold,

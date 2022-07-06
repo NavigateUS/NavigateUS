@@ -7,11 +7,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/bus_data/bus_stops.dart';
-import 'package:navigateus/mapFunctions/geolocator_service.dart';
+import 'package:navigateus/screens/map/functions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
-import 'package:navigateus/widgets/bus_directions.dart';
+import 'package:navigateus/screens/map/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
 
