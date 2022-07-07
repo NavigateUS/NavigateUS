@@ -47,6 +47,7 @@ dependencies:
   geopointer: ^0.0.2
   syncfusion_flutter_calendar: ^20.2.36
   provider: ^6.0.3
+  search_choices: ^2.0.21
 
 
 dev_dependencies:

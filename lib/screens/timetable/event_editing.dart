@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:navigateus/places.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
 import 'package:navigateus/screens/timetable/components/module_provider.dart';
 import 'package:navigateus/screens/timetable/components/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:search_choices/search_choices.dart';
 
 class EventEditingPage extends StatefulWidget {
   final Module? event;
@@ -18,19 +20,67 @@ class EventEditingPageState extends State<EventEditingPage> {
   final titleController = TextEditingController();
   late DateTime fromDate;
   late DateTime toDate;
+  late TimeOfDay fromTime = TimeOfDay.now();
+  late TimeOfDay toTime = TimeOfDay.now();
+  bool asTabs = false;
+  String? selectedValueSingleDialog;
+  String? selectedValueSingleDoneButtonDialog;
+  String? selectedValueSingleMenu;
+  String? selectedValueSingleDialogCustomKeyboard;
+  String? selectedValueSingleDialogOverflow;
+  String? selectedValueSingleDialogEditableItems;
+  String? selectedValueSingleMenuEditableItems;
+  String? selectedValueSingleDialogDarkMode;
+  String? selectedValueSingleDialogEllipsis;
+  String? selectedValueSingleDialogRightToLeft;
+  String? selectedValueUpdateFromOutsideThePlugin;
+  dynamic selectedValueSingleDialogPaged;
+  dynamic selectedValueSingleDialogPagedFuture;
+  dynamic selectedValueSingleDialogFuture;
+  List<int> selectedItemsMultiDialog = [];
+  List<int> selectedItemsMultiCustomDisplayDialog = [];
+  List<int> selectedItemsMultiSelect3Dialog = [];
+  List<int> selectedItemsMultiMenu = [];
+  List<int> selectedItemsMultiMenuSelectAllNone = [];
+  List<int> selectedItemsMultiDialogSelectAllNoneWoClear = [];
+  List<int> editableSelectedItems = [];
+  List<DropdownMenuItem> items = Place.getDropdownList();
+
+  String inputString = "";
+  TextFormField? input;
+  List<int> selectedItemsMultiSelect3Menu = [];
+  List<int> selectedItemsMultiDialogWithCountAndWrap = [];
+  List<int> selectedItemsMultiDialogPaged = [];
+  List<Map<String, dynamic>> selectedItemsMultiMenuPagedFuture = [];
+  List<Map<String, dynamic>> selectedItemsMultiDialogPagedFuture = [];
+
+  Function? openDialog;
+
+  PointerThisPlease<int> currentPage = PointerThisPlease<int>(1);
+
+  bool noResult = false;
+
+  String widgetSearchString = "";
+
+  TextEditingController widgetSearchController = TextEditingController();
+
+  final String loremIpssum =
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
   @override
   initState() {
-    super.initState();
     if (widget.event == null) {
-      fromDate = DateTime.now();
-      toDate = DateTime.now().add(const Duration(hours: 2));
+      // fromDate = DateTime.now();
+      // toDate = DateTime.now().add(const Duration(hours: 2));
+      fromTime = TimeOfDay.now();
+      toTime = TimeOfDay.now();
     } else {
       final event = widget.event!;
       titleController.text = event.title;
       fromDate = event.from;
       toDate = event.to;
     }
+    super.initState();
   }
 
   @override
@@ -54,7 +104,10 @@ class EventEditingPageState extends State<EventEditingPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               buildTitle(),
-              buildDateTimePickers(),
+              buildLocation(),
+              buildWeekday(),
+              buildFromTimePicker(),
+              buildToTimePicker(),
               buildEditingActions(),
             ],
           ),
@@ -89,6 +142,129 @@ class EventEditingPageState extends State<EventEditingPage> {
           title != null && title.isEmpty ? 'Module cannot be empty' : null,
       controller: titleController,
     );
+  }
+
+  Widget buildLocation() {
+    return SearchChoices.single(
+      items: items,
+      value: selectedValueSingleDialog,
+      hint: "Select location",
+      searchHint: "Select location",
+      onChanged: (value) {
+        setState(() {
+          selectedValueSingleDialog = value;
+        });
+      },
+      isExpanded: true,
+    );
+  }
+
+  String dropdownvalue = "Monday";
+  var weekday = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+  ];
+
+  Widget buildWeekday() {
+    return Row(
+      children: [
+        const Expanded(
+            flex: 1, child: Text("Weekday", style: TextStyle(fontSize: 20))),
+        DropdownButton(
+          value: dropdownvalue,
+          icon: const Icon(Icons.keyboard_arrow_down),
+          items: weekday.map((String items) {
+            return DropdownMenuItem(
+              value: items,
+              child: Text(items),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              dropdownvalue = newValue!;
+            });
+          },
+          style: const TextStyle(fontSize: 20, color: Colors.black),
+        ),
+      ],
+    );
+  }
+
+  Widget buildFromTimePicker() {
+    return Row(
+      children: [
+        const Expanded(
+            flex: 2, child: Text("From", style: TextStyle(fontSize: 20))),
+        Expanded(
+            flex: 2,
+            child: Text(
+              fromTime.format(context),
+              style: const TextStyle(fontSize: 20),
+            )),
+        Expanded(
+          flex: 1,
+          child: ElevatedButton(
+            child: const Text("Select"),
+            onPressed: () {
+              setFromTime(context);
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildToTimePicker() {
+    return Row(
+      children: [
+        const Expanded(
+            flex: 2, child: Text("To", style: TextStyle(fontSize: 20))),
+        Expanded(
+            flex: 2,
+            child: Text(
+              toTime.format(context),
+              style: const TextStyle(fontSize: 20),
+            )),
+        Expanded(
+          flex: 1,
+          child: ElevatedButton(
+            child: const Text("Select"),
+            onPressed: () {
+              setToTime(context);
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  setFromTime(BuildContext context) async {
+    final TimeOfDay? timeOfDay = await showTimePicker(
+      context: context,
+      initialTime: fromTime,
+      initialEntryMode: TimePickerEntryMode.dial,
+    );
+    if (timeOfDay != null && timeOfDay != TimeOfDay.now()) {
+      setState(() {
+        fromTime = timeOfDay;
+      });
+    }
+  }
+
+  setToTime(BuildContext context) async {
+    final TimeOfDay? timeOfDay = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.dial,
+    );
+    if (timeOfDay != null && timeOfDay != TimeOfDay.now()) {
+      setState(() {
+        toTime = timeOfDay;
+      });
+    }
   }
 
   buildDateTimePickers() {

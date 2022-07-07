@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 
@@ -7,6 +8,21 @@ class Place {
   late final FloorMap? indoorMap;
 
   Place(this.name, this.latLng, {this.indoorMap});
+
+  static DropdownMenuItem<Place> toDropdown(Place place) {
+    return DropdownMenuItem(
+      value: place,
+      child: Text(place.name),
+    );
+  }
+
+  static List<DropdownMenuItem<Place>> getDropdownList() {
+    List<DropdownMenuItem<Place>> list = [];
+    for (Place place in locations) {
+      list.add(toDropdown(place));
+    }
+    return list;
+  }
 }
 
 List<Place> locations = [
@@ -18,7 +34,7 @@ List<Place> locations = [
           const FloorMap(building: "COM2", floorNum: 4, hasBasement: true)),
   Place("COM 3", const LatLng(1.2954803776871135, 103.77468480930364)),
   Place("Icube Building", const LatLng(1.2923243394779413, 103.77536909282506),
-    indoorMap: FloorMap(building: "ICUBE", floorNum: 3, hasBasement: false)),
+      indoorMap: FloorMap(building: "ICUBE", floorNum: 3, hasBasement: false)),
   Place("BIZ 1, Mochtar Riady Building",
       const LatLng(1.2926680252746072, 103.77425677288579)),
   Place("BIZ 2", const LatLng(1.2935537033095423, 103.77511694696383)),
