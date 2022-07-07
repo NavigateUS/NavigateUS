@@ -15,6 +15,7 @@ import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
 import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:collection/collection.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
