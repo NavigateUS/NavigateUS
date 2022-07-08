@@ -6,6 +6,8 @@ class Module {
   final String location;
   final DateTime from;
   final DateTime to;
+  final String weekday;
+  final String recurrenceRule;
   final Color background;
 
   const Module({
@@ -13,6 +15,13 @@ class Module {
     required this.location,
     required this.from,
     required this.to,
-    this.background = Colors.lightGreen,
+    required this.weekday,
+    this.recurrenceRule = '',
+    this.background = Colors.lightBlue,
   });
+
+  @override
+  String toString() {
+    return "$title / $location / $weekday / $from / $to";
+  }
 }

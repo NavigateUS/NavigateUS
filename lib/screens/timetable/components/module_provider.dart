@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
 
 class ModuleProvider extends ChangeNotifier {
-  final List<Module> _events = [];
+  final List<Module> _mods = [];
 
-  List<Module> get events => _events;
+  List<Module> get modules => _mods;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -12,23 +12,23 @@ class ModuleProvider extends ChangeNotifier {
 
   void setDate(DateTime date) => _selectedDate = date;
 
-  List<Module> get eventsOfSelectedDate => _events;
+  List<Module> get eventsOfSelectedDate => _mods;
 
-  void addEvent(Module event) {
-    _events.add(event);
-
-    notifyListeners();
-  }
-
-  void editEvent(Module newEvent, Module oldEvent) {
-    final index = _events.indexOf(oldEvent);
-    _events[index] = newEvent;
+  void addModule(Module event) {
+    _mods.add(event);
 
     notifyListeners();
   }
 
-  void deleteEvent(Module event) {
-    _events.remove(event);
+  void editModule(Module newEvent, Module oldEvent) {
+    final index = _mods.indexOf(oldEvent);
+    _mods[index] = newEvent;
+
+    notifyListeners();
+  }
+
+  void deleteModule(Module module) {
+    _mods.remove(module);
 
     notifyListeners();
   }

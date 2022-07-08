@@ -7,78 +7,39 @@ import 'package:provider/provider.dart';
 import 'package:search_choices/search_choices.dart';
 
 class EventEditingPage extends StatefulWidget {
-  final Module? event;
+  final Module? module;
 
-  const EventEditingPage({Key? key, this.event}) : super(key: key);
+  const EventEditingPage({Key? key, this.module}) : super(key: key);
 
   @override
   EventEditingPageState createState() => EventEditingPageState();
 }
 
 class EventEditingPageState extends State<EventEditingPage> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
-  late DateTime fromDate;
-  late DateTime toDate;
-  late TimeOfDay fromTime = TimeOfDay.now();
-  late TimeOfDay toTime = TimeOfDay.now();
-  bool asTabs = false;
-  String? selectedValueSingleDialog;
-  String? selectedValueSingleDoneButtonDialog;
-  String? selectedValueSingleMenu;
-  String? selectedValueSingleDialogCustomKeyboard;
-  String? selectedValueSingleDialogOverflow;
-  String? selectedValueSingleDialogEditableItems;
-  String? selectedValueSingleMenuEditableItems;
-  String? selectedValueSingleDialogDarkMode;
-  String? selectedValueSingleDialogEllipsis;
-  String? selectedValueSingleDialogRightToLeft;
-  String? selectedValueUpdateFromOutsideThePlugin;
-  dynamic selectedValueSingleDialogPaged;
-  dynamic selectedValueSingleDialogPagedFuture;
-  dynamic selectedValueSingleDialogFuture;
-  List<int> selectedItemsMultiDialog = [];
-  List<int> selectedItemsMultiCustomDisplayDialog = [];
-  List<int> selectedItemsMultiSelect3Dialog = [];
-  List<int> selectedItemsMultiMenu = [];
-  List<int> selectedItemsMultiMenuSelectAllNone = [];
-  List<int> selectedItemsMultiDialogSelectAllNoneWoClear = [];
-  List<int> editableSelectedItems = [];
+  late DateTime startDate;
+  late DateTime endDate;
+  late TimeOfDay fromTime;
+  late TimeOfDay toTime;
+  String? selectedLocation;
   List<DropdownMenuItem> items = Place.getDropdownList();
-
-  String inputString = "";
-  TextFormField? input;
-  List<int> selectedItemsMultiSelect3Menu = [];
-  List<int> selectedItemsMultiDialogWithCountAndWrap = [];
-  List<int> selectedItemsMultiDialogPaged = [];
-  List<Map<String, dynamic>> selectedItemsMultiMenuPagedFuture = [];
-  List<Map<String, dynamic>> selectedItemsMultiDialogPagedFuture = [];
-
-  Function? openDialog;
-
-  PointerThisPlease<int> currentPage = PointerThisPlease<int>(1);
-
-  bool noResult = false;
-
-  String widgetSearchString = "";
+  String selectedDay = "Monday";
 
   TextEditingController widgetSearchController = TextEditingController();
 
-  final String loremIpssum =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
   @override
   initState() {
-    if (widget.event == null) {
-      // fromDate = DateTime.now();
-      // toDate = DateTime.now().add(const Duration(hours: 2));
-      fromTime = TimeOfDay.now();
-      toTime = TimeOfDay.now();
+    if (widget.module == null) {
+      startDate = DateTime.now();
+      endDate = DateTime.now().add(const Duration(hours: 2));
+      fromTime = TimeOfDay.fromDateTime(startDate);
+      toTime = TimeOfDay.fromDateTime(endDate);
     } else {
-      final event = widget.event!;
+      final event = widget.module!;
       titleController.text = event.title;
-      fromDate = event.from;
-      toDate = event.to;
+      startDate = event.from;
+      endDate = event.to;
     }
     super.initState();
   }
@@ -123,7 +84,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         shadowColor: Colors.transparent,
       ),
       onPressed: () {
-        saveForm;
+        saveForm();
       },
       icon: const Icon(Icons.done),
       label: const Text('Save'),
@@ -137,7 +98,8 @@ class EventEditingPageState extends State<EventEditingPage> {
         border: UnderlineInputBorder(),
         hintText: 'Add Module',
       ),
-      onFieldSubmitted: (_) => saveForm(),
+      // onFieldSubmitted: (_) => saveForm(),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (title) =>
           title != null && title.isEmpty ? 'Module cannot be empty' : null,
       controller: titleController,
@@ -147,19 +109,20 @@ class EventEditingPageState extends State<EventEditingPage> {
   Widget buildLocation() {
     return SearchChoices.single(
       items: items,
-      value: selectedValueSingleDialog,
+      value: selectedLocation,
       hint: "Select location",
       searchHint: "Select location",
+      validator: (value) =>
+          value != null && value.isEmpty ? 'Location cannot be empty' : null,
       onChanged: (value) {
         setState(() {
-          selectedValueSingleDialog = value;
+          selectedLocation = value;
         });
       },
       isExpanded: true,
     );
   }
 
-  String dropdownvalue = "Monday";
   var weekday = [
     'Monday',
     'Tuesday',
@@ -174,7 +137,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         const Expanded(
             flex: 1, child: Text("Weekday", style: TextStyle(fontSize: 20))),
         DropdownButton(
-          value: dropdownvalue,
+          value: selectedDay,
           icon: const Icon(Icons.keyboard_arrow_down),
           items: weekday.map((String items) {
             return DropdownMenuItem(
@@ -184,7 +147,7 @@ class EventEditingPageState extends State<EventEditingPage> {
           }).toList(),
           onChanged: (String? newValue) {
             setState(() {
-              dropdownvalue = newValue!;
+              selectedDay = newValue!;
             });
           },
           style: const TextStyle(fontSize: 20, color: Colors.black),
@@ -282,7 +245,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         Expanded(
           flex: 2,
           child: buildDropDownField(
-            text: Utils.toDate(fromDate),
+            text: Utils.toDate(startDate),
             onClicked: () {
               pickFromDateTime(pickDate: true);
             },
@@ -290,7 +253,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         ),
         Expanded(
           child: buildDropDownField(
-            text: Utils.toTime(fromDate),
+            text: Utils.toTime(startDate),
             onClicked: () {
               pickFromDateTime(pickDate: false);
             },
@@ -306,7 +269,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         Expanded(
           flex: 2,
           child: buildDropDownField(
-            text: Utils.toDate(toDate),
+            text: Utils.toDate(endDate),
             onClicked: () {
               pickToDateTime(pickDate: true);
             },
@@ -314,7 +277,7 @@ class EventEditingPageState extends State<EventEditingPage> {
         ),
         Expanded(
           child: buildDropDownField(
-            text: Utils.toTime(toDate),
+            text: Utils.toTime(endDate),
             onClicked: () {
               pickToDateTime(pickDate: false);
             },
@@ -332,27 +295,27 @@ class EventEditingPageState extends State<EventEditingPage> {
   }
 
   Future pickFromDateTime({required bool pickDate}) async {
-    final date = await pickDateTime(fromDate, pickDate: pickDate);
+    final date = await pickDateTime(startDate, pickDate: pickDate);
 
     if (date == null) return;
 
-    if (date.isAfter(toDate)) {
-      toDate =
-          DateTime(date.year, date.month, date.day, toDate.hour, toDate.minute);
+    if (date.isAfter(endDate)) {
+      endDate = DateTime(
+          date.year, date.month, date.day, endDate.hour, endDate.minute);
     }
-    setState(() => fromDate = date);
+    setState(() => startDate = date);
   }
 
   Future pickToDateTime({required bool pickDate}) async {
     final date = await pickDateTime(
-      toDate,
+      endDate,
       pickDate: pickDate,
-      firstDate: pickDate ? fromDate : null,
+      firstDate: pickDate ? startDate : null,
     );
 
     if (date == null) return;
 
-    setState(() => toDate = date);
+    setState(() => endDate = date);
   }
 
   Future<DateTime?> pickDateTime(
@@ -390,28 +353,33 @@ class EventEditingPageState extends State<EventEditingPage> {
     }
   }
 
+  String toDay(String day) {
+    return day.substring(0, 2).toUpperCase();
+  }
+
   Future saveForm() async {
-    final isValid = _formKey.currentState!.validate();
+    final isValid =
+        _formKey.currentState!.validate() && selectedLocation != null;
 
+    String day = toDay(selectedDay);
     if (isValid) {
-      final event = Module(
-        title: titleController.text,
-        location: 'location',
-        from: fromDate,
-        to: toDate,
-      );
+      final module = Module(
+          title: titleController.text,
+          location: selectedLocation!,
+          weekday: selectedDay,
+          from: startDate,
+          to: endDate,
+          recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day;COUNT=13");
 
-      final isEditing = widget.event != null;
+      final isEditing = widget.module != null;
       final provider = Provider.of<ModuleProvider>(context, listen: false);
-
       if (isEditing) {
-        provider.editEvent(event, widget.event!);
-        Navigator.of(context).pop();
+        provider.editModule(module, widget.module!);
+        Navigator.pop(context);
       } else {
-        provider.addEvent(event);
+        provider.addModule(module);
       }
-
-      Navigator.of(context).pop;
+      Navigator.pop(context);
     }
   }
 }

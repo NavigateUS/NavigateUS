@@ -9,15 +9,15 @@ class Place {
 
   Place(this.name, this.latLng, {this.indoorMap});
 
-  static DropdownMenuItem<Place> toDropdown(Place place) {
+  static DropdownMenuItem<String> toDropdown(Place place) {
     return DropdownMenuItem(
-      value: place,
+      value: place.name,
       child: Text(place.name),
     );
   }
 
-  static List<DropdownMenuItem<Place>> getDropdownList() {
-    List<DropdownMenuItem<Place>> list = [];
+  static List<DropdownMenuItem<String>> getDropdownList() {
+    List<DropdownMenuItem<String>> list = [];
     for (Place place in locations) {
       list.add(toDropdown(place));
     }
@@ -157,7 +157,7 @@ List<Place> locations = [
       const LatLng(1.2995852400523222, 103.77545528115782)),
   Place("MPSH6", const LatLng(1.3002372516411902, 103.77562552206695)),
   Place("MPSH5", const LatLng(1.300394629584414, 103.77626088577071)),
-  Place("MPSH1/2/3/4", const LatLng(1.3008364254324378, 103.7759801877826)),
+  Place("MPSH1,2,3,4", const LatLng(1.3008364254324378, 103.7759801877826)),
   Place("NUS Staff Club", const LatLng(1.2992524085748836, 103.77584923471703)),
   Place("Singapore Wind Tunnel Facility",
       const LatLng(1.3010860150329828, 103.77532293390252)),

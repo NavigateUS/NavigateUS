@@ -62,7 +62,7 @@ class EventViewingPage extends StatelessWidget {
           icon: const Icon(Icons.edit),
           onPressed: () => Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => EventEditingPage(event: event),
+              builder: (context) => EventEditingPage(module: event),
             ),
           ),
         ),
@@ -71,7 +71,7 @@ class EventViewingPage extends StatelessWidget {
           onPressed: () {
             final provider =
                 Provider.of<ModuleProvider>(context, listen: false);
-            provider.deleteEvent(event);
+            provider.deleteModule(event);
           },
         )
       ];

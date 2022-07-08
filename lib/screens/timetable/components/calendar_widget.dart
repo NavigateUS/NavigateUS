@@ -6,16 +6,14 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'module_provider.dart';
 
 class CalendarWidget extends StatelessWidget {
-  CalendarWidget({Key? key}) : super(key: key);
-
-  final CalendarDataSource dataSource = DataSource(<Module>[]);
+  const CalendarWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final events = Provider.of<ModuleProvider>(context).events;
+    final events = Provider.of<ModuleProvider>(context).modules;
 
     return SfCalendar(
-        view: CalendarView.schedule,
+        view: CalendarView.week,
         allowedViews: const [
           CalendarView.day,
           CalendarView.week,
@@ -26,7 +24,7 @@ class CalendarWidget extends StatelessWidget {
         initialSelectedDate: DateTime.now(),
         cellBorderColor: Colors.black12,
         onLongPress: (details) {
-          final provider = Provider.of<ModuleProvider>(context, listen: true);
+          final provider = Provider.of<ModuleProvider>(context, listen: false);
           provider.setDate(details.date!);
         });
   }

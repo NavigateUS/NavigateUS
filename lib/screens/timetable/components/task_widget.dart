@@ -30,7 +30,7 @@ class TaskWidgetState extends State<TaskWidget> {
           timeTextStyle: const TextStyle(fontSize: 16, color: Colors.black)),
       child: SfCalendar(
         view: CalendarView.timelineDay,
-        dataSource: DataSource(provider.events),
+        dataSource: DataSource(provider.modules),
         initialDisplayDate: provider.selectedDate,
         appointmentBuilder: appointmentBuilder,
         headerHeight: 0,

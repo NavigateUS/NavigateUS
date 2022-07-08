@@ -19,16 +19,16 @@ class DataSource extends CalendarDataSource {
 
   @override
   String getSubject(int index) {
-    return appointments![index].eventName;
+    return appointments![index].title;
+  }
+
+  @override
+  String getRecurrenceRule(int index) {
+    return appointments![index].recurrenceRule;
   }
 
   @override
   Color getColor(int index) {
     return appointments![index].background;
-  }
-
-  @override
-  bool isAllDay(int index) {
-    return appointments![index].isAllDay;
   }
 }
