@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:navigateus/screens/timetable/components/module_data_source.dart';
+import 'package:navigateus/screens/timetable/components/data_source.dart';
 import 'package:navigateus/screens/timetable/components/module_provider.dart';
 import 'package:navigateus/screens/timetable/event_viewin.dart';
 import 'package:provider/provider.dart';

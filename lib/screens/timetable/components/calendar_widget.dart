@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
-import 'package:navigateus/screens/timetable/components/module_data_source.dart';
+import 'package:navigateus/screens/timetable/components/data_source.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'module_provider.dart';
@@ -11,7 +11,6 @@ class CalendarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final events = Provider.of<ModuleProvider>(context).modules;
-
     return SfCalendar(
         view: CalendarView.week,
         allowedViews: const [

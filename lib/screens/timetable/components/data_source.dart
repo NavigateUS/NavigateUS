@@ -23,6 +23,11 @@ class DataSource extends CalendarDataSource {
   }
 
   @override
+  String getLocation(int index) {
+    return appointments![index].location;
+  }
+
+  @override
   String getRecurrenceRule(int index) {
     return appointments![index].recurrenceRule;
   }

@@ -213,6 +213,7 @@ class EventEditingPageState extends State<EventEditingPage> {
     if (timeOfDay != null && timeOfDay != TimeOfDay.now()) {
       setState(() {
         fromTime = timeOfDay;
+        startDate = DateTime(2022, 8, 1, fromTime.hour, fromTime.minute);
       });
     }
   }
@@ -226,150 +227,24 @@ class EventEditingPageState extends State<EventEditingPage> {
     if (timeOfDay != null && timeOfDay != TimeOfDay.now()) {
       setState(() {
         toTime = timeOfDay;
+        endDate = DateTime(2022, 8, 1, toTime.hour, toTime.minute);
       });
     }
-  }
-
-  buildDateTimePickers() {
-    return Column(
-      children: [
-        buildFrom(),
-        buildTo(),
-      ],
-    );
-  }
-
-  buildFrom() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: buildDropDownField(
-            text: Utils.toDate(startDate),
-            onClicked: () {
-              pickFromDateTime(pickDate: true);
-            },
-          ),
-        ),
-        Expanded(
-          child: buildDropDownField(
-            text: Utils.toTime(startDate),
-            onClicked: () {
-              pickFromDateTime(pickDate: false);
-            },
-          ),
-        )
-      ],
-    );
-  }
-
-  buildTo() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: buildDropDownField(
-            text: Utils.toDate(endDate),
-            onClicked: () {
-              pickToDateTime(pickDate: true);
-            },
-          ),
-        ),
-        Expanded(
-          child: buildDropDownField(
-            text: Utils.toTime(endDate),
-            onClicked: () {
-              pickToDateTime(pickDate: false);
-            },
-          ),
-        )
-      ],
-    );
-  }
-
-  buildDropDownField({required String text, required VoidCallback onClicked}) {
-    return ListTile(
-      title: Text(text),
-      trailing: const Icon(Icons.arrow_drop_down),
-    );
-  }
-
-  Future pickFromDateTime({required bool pickDate}) async {
-    final date = await pickDateTime(startDate, pickDate: pickDate);
-
-    if (date == null) return;
-
-    if (date.isAfter(endDate)) {
-      endDate = DateTime(
-          date.year, date.month, date.day, endDate.hour, endDate.minute);
-    }
-    setState(() => startDate = date);
-  }
-
-  Future pickToDateTime({required bool pickDate}) async {
-    final date = await pickDateTime(
-      endDate,
-      pickDate: pickDate,
-      firstDate: pickDate ? startDate : null,
-    );
-
-    if (date == null) return;
-
-    setState(() => endDate = date);
-  }
-
-  Future<DateTime?> pickDateTime(
-    DateTime initialDate, {
-    required bool pickDate,
-    DateTime? firstDate,
-  }) async {
-    if (pickDate) {
-      final date = await showDatePicker(
-        context: context,
-        initialDate: initialDate,
-        firstDate: firstDate ?? DateTime(2020, 8),
-        lastDate: DateTime(2101),
-      );
-
-      if (date == null) return null;
-
-      final time =
-          Duration(hours: initialDate.hour, minutes: initialDate.minute);
-
-      return date.add(time);
-    } else {
-      final timeOfDay = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(initialDate),
-      );
-
-      if (timeOfDay == null) return null;
-
-      final date =
-          DateTime(initialDate.year, initialDate.month, initialDate.day);
-      final time = Duration(hours: timeOfDay.hour, minutes: timeOfDay.minute);
-
-      return date.add(time);
-    }
-  }
-
-  String toDay(String day) {
-    return day.substring(0, 2).toUpperCase();
   }
 
   Future saveForm() async {
     final isValid =
         _formKey.currentState!.validate() && selectedLocation != null;
 
-    String day = toDay(selectedDay);
+    String day = selectedDay.substring(0, 2).toUpperCase();
+
     if (isValid) {
       final module = Module(
           title: titleController.text,
           location: selectedLocation!,
-          weekday: selectedDay,
           from: startDate,
           to: endDate,
-          recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day;COUNT=13");
+          recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day");
 
       final isEditing = widget.module != null;
       final provider = Provider.of<ModuleProvider>(context, listen: false);

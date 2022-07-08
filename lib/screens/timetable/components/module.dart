@@ -6,7 +6,6 @@ class Module {
   final String location;
   final DateTime from;
   final DateTime to;
-  final String weekday;
   final String recurrenceRule;
   final Color background;
 
@@ -15,13 +14,12 @@ class Module {
     required this.location,
     required this.from,
     required this.to,
-    required this.weekday,
-    this.recurrenceRule = '',
+    required this.recurrenceRule,
     this.background = Colors.lightBlue,
   });
 
   @override
   String toString() {
-    return "$title / $location / $weekday / $from / $to";
+    return "$title / $location / $recurrenceRule / $from / $to";
   }
 }
