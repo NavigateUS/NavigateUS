@@ -38,37 +38,32 @@ class BusTile extends StatelessWidget {
     }
 
 
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration:  BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: Colors.grey[400],
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration:  BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.grey[400],
+      ),
+      child: Wrap(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration:  BoxDecoration(
+              borderRadius: BorderRadius.circular(3),
+              color: busColor(service),
+            ),
+            child: Wrap(
+              children: [
+                Text(service, style: const TextStyle(fontSize: 17),)
+              ],
+            ),
           ),
-          child: Wrap(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration:  BoxDecoration(
-                  borderRadius: BorderRadius.circular(3),
-                  color: busColor(service),
-                ),
-                child: Wrap(
-                  children: [
-                    Text(service, style: const TextStyle(fontSize: 17),)
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 2,
-              ),
-              Text(text, style: const TextStyle(fontSize: 18),),
-            ],
+          const SizedBox(
+            width: 2,
           ),
-        ),
-
-      ],
+          Text(text, style: const TextStyle(fontSize: 18),),
+        ],
+      ),
     );
   }
 }
