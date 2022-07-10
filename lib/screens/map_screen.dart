@@ -935,51 +935,8 @@ class MapState extends State<MapScreen> {
     return result;
   }
 
-  // Map Function to Mark the nearest two bus stops on the map based on user's location.
-  void markBusStops() async {
-    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(), 'assets/icons/bus.png');
-    try {
-      Position userPosition = await GeolocatorService().getCurrentLocation();
-      LatLng latLngPos = LatLng(userPosition.latitude, userPosition.longitude);
-      List<Map<String, LatLng>> busStopList = getNearestBusStop(latLngPos);
-      for (Map<String, LatLng> busStop in busStopList) {
-        setState(() {
-          markers.add(Marker(
-              markerId: MarkerId(busStop.keys.first),
-              position: busStop.values.first,
-              icon: busIcon));
-        });
-      }
-    } catch (error) {
-      print(error);
-    }
-  }
 
-  // Map Function to Mark the nearest two bus stops on the map based on given location.
-  void markLocationBusStops(LatLng location) async {
-    BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(), 'assets/icons/bus.png');
-    try {
-      List<Map<String, LatLng>> busStopList = getNearestBusStop(location);
-      setState(() {
-        markers.clear();
-        markers.add(Marker(
-            markerId: const MarkerId("Destination"), position: location));
-      });
-      for (Map<String, LatLng> busStop in busStopList) {
-        setState(() {
-          markers.add(Marker(
-              markerId: MarkerId(busStop.keys.first),
-              position: busStop.values.first,
-              icon: busIcon));
-        });
-      }
-    } catch (error) {
-      print(error);
-    }
-  }
-
+  //Marks bus stops given (String of bus stop names)
   void markSelectedBusStops(List<String> locations) async {
     BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(), 'assets/icons/bus.png');
