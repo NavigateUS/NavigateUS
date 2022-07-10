@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:navigateus/screens/indoor_maps/components/building.dart';
 import 'package:navigateus/screens/indoor_maps/components/image_button.dart';
 import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 
@@ -16,27 +15,27 @@ class IndoorMapState extends State {
     ImageButton(
       name: "COM1",
       image: "assets/indoor_maps/COM1_Cover.jpg",
-      newScreen: FloorMap(building: "COM1", floorNum: 3, hasBasement: true),
+      newScreen: FloorMap(building: "COM1"),
     ),
     ImageButton(
       name: "COM2",
       image: "assets/indoor_maps/COM2_Cover.jpg",
-      newScreen: FloorMap(building: "COM2", floorNum: 4, hasBasement: true),
+      newScreen: FloorMap(building: "COM2"),
     ),
     ImageButton(
       name: "AS3",
       image: "assets/indoor_maps/AS3_Cover.jpg",
-      newScreen: FloorMap(building: "AS3", floorNum: 6, hasBasement: false),
+      newScreen: FloorMap(building: "AS3"),
     ),
     ImageButton(
       name: "AS6",
       image: "assets/indoor_maps/AS6_Cover.jpg",
-      newScreen: FloorMap(building: "AS6", floorNum: 5, hasBasement: false),
+      newScreen: FloorMap(building: "AS6"),
     ),
     ImageButton(
       name: "ICUBE",
       image: "assets/indoor_maps/ICUBE_Cover.jpg",
-      newScreen: FloorMap(building: "ICUBE", floorNum: 3, hasBasement: false),
+      newScreen: FloorMap(building: "ICUBE"),
     )
   ];
 
