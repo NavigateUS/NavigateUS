@@ -37,14 +37,15 @@ dependencies:
   material_floating_search_bar: ^0.3.7
   google_maps_flutter: ^2.1.5
   location: ^4.4.0
-  geolocator: ^8.2.1
-  permission_handler: ^9.2.0
+  geolocator: ^9.0.0
+  permission_handler: ^10.0.0
   http: ^0.13.4
   photo_view: ^0.14.0
   google_place: ^0.4.7
   flutter_polyline_points: ^1.0.0
   dio: ^4.0.6
   geopointer: ^0.0.2
+  quiver: ^3.1.0
 
 
 dev_dependencies:
@@ -57,6 +58,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  test: ^1.21.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

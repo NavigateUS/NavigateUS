@@ -1,5 +1,7 @@
 import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:collection/collection.dart';
+import 'package:quiver/core.dart';
+
 
 class Node implements Comparable{
   int stops;
@@ -12,6 +14,7 @@ class Node implements Comparable{
     return stops.compareTo(other.stops);
   }
 
+  @override
   String toString() {
     return '($stops, $name)';
   }
@@ -23,9 +26,19 @@ class DirectionInstructions{
 
   DirectionInstructions(this.bus, this.stops);
 
+  @override
+  bool operator ==(Object other) =>
+      other is DirectionInstructions &&
+      other.stops == stops &&
+      other.bus.toSet().containsAll(bus);
+
   String toString() {
     return 'Take bus(es) $bus for $stops stops.';
   }
+
+  @override
+  int get hashCode => hash2(bus.hashCode, stops.hashCode);
+
 }
 
 

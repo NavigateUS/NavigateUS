@@ -28,13 +28,13 @@ class BusTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String text = stops;
-    text += ' ';
+    String stopsTaken = stops;
+    stopsTaken += ' ';
     if (int.parse(stops) == 1) {
-      text += 'stop';
+      stopsTaken += 'stop';
     }
     else{
-      text += 'stops';
+      stopsTaken += 'stops';
     }
 
 
@@ -45,6 +45,7 @@ class BusTile extends StatelessWidget {
         color: Colors.grey[400],
       ),
       child: Wrap(
+        textDirection: TextDirection.ltr,
         children: [
           Container(
             padding: const EdgeInsets.all(2),
@@ -53,15 +54,16 @@ class BusTile extends StatelessWidget {
               color: busColor(service),
             ),
             child: Wrap(
+              textDirection: TextDirection.ltr,
               children: [
-                Text(service, style: const TextStyle(fontSize: 17),)
+                Text(service, style: const TextStyle(fontSize: 17), textDirection: TextDirection.ltr,)
               ],
             ),
           ),
           const SizedBox(
             width: 2,
           ),
-          Text(text, style: const TextStyle(fontSize: 18),),
+          Text(stopsTaken, style: const TextStyle(fontSize: 18), textDirection: TextDirection.ltr,),
         ],
       ),
     );

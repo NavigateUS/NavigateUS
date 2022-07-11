@@ -25,11 +25,12 @@ class BusDirections extends StatelessWidget {
       }
       list.add(BusTile(stops: '${instruction.stops}', service: services));
       list.add(
-        const Icon(Icons.keyboard_arrow_right_sharp),
+        const Icon(Icons.keyboard_arrow_right_sharp, textDirection: TextDirection.ltr,),
       );
     }
     return Row(
       children: list,
+      textDirection: TextDirection.ltr,
     );
   }
 
