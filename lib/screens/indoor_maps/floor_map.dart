@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -12,19 +13,20 @@ class FloorMap extends StatefulWidget {
   const FloorMap({Key? key, required this.building}) : super(key: key);
 
   @override
-  _FloorMapState createState() => _FloorMapState();
+  FloorMapState createState() => FloorMapState();
 }
 
-class _FloorMapState extends State<FloorMap> {
+class FloorMapState extends State<FloorMap> {
   late String building;
   List<String> floors = [];
-  Directory path = Directory("assets/indoor_maps/");
+  List file = [];
 
   @override
   void initState() {
-    building = widget.building;
-    getImageList();
     super.initState();
+    building = widget.building;
+    // getImageList();
+    listofFiles();
   }
 
   @override
@@ -34,9 +36,15 @@ class _FloorMapState extends State<FloorMap> {
           title: Text(building),
           backgroundColor: Colors.deepOrange,
         ),
-        body: Column(
-          children: buildButton(),
-        ));
+        body: Column(children: <Widget>[
+          // your Content if there
+          Expanded(
+              child: ListView.builder(
+                  itemCount: file.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Text(file[index].path);
+                  }))
+        ]));
   }
 
   List<Widget> buildButton() {
@@ -47,16 +55,34 @@ class _FloorMapState extends State<FloorMap> {
     return list;
   }
 
-  void getImageList() async {
-    await for (var entity in path.list(recursive: true, followLinks: false)) {
-      String file = entity.toString();
-      if (file.contains(building)) {
-        if (!file.contains('Cover')) {
-          floors.add(entity.toString());
-          print(file);
-          print(floors.toString());
-        }
-      }
-    }
+  // Read images in the folder, select the images belongs to the building, exclude cover.
+
+  // sort image list based on reversed alphabetical order, L3, L2, B
+
+  // Create list of button based on the list of floor image.
+
+  // connect button with the image viewer.
+
+  void listofFiles() async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    setState(() {
+      // file = Directory("$directory/assets/indoor_maps/")
+      //     .listSync();
+      file = directory.listSync(followLinks: true);
+    });
+    print(file);
   }
+
+  // void getImageList() async {
+  //   await for (var entity in path.list(recursive: true, followLinks: false)) {
+  //     String file = entity.toString();
+  //     if (file.contains(building)) {
+  //       if (!file.contains('Cover')) {
+  //         floors.add(entity.toString());
+  //         print(file);
+  //         print(floors.toString());
+  //       }
+  //     }
+  //   }
+  // }
 }
