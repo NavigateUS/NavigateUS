@@ -8,6 +8,7 @@ class Module {
   final DateTime to;
   final String recurrenceRule;
   final Color background;
+  final bool isAllDay;
 
   const Module({
     required this.title,
@@ -16,10 +17,11 @@ class Module {
     required this.to,
     required this.recurrenceRule,
     this.background = Colors.lightBlue,
+    this.isAllDay = false,
   });
 
-  @override
-  String toString() {
-    return "$title / $location / $recurrenceRule / $from / $to";
-  }
+  // @override
+  // String toString() {
+  //   return "$title / $location / $recurrenceRule / $from / $to";
+  // }
 }

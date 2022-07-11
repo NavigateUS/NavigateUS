@@ -8,29 +8,22 @@ class DataSource extends CalendarDataSource {
   }
 
   @override
-  DateTime getStartTime(int index) {
-    return appointments![index].from;
-  }
+  bool isAllDay(int index) => appointments![index].isAllDay;
 
   @override
-  DateTime getEndTime(int index) {
-    return appointments![index].to;
-  }
+  DateTime getStartTime(int index) => appointments![index].from;
 
   @override
-  String getSubject(int index) {
-    return appointments![index].title;
-  }
+  DateTime getEndTime(int index) => appointments![index].to;
 
   @override
-  String getLocation(int index) {
-    return appointments![index].location;
-  }
+  String getSubject(int index) => appointments![index].title;
 
   @override
-  String getRecurrenceRule(int index) {
-    return appointments![index].recurrenceRule;
-  }
+  String getLocation(int index) => appointments![index].location;
+
+  @override
+  String getRecurrenceRule(int index) => appointments![index].recurrenceRule;
 
   @override
   Color getColor(int index) {
