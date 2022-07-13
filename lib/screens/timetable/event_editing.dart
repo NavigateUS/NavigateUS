@@ -28,54 +28,40 @@ class EventEditingPageState extends State<EventEditingPage> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: AppBar(
-              title: Text(getTile()),
-              backgroundColor: _colorCollection[_selectedColorIndex],
-              leading: IconButton(
+          appBar: AppBar(
+            title: Text(getTile()),
+            backgroundColor: _colorCollection[_selectedColorIndex],
+            leading: IconButton(
+              icon: const Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                _selectedAppointment = null;
+                _title = "";
+                _location = "";
+                Navigator.pop(context);
+                setState(() {});
+              },
+            ),
+            actions: <Widget>[
+              IconButton(
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 icon: const Icon(
-                  Icons.close,
+                  Icons.done,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              actions: <Widget>[
-                IconButton(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                  icon: const Icon(
-                    Icons.done,
-                    color: Colors.white,
-                  ),
-                  onPressed: save,
-                )
-              ],
+                onPressed: save,
+              )
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Stack(
+              children: <Widget>[_getAppointmentEditor(context)],
             ),
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-              child: Stack(
-                children: <Widget>[_getAppointmentEditor(context)],
-              ),
-            ),
-            floatingActionButton: _selectedAppointment == null
-                ? const Text('')
-                : FloatingActionButton(
-                    onPressed: () {
-                      if (_selectedAppointment != null) {
-                        moduleDataSource.appointments!.removeAt(moduleDataSource
-                            .appointments!
-                            .indexOf(_selectedAppointment));
-                        moduleDataSource.notifyListeners(
-                            CalendarDataSourceAction.remove,
-                            <Module>[_selectedAppointment!]);
-                        _selectedAppointment = null;
-                        Navigator.pop(context);
-                      }
-                    },
-                    backgroundColor: Colors.red,
-                    child:
-                        const Icon(Icons.delete_outline, color: Colors.white),
-                  )));
+          ),
+        ));
   }
 
   String getTile() {
@@ -106,6 +92,8 @@ class EventEditingPageState extends State<EventEditingPage> {
 
     moduleDataSource.notifyListeners(CalendarDataSourceAction.add, mods);
     _selectedAppointment = null;
+    _title = "";
+    _location = "";
 
     Navigator.pop(context);
   }
@@ -295,6 +283,8 @@ class EventEditingPageState extends State<EventEditingPage> {
     'Wednesday',
     'Thursday',
     'Friday',
+    'Saturday',
+    'Sunday'
   ];
 
   Widget buildWeekday() {

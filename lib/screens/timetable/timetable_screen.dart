@@ -61,6 +61,8 @@ class TimetableState extends State<TimetableScreen> {
     _selectedColorIndex = 0;
     _title = '';
     _location = '';
+    _startDate = DateTime.now();
+    _endDate = DateTime.now().add(const Duration(hours: 1));
     moduleDataSource = DataSource(appointments); //events
     super.initState();
   }
@@ -106,10 +108,10 @@ class TimetableState extends State<TimetableScreen> {
                   backgroundColor: Colors.orange,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: ((context) => const EventEditingPage()),
+                      builder: ((context) => const EventManagingPage()),
                     ),
                   ),
-                  child: const Icon(Icons.remove, color: Colors.white),
+                  child: const Icon(Icons.calendar_month, color: Colors.white),
                 ),
               ],
             ),
@@ -130,7 +132,6 @@ class TimetableState extends State<TimetableScreen> {
       _selectedColorIndex = 0;
       _title = '';
       _location = '';
-
       if (calendarTapDetails.appointments != null &&
           calendarTapDetails.appointments!.length == 1) {
         final Module moduleDetails = calendarTapDetails.appointments![0];

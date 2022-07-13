@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Module {
   // module name, location,
@@ -20,8 +21,11 @@ class Module {
     this.isAllDay = false,
   });
 
-  // @override
-  // String toString() {
-  //   return "$title / $location / $recurrenceRule / $from / $to";
-  // }
+  @override
+  String toString() {
+    if (location == "") {
+      return "$title";
+    }
+    return "$title @ $location";
+  }
 }
