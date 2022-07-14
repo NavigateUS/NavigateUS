@@ -114,19 +114,20 @@ class MapState extends State<MapScreen> {
     }
   }
 
+  autoCompleteSearch(String query) {
+    final suggestions = locations.where((place) {
+      final name = place.name.toLowerCase();
+      final input = query.toLowerCase();
+
+      return name.contains(input);
+    }).toList();
+
+    setState(() => predictions = suggestions);
+  }
+
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-    void autoCompleteSearch(String query) {
-      final suggestions = locations.where((place) {
-        final name = place.name.toLowerCase();
-        final input = query.toLowerCase();
-
-        return name.contains(input);
-      }).toList();
-
-      setState(() => predictions = suggestions);
-    }
 
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;

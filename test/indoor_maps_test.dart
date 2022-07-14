@@ -46,7 +46,7 @@ void main() {
     expect(titleFinder, findsOneWidget);
 
     final imageFinder = find.descendant(of: find.byWidget(testWidget), matching: find.byType(PhotoView));
-    expect(imageFinder, findsWidgets);
+    expect(imageFinder, findsOneWidget);
   });
 
 }
