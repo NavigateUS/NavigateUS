@@ -144,7 +144,7 @@ Map<String, List<Map<String, String>>> graph = {
     },
     {
       "bus": "D1",
-      "nextBusStop": "COM 2",
+      "nextBusStop": "Ventus",
     },
   ],
   "COM 2": [
@@ -155,14 +155,6 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "A2",
       "nextBusStop": "Ventus",
-    },
-    {
-      "bus": "D1",
-      "nextBusStop": "Ventus",
-    },
-    {
-      "bus": "D1",
-      "nextBusStop": "BIZ 2",
     },
   ],
   "Ventus": [
@@ -230,7 +222,7 @@ Map<String, List<Map<String, String>>> graph = {
   "AS 5": [
     {
       "bus": "D1",
-      "nextBusStop": "COM 2",
+      "nextBusStop": "BIZ 2",
     },
     {
       "bus": "A1",
@@ -240,7 +232,7 @@ Map<String, List<Map<String, String>>> graph = {
   "BIZ 2": [
     {
       "bus": "D1",
-      "nextBusStop": "",
+      "nextBusStop": "COM 3",
     },
     {
       "bus": "A1",
@@ -361,6 +353,12 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "A1",
       "nextBusStop": "Prince George's Park",
+    },
+  ],
+  "COM 3": [
+    {
+      "bus": "D1",
+      "nextBusStop": "Opp Hon Sui Sen Memorial Library",
     },
   ],
 };

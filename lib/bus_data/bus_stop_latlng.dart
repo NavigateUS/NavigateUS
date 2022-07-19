@@ -32,5 +32,6 @@ const Map<String, PointLatLng> busStopsLatLng = {
   "University Health Centre" : PointLatLng(1.2989000082016, 103.77612015605),
   "University Town" : PointLatLng(1.30362176617453, 103.774675250053),
   "Ventus" : PointLatLng(1.29530000686646, 103.770599365234),
-  "Yusof Ishak House" : PointLatLng(1.29869997501373, 103.774299621582)
+  "Yusof Ishak House" : PointLatLng(1.29869997501373, 103.774299621582),
+  "COM 3" : PointLatLng(1.2950658310494974, 103.77485449186915)
 };
