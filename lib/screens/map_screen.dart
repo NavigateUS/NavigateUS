@@ -479,11 +479,6 @@ class MapState extends State<MapScreen> {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      for (BusStop s in busstops.values) {
-        print('time');
-        print(s.time);
-      }
-
 
       List<List<String>>? route0 = findRoute(busstops["Start1"]!.name, busstops["End1"]!.name);
       List<List<String>>? route1 = findRoute(busstops["Start1"]!.name, busstops["End2"]!.name);
@@ -491,7 +486,6 @@ class MapState extends State<MapScreen> {
       List<List<String>>? route3 = findRoute(busstops["Start2"]!.name, busstops["End2"]!.name);
 
       var routes = [BusRoute(route0, "Start1", "End1"), BusRoute(route1, "Start1", "End2"), BusRoute(route2, "Start2", "End1"), BusRoute(route3, "Start2", "End2")];
-      var time = [0,0,0,0];
       int invalid = 0;
 
       //do not consider impossible routes
