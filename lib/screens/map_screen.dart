@@ -792,13 +792,11 @@ class MapState extends State<MapScreen> {
                   },
                 child: AnimatedSize(
                   duration: const Duration(milliseconds: 300),
-                  curve: Curves.ease,
+                  curve: Curves.easeInOut,
                   child: Container(
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20)),
+                        borderRadius: BorderRadius.circular(20),
                         color: Colors.grey[300],
                       ),
                       child: Column(
