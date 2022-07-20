@@ -132,7 +132,7 @@ class EventEditingPageState extends State<EventEditingPage> {
     return SizedBox(
         height: 40,
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Expanded(child: Text("From", style: TextStyle(fontSize: 20))),
+          const Expanded(child: Text("From", style: TextStyle(fontSize: 20))),
           Expanded(
             flex: 2,
             child: Row(
