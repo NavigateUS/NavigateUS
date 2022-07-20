@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -17,18 +16,24 @@ class TimetableStorage {
     return File('$path/timetable.txt');
   }
 
-  Future<String> readTimetable() async {
+  Future<List<Module>> readTimetable() async {
     try {
       final file = await _localFile;
 
       // Read the file
       final contents = await file.readAsString();
 
-      return contents;
+      return parseToList(contents);
     } catch (e) {
-      // If encountering an error, return 0
-      return "error";
+      // If encountering an error, return empty list
+      return <Module>[];
     }
+  }
+
+  List<Module> parseToList(String contents) {
+    List<Module> list = [];
+    print(contents);
+    return list;
   }
 
   Future<File> writeTimetable(List<Module> modules) async {

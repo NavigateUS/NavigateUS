@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:navigateus/places.dart';
 import 'package:navigateus/screens/timetable/components/data_source.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
+import 'package:navigateus/screens/timetable/timetable_storage.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:search_choices/search_choices.dart';
 
@@ -13,7 +14,10 @@ part 'color_picker.dart';
 part 'event_managing.dart';
 
 class TimetableScreen extends StatefulWidget {
-  const TimetableScreen({Key? key}) : super(key: key);
+  const TimetableScreen({Key? key, required this.storage}) : super(key: key);
+
+  final TimetableStorage storage;
+
   @override
   TimetableState createState() => TimetableState();
 }
@@ -44,6 +48,11 @@ class TimetableState extends State<TimetableScreen> {
 
   @override
   void initState() {
+    // widget.storage.readTimetable().then((value) {
+    //   setState(() {
+    //     modules = value;
+    //   });
+    // });
     _colorCollection.add(const Color(0xFFFC571D));
     _colorCollection.add(const Color(0xFF85461E));
     _colorCollection.add(const Color(0xFFFF00FF));

@@ -14,6 +14,9 @@ import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:navigateus/screens/map/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
+import 'package:navigateus/screens/timetable/timetable_screen.dart';
+
+import '../timetable/components/data_source.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -28,6 +31,7 @@ class MapState extends State<MapScreen> {
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
   late GooglePlace googlePlace = GooglePlace(key);
+  bool hasData = false;
   List<Place> predictions = [];
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
@@ -147,7 +151,7 @@ class MapState extends State<MapScreen> {
         } else {
           //clear predictions
           setState(() {
-            predictions = [];
+            predictions = moduleDataSource.getPlaces();
           });
         }
       },

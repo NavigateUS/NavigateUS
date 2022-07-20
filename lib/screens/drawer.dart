@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
 import 'package:navigateus/screens/timetable/timetable_screen.dart';
+import 'package:navigateus/screens/timetable/timetable_storage.dart';
 
 Widget buildDrawer(BuildContext context) {
   return Drawer(
@@ -34,7 +35,9 @@ Widget buildDrawer(BuildContext context) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const TimetableScreen()));
+                    builder: (context) => TimetableScreen(
+                          storage: TimetableStorage(),
+                        )));
           },
         ),
         ListTile(

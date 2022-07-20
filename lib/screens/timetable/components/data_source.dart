@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:navigateus/screens/timetable/components/module.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../../places.dart';
+
 class DataSource extends CalendarDataSource {
   DataSource(List<Module> source) {
     appointments = source;
@@ -28,5 +30,16 @@ class DataSource extends CalendarDataSource {
   @override
   Color getColor(int index) {
     return appointments![index].background;
+  }
+
+  List<Place> getPlaces() {
+    List<Place> places = [];
+
+    for (int i = 0; i < appointments!.length; i++) {
+      places.add(locations.firstWhere(
+          ((element) => element.toString().contains(getLocation(i)))));
+      print(places);
+    }
+    return places;
   }
 }
