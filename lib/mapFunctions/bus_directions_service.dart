@@ -23,8 +23,10 @@ class Node implements Comparable{
 class DirectionInstructions{
   List<String> bus;
   int stops;
+  String board;
+  String alight;
 
-  DirectionInstructions(this.bus, this.stops);
+  DirectionInstructions(this.bus, this.stops, this.board, this.alight);
 
   @override
   bool operator ==(Object other) =>
@@ -111,11 +113,25 @@ List<List<String>> findRoute(String source, String destination) {  //Djikstra's 
   return route;
 }
 
-List<DirectionInstructions> getBestRoute(List<List<String>> route) {
+String getNextStop(String currStop, String bus) {
+  List<Map<String, String>> nextStops = graph[currStop]!;
+
+  for (Map<String, String> next in nextStops) {
+    if (next["bus"] == bus) {
+      return next["nextBusStop"]!;
+    }
+  }
+
+  throw(Exception("Cannot find next stop"));
+}
+
+List<DirectionInstructions> getBestRoute(List<List<String>> route, String startStop) {
   List<String> onBus = route[0];
   int counter = 0;
   List<DirectionInstructions> instructions = [];
-
+  String board = startStop;
+  String alight = "";
+  String currStop = startStop;
 
 
   for (int i = 0; i < route.length; i++) {
@@ -123,6 +139,7 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route) {
 
     if (route[i] == onBus) {
       counter++;
+      currStop = getNextStop(currStop, onBus[0]);
     }
     else {
       List<String> testCurrent = [];
@@ -134,15 +151,20 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route) {
       if (testCurrent.isNotEmpty) { //if there are buses that continue the route
         onBus = testCurrent;  //only include buses that do not need to change bus
         counter++;
+        currStop = getNextStop(currStop, onBus[0]);
       }
       else { //forced to change buses
-        instructions.add(DirectionInstructions(onBus, counter));
+        alight = currStop;
+        instructions.add(DirectionInstructions(onBus, counter, board, alight));
         counter = 1;
         onBus = current;
+        board = currStop;
+        currStop = getNextStop(currStop, onBus[0]);
       }
     }
   }
-  instructions.add(DirectionInstructions(onBus, counter));
+
+  instructions.add(DirectionInstructions(onBus, counter, board, currStop));
   return instructions;
 }
 

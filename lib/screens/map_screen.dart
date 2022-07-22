@@ -535,7 +535,7 @@ class MapState extends State<MapScreen> {
 
 
 
-      print('start: ${busstops[bestRoute.start]!.name}, end: ${busstops[bestRoute.start]!.name}');
+      print('start: ${busstops[bestRoute.start]!.name}, end: ${busstops[bestRoute.end]!.name}');
 
       if (durationWalkInt < bestRoute.time) {
         //Walking is faster, walk
@@ -558,7 +558,10 @@ class MapState extends State<MapScreen> {
           }
 
           markers = {startMarker, endMarker};
-          instructions = getBestRoute(bestRoute.route);
+
+          print('route: ${bestRoute.route}, start: ${busstops[bestRoute.start]!.name}');
+
+          instructions = getBestRoute(bestRoute.route, busstops[bestRoute.start]!.name);
           startBusStop = busstops[bestRoute.start]!.name;
         });
 

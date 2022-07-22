@@ -31,7 +31,7 @@ class DetailedDirections extends StatelessWidget {
           services += '/';
         }
       }
-      list.add(DetailedDirectionsRow(stops: '${instruction.stops}', service: services, number: list.length + 1));
+      list.add(DetailedDirectionsRow(stops: '${instruction.stops}', service: services, number: list.length + 1, board: instruction.board, alight: instruction.alight));
     }
 
     list.add(ListTile(title: Text('${list.length + 1}. Walk to $destination')),);
