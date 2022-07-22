@@ -75,7 +75,6 @@ class DetailedDirectionsRowState extends State<DetailedDirectionsRow>{
             }
           }
 
-
           return ListTile(
             title: Text(text),
             subtitle: Text(result),
