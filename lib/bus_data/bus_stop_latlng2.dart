@@ -1,15 +1,13 @@
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
-const Map<String, PointLatLng> busStopsLatLng = {
+const Map<String, PointLatLng> busStopsLatLng2= {
   "AS 5" : PointLatLng(1.29349994659424, 103.772102355957),
   "BIZ 2" : PointLatLng(1.29333997411937, 103.775159716606),
   "Central Library" : PointLatLng(1.29639995098114, 103.772201538086),
   "COM 2" : PointLatLng(1.29428502886792, 103.773757815361),
-  "EA" : PointLatLng(1.30040001869202, 103.77010345459),
   "Information Technology" : PointLatLng(1.29737591743469, 103.772850036621),
   "Kent Ridge Bus Terminal" : PointLatLng(1.29416704177856, 103.769721984863),
   "Kent Ridge MRT" : PointLatLng(1.29483294487, 103.784393310547),
-  "Kent Vale" : PointLatLng(1.30209994316101, 103.769096374512),
   "LT 13" : PointLatLng(1.29477859091277, 103.770588576794),
   "LT 27" : PointLatLng(1.29739999771118, 103.78099822998),
   "Museum" : PointLatLng(1.30110192298889, 103.77367401123),
@@ -24,16 +22,12 @@ const Map<String, PointLatLng> busStopsLatLng = {
   "PGP7" : PointLatLng(1.29320001602173, 103.777801513672),
   "Prince George's Park" : PointLatLng(1.29180002212524, 103.780502319336),
   "Prince George's Park Residences" : PointLatLng(1.29099925112011, 103.780964493752),
-  "Raffles Hall" : PointLatLng(1.30102869529789, 103.772705554962),
   "S 17" : PointLatLng(1.29747665891241, 103.781354546547),
   "TCOMS" : PointLatLng(1.29370222151434, 103.776525914669),
-  "The Japanese Primary School" : PointLatLng(1.30073094367981, 103.769973754883),
   "University Hall" : PointLatLng(1.2972229719162, 103.778663635254),
   "University Health Centre" : PointLatLng(1.2989000082016, 103.77612015605),
   "University Town" : PointLatLng(1.30362176617453, 103.774675250053),
   "Ventus" : PointLatLng(1.29530000686646, 103.770599365234),
   "Yusof Ishak House" : PointLatLng(1.29869997501373, 103.774299621582),
-  "COM 3" : PointLatLng(1.2950658310494974, 103.77485449186915),
-  "Opp SDE 3" : PointLatLng(1.2978955263683578, 103.76960046122883),
-  "SDE 3" : PointLatLng(1.2978471833342518, 103.76995068924953),
+  "COM 3" : PointLatLng(1.2950658310494974, 103.77485449186915)
 };

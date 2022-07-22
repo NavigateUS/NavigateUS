@@ -11,7 +11,8 @@ import 'package:navigateus/mapFunctions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/mapFunctions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
-import 'package:navigateus/screens/map_screen.dart';
+import 'package:navigateus/bus_data/bus_stop_latlng2.dart';
+import 'package:navigateus/key.dart';
 import 'package:navigateus/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
@@ -67,11 +68,11 @@ class BusRoute {
 }
 
 class MapState extends State<MapScreen> {
-  String APIkey = 'AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM';
+  String apiKey = key;
   final Completer<GoogleMapController> _controller = Completer();
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
-  late GooglePlace googlePlace = GooglePlace(APIkey);
+  late GooglePlace googlePlace = GooglePlace(apiKey);
   List<Place> predictions = [];
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
@@ -147,7 +148,7 @@ class MapState extends State<MapScreen> {
         goToPlace(LatLng(latLngPos.latitude, latLngPos.longitude));
       });
     } catch (error) {
-      print(error);
+      rethrow;
     }
   }
 
@@ -157,7 +158,7 @@ class MapState extends State<MapScreen> {
       CameraPosition pos = CameraPosition(target: latLngPos, zoom: 17);
       controller.animateCamera(CameraUpdate.newCameraPosition(pos));
     } catch (error) {
-      print(error);
+      rethrow;
     }
   }
 
@@ -210,7 +211,6 @@ class MapState extends State<MapScreen> {
         Place place = predictions[0];
         goToPlace(place.latLng);
         floatingSearchBarController.close();
-        String name = place.name;
         bottomSheet(context, place);
       },
       builder: (context, transition) {
@@ -231,7 +231,6 @@ class MapState extends State<MapScreen> {
                   ),
                   title: Text(predictions[index].name),
                   onTap: () async {
-                    String name = predictions[index].name;
                     LatLng position = predictions[index].latLng;
                     goToPlace(position);
                     floatingSearchBarController.close();
@@ -405,7 +404,7 @@ class MapState extends State<MapScreen> {
     if (mode == TravelMode.driving || mode == TravelMode.walking) {
       _getPolyline(latLngPosStart, latLngPosEnd, mode);
       Response response = await dio.get(
-          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=$apiKey');
 
       String distance =
           response.data['rows'][0]['elements'][0]['distance']['text'];
@@ -464,7 +463,7 @@ class MapState extends State<MapScreen> {
         }
 
         response = await dio.get(
-            'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${V.latLng.latitude.toString()},${V.latLng.longitude.toString()}&origins=${otherLatLng.latitude.toString()},${otherLatLng.longitude.toString()}&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+            'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${V.latLng.latitude.toString()},${V.latLng.longitude.toString()}&origins=${otherLatLng.latitude.toString()},${otherLatLng.longitude.toString()}&mode=walking&key=$apiKey');
 
         if (response.data['error_message'] ==
             "You have exceeded your rate-limit for this API.") {
@@ -522,7 +521,7 @@ class MapState extends State<MapScreen> {
 
       //check if just walking is faster
       response = await dio.get(
-          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=AIzaSyBnZTJifjfYwB34Y2rhF-HyQW2rYPcxysM');
+          'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=walking&key=$apiKey');
       if (response.data['error_message'] ==
           "You have exceeded your rate-limit for this API.") {
         throw Exception(
@@ -533,9 +532,6 @@ class MapState extends State<MapScreen> {
           response.data['rows'][0]['elements'][0]['duration']['text'];
       int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
 
-
-
-      print('start: ${busstops[bestRoute.start]!.name}, end: ${busstops[bestRoute.end]!.name}');
 
       if (durationWalkInt < bestRoute.time) {
         //Walking is faster, walk
@@ -559,8 +555,6 @@ class MapState extends State<MapScreen> {
 
           markers = {startMarker, endMarker};
 
-          print('route: ${bestRoute.route}, start: ${busstops[bestRoute.start]!.name}');
-
           instructions = getBestRoute(bestRoute.route, busstops[bestRoute.start]!.name);
           startBusStop = busstops[bestRoute.start]!.name;
         });
@@ -579,7 +573,7 @@ class MapState extends State<MapScreen> {
   }
 
   _addPolyLine() {
-    PolylineId id = PolylineId("poly");
+    PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
         polylineId: id,
         color: Colors.blue,
@@ -594,7 +588,6 @@ class MapState extends State<MapScreen> {
     setState(() {
       polylines.addAll(polylineSet);
     });
-    print(polylines);
   }
 
   _getPolyline(
@@ -603,7 +596,7 @@ class MapState extends State<MapScreen> {
     TravelMode mode,
   ) async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      APIkey,
+      apiKey,
       PointLatLng(start.latitude, start.longitude),
       PointLatLng(end.latitude, end.longitude),
       travelMode: mode,
@@ -619,18 +612,19 @@ class MapState extends State<MapScreen> {
   _getPolylineTransit(LatLng start, LatLng end, String startStop,
       String endStop, List<List<String>> route) async {
 
-    print(route);
-
     Set<Polyline> polylineSet = {};
 
     //Points from walking from start to startStop
     List<LatLng> polylineCoordinatesStart = [];
+
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      APIkey,
+      apiKey,
       PointLatLng(start.latitude, start.longitude),
       busStopsLatLng[startStop]!,
       travelMode: TravelMode.walking,
     );
+
+
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
         polylineCoordinatesStart.add(LatLng(point.latitude, point.longitude));
@@ -644,7 +638,9 @@ class MapState extends State<MapScreen> {
       width: 5,
     );
 
+
     polylineSet.add(newPolyline);
+
 
     //Points from startStop to endStop
     //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
@@ -660,7 +656,10 @@ class MapState extends State<MapScreen> {
     //Calculate stop number to change bus
     for (DirectionInstructions instruction in instructions) {
       int stops = instruction.stops + segments.sum;
-      segments.add(stops - 1);
+      if (segments.sum == 0 && instruction.stops == 1) {
+        stops--;
+      }
+      segments.add(stops);
     }
 
 
@@ -669,7 +668,6 @@ class MapState extends State<MapScreen> {
       //for each stop along the way
       var nextStops = graph[currStop]; //get the list of stops that are next
       for (var busStop in nextStops!) {
-        // print(busStop);
         if (busStop["bus"] == stop[0]) {
           nextStop = busStop["nextBusStop"]!; //find the correct next stop
           //Ignore warning. Without the \' dart will call e.g. busStopsLatLng[Prince George] instead
@@ -683,10 +681,9 @@ class MapState extends State<MapScreen> {
         }
       }
 
-      //print('Curr: $currStop(${busStopsLatLng[currStop]?.longitude}, ${busStopsLatLng[currStop]?.latitude}) , Next: $nextStop(${busStopsLatLng[nextStop]?.longitude}, ${busStopsLatLng[nextStop]?.latitude})');
 
       result = await polylinePoints.getRouteBetweenCoordinates(
-        APIkey,
+        apiKey,
         busStopsLatLng[currStop]!,
         busStopsLatLng[nextStop]!,
         travelMode: TravelMode.driving,
@@ -700,6 +697,7 @@ class MapState extends State<MapScreen> {
       else {
         throw Exception('Cannot find route from $currStop to $nextStop');
       }
+
 
       if (i == route.length - 1 || i == segments[counter]) {
         Color col = busColor('');
@@ -718,8 +716,10 @@ class MapState extends State<MapScreen> {
         lastStop = polylineCoordinatesMid.length;
         counter++;
       }
+
       currStop = nextStop;
     }
+
 
     polylineSet.addAll(midPolylines);
 
@@ -727,7 +727,7 @@ class MapState extends State<MapScreen> {
     List<LatLng> polylineCoordinatesEnd= [];
 
     result = await polylinePoints.getRouteBetweenCoordinates(
-      APIkey,
+      apiKey,
       busStopsLatLng[endStop]!,
       PointLatLng(end.latitude, end.longitude),
       travelMode: TravelMode.walking,
@@ -1038,7 +1038,7 @@ class MapState extends State<MapScreen> {
               icon: busIcon));
         });
       } catch (error) {
-        print(error);
+        rethrow;
       }
     }
   }

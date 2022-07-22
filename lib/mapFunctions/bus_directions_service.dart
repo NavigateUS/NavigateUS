@@ -1,5 +1,6 @@
 import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:collection/collection.dart';
+import 'package:navigateus/bus_data/bus_stops_2.dart';
 import 'package:quiver/core.dart';
 
 
@@ -34,18 +35,18 @@ class DirectionInstructions{
       other.stops == stops &&
       other.bus.toSet().containsAll(bus);
 
+  @override
   String toString() {
     return 'Take bus(es) $bus for $stops stops.';
   }
 
   @override
   int get hashCode => hash2(bus.hashCode, stops.hashCode);
-
 }
 
 
 List<Map<String, String>>? getNeighbours(String stopName) {
-  return graph[stopName];
+  return graph[stopName]!;
 }
 
 List<List<String>> findRoute(String source, String destination) {  //Djikstra's to find shortest path
