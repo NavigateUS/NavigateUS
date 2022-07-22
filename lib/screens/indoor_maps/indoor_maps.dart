@@ -15,27 +15,28 @@ class IndoorMapState extends State {
     ImageButton(
       name: "COM1",
       image: "assets/indoor_maps/COM1_Cover.jpg",
-      newScreen: FloorMap(building: "COM1"),
+      newScreen:
+          FloorMap(building: "COM1", floorList: ['Basement', 'L1', 'L2', 'L3']),
     ),
     ImageButton(
       name: "COM2",
       image: "assets/indoor_maps/COM2_Cover.jpg",
-      newScreen: FloorMap(building: "COM2"),
+      newScreen: FloorMap(
+          building: "COM2", floorList: ['Basement', 'L1', 'L2', 'L3', 'L4']),
     ),
     ImageButton(
       name: "AS3",
       image: "assets/indoor_maps/AS3_Cover.jpg",
-      newScreen: FloorMap(building: "AS3"),
+      newScreen: FloorMap(building: "AS3", floorList: ['L6']),
     ),
     ImageButton(
-      name: "AS6",
-      image: "assets/indoor_maps/AS6_Cover.jpg",
-      newScreen: FloorMap(building: "AS6"),
-    ),
+        name: "AS6",
+        image: "assets/indoor_maps/AS6_Cover.jpg",
+        newScreen: FloorMap(building: "AS6", floorList: ['L2', 'L4', 'L5'])),
     ImageButton(
       name: "ICUBE",
       image: "assets/indoor_maps/ICUBE_Cover.jpg",
-      newScreen: FloorMap(building: "ICUBE"),
+      newScreen: FloorMap(building: "ICUBE", floorList: ['L1', 'L3']),
     )
   ];
 

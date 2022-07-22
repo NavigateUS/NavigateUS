@@ -1,16 +1,12 @@
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:navigateus/screens/indoor_maps/components/image_button.dart';
-import 'package:navigateus/screens/indoor_maps/detail_screen.dart';
 import 'package:photo_view/photo_view.dart';
 
 class FloorMap extends StatefulWidget {
   final String building;
+  final List<String> floorList;
 
-  const FloorMap({Key? key, required this.building}) : super(key: key);
+  const FloorMap({Key? key, required this.building, required this.floorList})
+      : super(key: key);
 
   @override
   FloorMapState createState() => FloorMapState();
@@ -18,15 +14,17 @@ class FloorMap extends StatefulWidget {
 
 class FloorMapState extends State<FloorMap> {
   late String building;
-  List<String> floors = [];
-  List file = [];
+  late String imagePath;
+  late String floor;
+  late List<String> floorList;
 
   @override
   void initState() {
     super.initState();
     building = widget.building;
-    // getImageList();
-    listofFiles();
+    floorList = widget.floorList;
+    floor = floorList[0];
+    imagePath = "assets/indoor_maps/${building}_$floor.jpg";
   }
 
   @override
@@ -36,53 +34,47 @@ class FloorMapState extends State<FloorMap> {
           title: Text(building),
           backgroundColor: Colors.deepOrange,
         ),
-        body: Column(children: <Widget>[
-          // your Content if there
-          Expanded(
-              child: ListView.builder(
-                  itemCount: file.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Text(file[index].path);
-                  }))
+        body: Stack(alignment: Alignment.center, children: [
+          PhotoView(imageProvider: AssetImage(imagePath)),
+          Positioned(
+            top: 40,
+            child: (Text(
+              floor,
+              style: const TextStyle(color: Colors.white, fontSize: 35),
+            )),
+          ),
+          Positioned(
+              bottom: 40,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    for (String label in floorList)
+                      labelButton(
+                          label, "assets/indoor_maps/${building}_$label.jpg"),
+                  ]))
         ]));
   }
 
-  List<Widget> buildButton() {
-    List<Widget> list = [];
-    for (String path in floors) {
-      list.add(Row(children: [Text(path)]));
+  Widget labelButton(String label, String image) {
+    return FloatingActionButton(
+        mini: true,
+        shape: const RoundedRectangleBorder(),
+        child: Text(
+          textConvert(label),
+          style: const TextStyle(fontSize: 20),
+        ),
+        onPressed: () {
+          setState(() {
+            floor = label;
+            imagePath = image;
+          });
+        });
+  }
+
+  String textConvert(String text) {
+    if (text == "Basement") {
+      return "B";
     }
-    return list;
+    return text;
   }
-
-  // Read images in the folder, select the images belongs to the building, exclude cover.
-
-  // sort image list based on reversed alphabetical order, L3, L2, B
-
-  // Create list of button based on the list of floor image.
-
-  // connect button with the image viewer.
-
-  void listofFiles() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    setState(() {
-      // file = Directory("$directory/assets/indoor_maps/")
-      //     .listSync();
-      file = directory.listSync(followLinks: true);
-    });
-    print(file);
-  }
-
-  // void getImageList() async {
-  //   await for (var entity in path.list(recursive: true, followLinks: false)) {
-  //     String file = entity.toString();
-  //     if (file.contains(building)) {
-  //       if (!file.contains('Cover')) {
-  //         floors.add(entity.toString());
-  //         print(file);
-  //         print(floors.toString());
-  //       }
-  //     }
-  //   }
-  // }
 }
