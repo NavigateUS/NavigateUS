@@ -1,0 +1,31 @@
+{
+  "COM 2" : {
+    "A1" : {
+      "next" : "2 mins"
+    },
+    "A2" : {
+      "next" : "3 mins"
+    }
+  },
+
+  "BIZ 2" : {
+    "A1" : {
+      "next" : "2 mins"
+    },
+    "A2" : {
+      "next" : "3 mins"
+    }
+  },
+
+  "Yusof Ishak House" : {
+    "D1" : {
+      "next" : "1 min"
+    },
+    "K" : {
+      "next" : "2 min"
+    },
+    "A1" : {
+      "next" : "4 min"
+    }
+  }
+}
