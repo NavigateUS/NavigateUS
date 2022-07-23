@@ -1,0 +1,325 @@
+{
+  "Kent Ridge Bus Terminal" : {
+    "A1" : {
+      "next" : "Arr"
+    },
+    "A2" : {
+      "next" : "3 mins"
+    }
+  },
+
+  "Information Technology" : {
+    "A2" : {
+      "next" : "5 mins"
+    },
+    "D1" : {
+      "next" : "2 mins"
+    },
+    "E" : {
+      "next" : "Arr"
+    }
+  },
+
+  "Opp Yusof Ishak House" : {
+    "A2" : {
+      "next" : "7 mins"
+    },
+    "D1" : {
+      "next" : "4 mins"
+    },
+    "E" : {
+      "next" : "2 mins"
+    }
+  },
+
+  "Museum" : {
+    "A2" : {
+      "next" : "Arr"
+    },
+    "D1" : {
+      "next" : "6 mins"
+    },
+    "D2" : {
+      "next" : "7 mins"
+    },
+    "K" : {
+      "next" : "8 mins"
+    }
+  },
+
+  "University Health Centre" : {
+    "A2" : {
+      "next" : "2 mins"
+    },
+    "D2" : {
+      "next" : "7 mins"
+    },
+    "K" : {
+      "next" : "9 mins"
+    }
+  },
+
+  "Opp University Hall" : {
+    "A2" : {
+      "next" : "4 mins"
+    },
+    "D2" : {
+      "next" : "9 mins"
+    },
+    "K" : {
+      "next" : "11 mins"
+    }
+  },
+
+  "S 17" : {
+    "A2" : {
+      "next" : "6 mins"
+    },
+    "D2" : {
+      "next" : "1 min"
+    },
+    "K" : {
+      "next" : "13 mins"
+    }
+  },
+
+  "Opp Kent Ridge MRT" : {
+    "A2" : {
+      "next" : "8 mins"
+    },
+    "D2" : {
+      "next" : "3 mins"
+    },
+    "K" : {
+      "next" : "15 mins"
+    }
+  },
+
+  "Prince George's Park Residences" : {
+    "A2" : {
+      "next" : "Arr"
+    },
+    "D2" : {
+      "next" : "1 min"
+    },
+    "K" : {
+      "next" : "17 mins"
+    }
+  },
+
+  "TCOMS" : {
+    "A2" : {
+      "next" : "2 mins"
+    }
+  },
+
+  "Opp Hon Sui Sen Memorial Library" : {
+    "A2" : {
+      "next" : "4 mins"
+    },
+    "D1" : {
+      "next" : "7 mins"
+    }
+  },
+
+  "Opp NUSS" : {
+    "A2" : {
+      "next" : "6 mins"
+    },
+    "D1" : {
+      "next" : "9 mins"
+    }
+  },
+
+  "COM 2" : {
+    "A1" : {
+      "next" : "6 mins"
+    },
+    "A2" : {
+      "next" : "8 mins"
+    }
+  },
+
+  "Ventus" : {
+    "A2" : {
+      "next" : "10 mins"
+    },
+    "D1" : {
+      "next" : "Arr"
+    }
+  },
+
+  "University Town" : {
+    "D1" : {
+      "next" : "8 mins"
+    },
+    "D2" : {
+      "next" : "Arr"
+    },
+    "E" : {
+      "next" : "5 mins"
+    }
+  },
+
+  "Yusof Ishak House" : {
+    "D1" : {
+      "next" : "Arr"
+    },
+    "K" : {
+      "next" : "12 mins"
+    },
+    "A1" : {
+      "next" : "2 mins"
+    }
+  },
+
+  "Central Library" : {
+    "D1" : {
+      "next" : "2 mins"
+    },
+    "K" : {
+      "next" : "Arr"
+    },
+    "A1" : {
+      "next" : "4 mins"
+    }
+  },
+
+  "LT 13" : {
+    "D1" : {
+      "next" : "4 mins"
+    },
+    "A1" : {
+      "next" : "2 mins"
+    }
+  },
+
+  "AS 5" : {
+    "D1" : {
+      "next" : "6 mins"
+    },
+    "A1" : {
+      "next" : "4 mins"
+    }
+  },
+
+  "BIZ 2" : {
+    "D1" : {
+      "next" : "8 mins"
+    },
+    "A1" : {
+      "next" : "8 mins"
+    }
+  },
+
+  "Prince George's Park" : {
+    "D2" : {
+      "next" : "7 mins"
+    },
+    "K" : {
+      "next" : "2 mins"
+    },
+    "A1" : {
+      "next" : "3 mins"
+    }
+  },
+
+  "Kent Ridge MRT" : {
+    "D2" : {
+      "next" : "9 mins"
+    },
+    "K" : {
+      "next" : "4 mins"
+    },
+    "A1" : {
+      "next" : "5 mins"
+    }
+  },
+
+  "LT 27" : {
+    "D2" : {
+      "next" : "1 min"
+    },
+    "K" : {
+      "next" : "6 mins"
+    },
+    "A1" : {
+      "next" : "7 mins"
+    }
+  },
+
+  "University Hall" : {
+    "D2" : {
+      "next" : "3 mins"
+    },
+    "K" : {
+      "next" : "8 mins"
+    },
+    "A1" : {
+      "next" : "9 mins"
+    }
+  },
+
+  "Opp University Health Centre" : {
+    "D2" : {
+      "next" : "5 mins"
+    },
+    "K" : {
+      "next" : "10 mins"
+    },
+    "A1" : {
+      "next" : "Arr"
+    }
+  },
+
+  "Raffles Hall" : {
+    "E" : {
+      "next" : "7 mins"
+    }
+  },
+
+  "Kent Vale" : {
+    "E" : {
+      "next" : "9 mins"
+    },
+    "K" : {
+      "next" : "6 mins"
+    }
+  },
+
+  "EA" : {
+    "E" : {
+      "next" : "11 mins"
+    }
+  },
+
+  "SDE 3" : {
+    "E" : {
+      "next" : "13 mins"
+    }
+  },
+
+  "Opp SDE 3" : {
+    "K" : {
+      "next" : "2 mins"
+    }
+  },
+
+  "The Japanese Primary School" : {
+    "K" : {
+      "next" : "4 mins"
+    }
+  },
+
+  "Opp TCOMS" : {
+    "A1" : {
+      "next" : "1 mins"
+    }
+  },
+
+  "COM 3" : {
+    "D1" : {
+      "next" : "5 mins"
+    }
+  }
+}

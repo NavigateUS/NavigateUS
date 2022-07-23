@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
-import 'package:navigateus/screens/map_screen.dart';
 
 Widget buildDrawer(BuildContext context) {
   return Drawer(
@@ -24,7 +23,7 @@ Widget buildDrawer(BuildContext context) {
           onTap: () {
             Navigator.pop(context);
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => IndoorMap()));
+                context, MaterialPageRoute(builder: (context) => const IndoorMap()));
           },
         ),
         ListTile(

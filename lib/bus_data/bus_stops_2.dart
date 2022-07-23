@@ -1,4 +1,4 @@
-Map<String, List<Map<String, String>>> graph = {
+Map<String, List<Map<String, String>>> graph2 = {
   "Kent Ridge Bus Terminal": [
     {
       "bus": "A1",
@@ -18,10 +18,6 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "D1",
       "nextBusStop": "Opp Yusof Ishak House",
     },
-    {
-      "bus": "E",
-      "nextBusStop": "Opp Yusof Ishak House",
-    },
   ],
   "Opp Yusof Ishak House": [
     {
@@ -31,10 +27,6 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "D1",
       "nextBusStop": "Museum",
-    },
-    {
-      "bus": "E",
-      "nextBusStop": "University Town",
     },
   ],
   "Museum": [
@@ -50,10 +42,6 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "D2",
       "nextBusStop": "University Town",
     },
-    {
-      "bus": "K",
-      "nextBusStop": "University Health Centre",
-    },
   ],
   "University Health Centre": [
     {
@@ -62,10 +50,6 @@ Map<String, List<Map<String, String>>> graph = {
     },
     {
       "bus": "D2",
-      "nextBusStop": "Opp University Hall",
-    },
-    {
-      "bus": "K",
       "nextBusStop": "Opp University Hall",
     },
   ],
@@ -78,10 +62,6 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "D2",
       "nextBusStop": "S 17",
     },
-    {
-      "bus": "K",
-      "nextBusStop": "S 17",
-    },
   ],
   "S 17": [
     {
@@ -91,10 +71,6 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "D2",
       "nextBusStop": "Opp Kent Ridge MRT"
-    },
-    {
-      "bus": "K",
-      "nextBusStop": "Opp Kent Ridge MRT",
     },
   ],
   "Opp Kent Ridge MRT": [
@@ -106,10 +82,6 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "D2",
       "nextBusStop": "Prince George's Park Residences",
     },
-    {
-      "bus": "K",
-      "nextBusStop": "Prince George's Park Residences",
-    },
   ],
   "Prince George's Park Residences": [
     {
@@ -118,10 +90,7 @@ Map<String, List<Map<String, String>>> graph = {
     },
     {
       "bus": "D2",
-      "nextBusStop": ""},
-    {
-      "bus": "K",
-      "nextBusStop": "",
+      "nextBusStop": ""
     },
   ],
   "TCOMS": [
@@ -179,18 +148,10 @@ Map<String, List<Map<String, String>>> graph = {
       "bus": "D2",
       "nextBusStop": "University Health Centre",
     },
-    {
-      "bus": "E",
-      "nextBusStop": "Raffles Hall",
-    },
   ],
   "Yusof Ishak House": [
     {
       "bus": "D1",
-      "nextBusStop": "Central Library",
-    },
-    {
-      "bus": "K",
       "nextBusStop": "Central Library",
     },
     {
@@ -202,10 +163,6 @@ Map<String, List<Map<String, String>>> graph = {
     {
       "bus": "D1",
       "nextBusStop": "LT 13",
-    },
-    {
-      "bus": "K",
-      "nextBusStop": "Opp SDE 3",
     },
     {
       "bus": "A1",
@@ -248,10 +205,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "Kent Ridge MRT",
     },
     {
-      "bus": "K",
-      "nextBusStop": "Kent Ridge MRT",
-    },
-    {
       "bus": "A1",
       "nextBusStop": "Kent Ridge MRT",
     },
@@ -259,10 +212,6 @@ Map<String, List<Map<String, String>>> graph = {
   "Kent Ridge MRT": [
     {
       "bus": "D2",
-      "nextBusStop": "LT 27",
-    },
-    {
-      "bus": "K",
       "nextBusStop": "LT 27",
     },
     {
@@ -276,10 +225,6 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "University Hall",
     },
     {
-      "bus": "K",
-      "nextBusStop": "University Hall",
-    },
-    {
       "bus": "A1",
       "nextBusStop": "University Hall",
     },
@@ -287,10 +232,6 @@ Map<String, List<Map<String, String>>> graph = {
   "University Hall": [
     {
       "bus": "D2",
-      "nextBusStop": "Opp University Health Centre",
-    },
-    {
-      "bus": "K",
       "nextBusStop": "Opp University Health Centre",
     },
     {
@@ -304,52 +245,8 @@ Map<String, List<Map<String, String>>> graph = {
       "nextBusStop": "Museum",
     },
     {
-      "bus": "K",
-      "nextBusStop": "Yusof Ishak House",
-    },
-    {
       "bus": "A1",
       "nextBusStop": "Yusof Ishak House",
-    },
-  ],
-  "Raffles Hall": [
-    {
-      "bus": "E",
-      "nextBusStop": "Kent Vale",
-    },
-  ],
-  "Kent Vale": [
-    {
-      "bus": "E",
-      "nextBusStop": "EA",
-    },
-    {
-      "bus": "K",
-      "nextBusStop": "Museum",
-    },
-  ],
-  "EA": [
-    {
-      "bus": "E",
-      "nextBusStop": "SDE 3",
-    },
-  ],
-  "SDE 3": [
-    {
-      "bus": "E",
-      "nextBusStop": "Information Technology",
-    },
-  ],
-  "Opp SDE 3": [
-    {
-      "bus": "K",
-      "nextBusStop": "The Japanese Primary School",
-    },
-  ],
-  "The Japanese Primary School": [
-    {
-      "bus": "K",
-      "nextBusStop": "Kent Vale",
     },
   ],
   "Opp TCOMS": [

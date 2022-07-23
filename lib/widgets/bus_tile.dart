@@ -28,47 +28,44 @@ class BusTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String text = stops;
-    text += ' ';
+    String stopsTaken = stops;
+    stopsTaken += ' ';
     if (int.parse(stops) == 1) {
-      text += 'stop';
+      stopsTaken += 'stop';
     }
     else{
-      text += 'stops';
+      stopsTaken += 'stops';
     }
 
 
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration:  BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: Colors.grey[400],
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration:  BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.grey[400],
+      ),
+      child: Wrap(
+        textDirection: TextDirection.ltr,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration:  BoxDecoration(
+              borderRadius: BorderRadius.circular(3),
+              color: busColor(service),
+            ),
+            child: Wrap(
+              textDirection: TextDirection.ltr,
+              children: [
+                Text(service, style: const TextStyle(fontSize: 17), textDirection: TextDirection.ltr,)
+              ],
+            ),
           ),
-          child: Wrap(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration:  BoxDecoration(
-                  borderRadius: BorderRadius.circular(3),
-                  color: busColor(service),
-                ),
-                child: Wrap(
-                  children: [
-                    Text(service, style: const TextStyle(fontSize: 17),)
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 2,
-              ),
-              Text(text, style: const TextStyle(fontSize: 18),),
-            ],
+          const SizedBox(
+            width: 2,
           ),
-        ),
-
-      ],
+          Text(stopsTaken, style: const TextStyle(fontSize: 18), textDirection: TextDirection.ltr,),
+        ],
+      ),
     );
   }
 }
