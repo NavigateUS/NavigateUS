@@ -191,7 +191,7 @@ class MapState extends State<MapScreen> {
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
-      backgroundColor: Colors.deepOrange,
+      iconColor: Colors.deepOrange,
       onQueryChanged: (value) {
         if (value.isNotEmpty) {
           //places api
