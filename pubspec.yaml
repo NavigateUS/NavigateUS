@@ -45,6 +45,7 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   dio: ^4.0.6
   geopointer: ^0.0.2
+  http_mock_adapter: ^0.3.3
 
 
 dev_dependencies:
