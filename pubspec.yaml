@@ -46,6 +46,7 @@ dependencies:
   dio: ^4.0.6
   geopointer: ^0.0.2
   http_mock_adapter: ^0.3.3
+  quiver: ^3.1.0
 
 
 dev_dependencies:
