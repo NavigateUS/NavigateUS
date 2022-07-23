@@ -1,46 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:navigateus/screens/indoor_maps/components/image_button.dart';
-import 'package:navigateus/screens/indoor_maps/detail_screen.dart';
+import 'package:photo_view/photo_view.dart';
 
-class FloorMap extends StatelessWidget {
+class FloorMap extends StatefulWidget {
   final String building;
-  final int floorNum;
-  final bool hasBasement;
+  final List<String> floorList;
 
-  const FloorMap({
-    Key? key,
-    required this.building,
-    required this.floorNum,
-    required this.hasBasement,
-  }) : super(key: key);
+  const FloorMap({Key? key, required this.building, required this.floorList})
+      : super(key: key);
+
+  @override
+  FloorMapState createState() => FloorMapState();
+}
+
+class FloorMapState extends State<FloorMap> {
+  late String building;
+  late String imagePath;
+  late String floor;
+  late List<String> floorList;
+
+  @override
+  void initState() {
+    super.initState();
+    building = widget.building;
+    floorList = widget.floorList;
+    floor = floorList[0];
+    imagePath = "assets/indoor_maps/${building}_$floor.jpg";
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<String> textList = [];
-
-    for (int i = floorNum; i > 0; i--) {
-      textList.add("L$i");
-    }
-
-    if (hasBasement) {
-      textList.add("Basement");
-    }
-
     return Scaffold(
         appBar: AppBar(
           title: Text(building),
           backgroundColor: Colors.deepOrange,
         ),
-        body: SingleChildScrollView(
-            child: Column(children: [
-          for (String floor in textList)
-            ImageButton(
-              name: floor,
-              image: "assets/indoor_maps/$building\_$floor.jpg",
-              newScreen: DetailScreen(
-                  floor: "$building $floor",
-                  image: "assets/indoor_maps/$building\_$floor.jpg"),
-            ),
-        ])));
+        body: Stack(alignment: Alignment.center, children: [
+          PhotoView(imageProvider: AssetImage(imagePath)),
+          Positioned(
+            top: 40,
+            child: (Text(
+              floor,
+              style: const TextStyle(color: Colors.white, fontSize: 35),
+            )),
+          ),
+          Positioned(
+              bottom: 40,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    for (String label in floorList)
+                      labelButton(
+                          label, "assets/indoor_maps/${building}_$label.jpg"),
+                  ]))
+        ]));
+  }
+
+  Widget labelButton(String label, String image) {
+    return FloatingActionButton(
+        mini: true,
+        shape: const RoundedRectangleBorder(),
+        child: Text(
+          textConvert(label),
+          style: const TextStyle(fontSize: 20),
+        ),
+        onPressed: () {
+          setState(() {
+            floor = label;
+            imagePath = image;
+          });
+        });
+  }
+
+  String textConvert(String text) {
+    if (text == "Basement") {
+      return "B";
+    }
+    return text;
   }
 }
