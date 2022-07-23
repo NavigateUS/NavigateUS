@@ -79,7 +79,7 @@ class TimetableState extends State<TimetableScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Timetable"), centerTitle: true),
+      appBar: AppBar(title: const Text("Timetable"), centerTitle: true, backgroundColor: Colors.deepOrange,),
       body: Stack(
         children: [
           SfCalendar(
@@ -102,7 +102,7 @@ class TimetableState extends State<TimetableScreen> {
             child: Column(
               children: [
                 FloatingActionButton(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.deepOrange,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: ((context) => const EventEditingPage()),
@@ -114,7 +114,7 @@ class TimetableState extends State<TimetableScreen> {
                   height: 5,
                 ),
                 FloatingActionButton(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.deepOrange,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: ((context) => const EventManagingPage()),

@@ -32,14 +32,31 @@ class DataSource extends CalendarDataSource {
     return appointments![index].background;
   }
 
-  List<Place> getPlaces() {
-    List<Place> places = [];
+  Map<Place, String> getPlaces() {
+    Map<Place, String> places = {};
+    Map<String, List<String>> search = {};
 
     for (int i = 0; i < appointments!.length; i++) {
-      places.add(locations.firstWhere(
-          ((element) => element.toString().contains(getLocation(i)))));
-      print(places);
+      if (!search.keys.contains(getLocation(i))) {
+        search[getLocation(i)] = [getSubject(i)];
+      }
+      else {
+        search[getLocation(i)]?.add(getSubject(i));
+      }
     }
+
+    for (String placeName in search.keys) {
+      String mods = '';
+      for (int i = 0; i < search[placeName]!.length; i++) {
+        String mod = search[placeName]![i];
+        mods += mod;
+        if (i != search[placeName]!.length - 1) {
+          mods += ', ';
+        }
+      }
+      places[nusLocations[placeName]!] = mods;
+    }
+
     return places;
   }
 }

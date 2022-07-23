@@ -79,6 +79,7 @@ class EventEditingPageState extends State<EventEditingPage> {
       moduleDataSource.notifyListeners(
           CalendarDataSourceAction.remove, <Module>[_selectedAppointment!]);
     }
+
     mods.add(Module(
       from: _startDate,
       to: _endDate,
@@ -96,6 +97,7 @@ class EventEditingPageState extends State<EventEditingPage> {
     _location = "";
 
     // save locally moduledatasource.appointments
+
 
     Navigator.pop(context);
   }

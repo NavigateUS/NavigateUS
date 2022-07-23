@@ -23,6 +23,8 @@ class TimetableStorage {
       // Read the file
       final contents = await file.readAsString();
 
+      print(parseToList(contents));
+
       return parseToList(contents);
     } catch (e) {
       // If encountering an error, return empty list

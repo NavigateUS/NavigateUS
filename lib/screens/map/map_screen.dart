@@ -15,6 +15,7 @@ import 'package:navigateus/screens/map/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
 import 'package:navigateus/screens/timetable/timetable_screen.dart';
+import 'package:navigateus/screens/timetable/timetable_storage.dart';
 
 import '../timetable/components/data_source.dart';
 
@@ -33,6 +34,8 @@ class MapState extends State<MapScreen> {
   late GooglePlace googlePlace = GooglePlace(key);
   bool hasData = false;
   List<Place> predictions = [];
+  Map<Place, String> predictions2 = {};
+  List<List<String>> predictionClasses = [];
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -120,7 +123,7 @@ class MapState extends State<MapScreen> {
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
     void autoCompleteSearch(String query) {
-      final suggestions = locations.where((place) {
+      final suggestions = nusLocations.values.where((place) {
         final name = place.name.toLowerCase();
         final input = query.toLowerCase();
 
@@ -133,6 +136,13 @@ class MapState extends State<MapScreen> {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
+    void resetPredictions() {
+      setState(() {
+        predictions2 = moduleDataSource.getPlaces();
+        predictions = predictions2.keys.toList();
+      });
+    }
+
     return FloatingSearchBar(
       hint: 'Where would you like to go?',
       controller: floatingSearchBarController,
@@ -140,19 +150,20 @@ class MapState extends State<MapScreen> {
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
       transition: SlideFadeFloatingSearchBarTransition(),
       transitionDuration: const Duration(milliseconds: 300),
-      transitionCurve: Curves.bounceInOut,
+      transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
-      onQueryChanged: (value) {
+      onFocusChanged: (apiKey) async{  //apiKey can be replaced by anything that results in true
+        await Future.delayed(const Duration(milliseconds: 100));
+        resetPredictions();
+      },
+      onQueryChanged: (value) async {
         if (value.isNotEmpty) {
           //places api
           autoCompleteSearch(value);
         } else {
-          //clear predictions
-          setState(() {
-            predictions = moduleDataSource.getPlaces();
-          });
+          resetPredictions();
         }
       },
       actions: [
@@ -164,7 +175,6 @@ class MapState extends State<MapScreen> {
         Place place = predictions[0];
         goToPlace(place.latLng);
         floatingSearchBarController.close();
-        String name = place.name;
         bottomSheet(context, place);
       },
       builder: (context, transition) {
@@ -184,12 +194,15 @@ class MapState extends State<MapScreen> {
                     child: Icon(Icons.pin_drop_outlined),
                   ),
                   title: Text(predictions[index].name),
+                  subtitle: predictions2.containsKey(predictions[index])
+                            ? Text(predictions2[predictions[index]]!)
+                            : const Text(""),
                   onTap: () async {
-                    String name = predictions[index].name;
-                    LatLng position = predictions[index].latLng;
+                    var place = predictions[index];
+                    LatLng position = place.latLng;
                     goToPlace(position);
                     floatingSearchBarController.close();
-                    bottomSheet(context, predictions[index]);
+                    bottomSheet(context, place);
                   },
                 );
               },
