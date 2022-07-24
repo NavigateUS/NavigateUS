@@ -4,7 +4,7 @@ import 'package:navigateus/bus_data/bus_stops_2.dart';
 import 'package:quiver/core.dart';
 
 
-class Node implements Comparable{
+class Node implements Comparable {
   int stops;
   String name;
 
@@ -21,7 +21,7 @@ class Node implements Comparable{
   }
 }
 
-class DirectionInstructions{
+class DirectionInstructions {
   List<String> bus;
   int stops;
   String board;
@@ -44,12 +44,12 @@ class DirectionInstructions{
   int get hashCode => hash2(bus.hashCode, stops.hashCode);
 }
 
-
 List<Map<String, String>>? getNeighbours(String stopName) {
   return graph[stopName]!;
 }
 
-List<List<String>> findRoute(String source, String destination) {  //Djikstra's to find shortest path
+List<List<String>> findRoute(String source, String destination) {
+  //Djikstra's to find shortest path
   Map<String, int> D = {}; //Distance array
   for (String key in graph.keys) {
     D[key] = 1000;
@@ -77,9 +77,9 @@ List<List<String>> findRoute(String source, String destination) {  //Djikstra's 
 
     if (current.stops == D[current.name]) {
       for (var neighbour in neighbours) {
-
         String neighbourName = neighbour["nextBusStop"]!;
-        if (neighbourName == "") {  //end of bus line, no next stop
+        if (neighbourName == "") {
+          //end of bus line, no next stop
           continue;
         }
         String bus = neighbour["bus"]!;
@@ -88,14 +88,15 @@ List<List<String>> findRoute(String source, String destination) {  //Djikstra's 
           throw Exception("Invalid name");
         }
 
-
-        if (D[neighbourName]! > D[current.name]! + 1) {  //Relaxation
+        if (D[neighbourName]! > D[current.name]! + 1) {
+          //Relaxation
           D[neighbourName] = D[current.name]! + 1;
           p[neighbourName] = current.name;
           q.add(Node(D[neighbourName]!, neighbourName));
         }
 
-        if (D[neighbourName]! == D[current.name]! + 1) { //add viable busses
+        if (D[neighbourName]! == D[current.name]! + 1) {
+          //add viable busses
           pBus[neighbourName]!.add(bus);
         }
       }
@@ -134,7 +135,6 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route, String startS
   String alight = "";
   String currStop = startStop;
 
-
   for (int i = 0; i < route.length; i++) {
     List<String> current = route[i];
 
@@ -144,19 +144,21 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route, String startS
     }
     else {
       List<String> testCurrent = [];
-      for (String bus in current) { //track buses that continue the route
+      for (String bus in current) {
+        //track buses that continue the route
         if (onBus.contains(bus)) {
           testCurrent.add(bus);
         }
       }
-      if (testCurrent.isNotEmpty) { //if there are buses that continue the route
-        onBus = testCurrent;  //only include buses that do not need to change bus
+      if (testCurrent.isNotEmpty) {
+        //if there are buses that continue the route
+        onBus = testCurrent; //only include buses that do not need to change bus
         counter++;
         currStop = getNextStop(currStop, onBus[0]);
       }
-      else { //forced to change buses
-        alight = currStop;
-        instructions.add(DirectionInstructions(onBus, counter, board, alight));
+      else {
+        //forced to change buses
+        instructions.add(DirectionInstructions(onBus, counter, board, currStop));
         counter = 1;
         onBus = current;
         board = currStop;
@@ -168,4 +170,3 @@ List<DirectionInstructions> getBestRoute(List<List<String>> route, String startS
   instructions.add(DirectionInstructions(onBus, counter, board, currStop));
   return instructions;
 }
-

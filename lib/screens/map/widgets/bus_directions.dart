@@ -1,8 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
-import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
+import 'package:navigateus/screens/map/widgets/bus_tile.dart';
 
 class BusDirections extends StatelessWidget {
   final List<DirectionInstructions> instructions;

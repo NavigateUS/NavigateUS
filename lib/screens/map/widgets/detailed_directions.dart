@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
-import 'package:navigateus/widgets/detailed_directions_row.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
+import 'package:navigateus/screens/map/widgets/detailed_directions_row.dart';
 
 class DetailedDirections extends StatelessWidget {
   final List<DirectionInstructions> instructions;

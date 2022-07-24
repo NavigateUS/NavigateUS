@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
 
+import 'package:navigateus/screens/timetable/timetable_screen.dart';
+import 'package:navigateus/screens/timetable/timetable_storage.dart';
+
+
 Widget buildDrawer(BuildContext context) {
   return Drawer(
     child: ListView(
@@ -22,15 +26,20 @@ Widget buildDrawer(BuildContext context) {
           title: const Text('Indoor Maps'),
           onTap: () {
             Navigator.pop(context);
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const IndoorMap()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const IndoorMap()));
           },
         ),
         ListTile(
           title: const Text('Timetable'),
           onTap: () {
-            // ToDo: Add timetabling function here
-            // ...
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => TimetableScreen(
+                          storage: TimetableStorage(),
+                        )));
           },
         ),
         ListTile(

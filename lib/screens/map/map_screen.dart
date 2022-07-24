@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -7,18 +8,20 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/bus_data/bus_stops.dart';
-import 'package:navigateus/mapFunctions/geolocator_service.dart';
+import 'package:navigateus/screens/map/functions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng.dart';
 import 'package:navigateus/bus_data/bus_stop_latlng2.dart';
 import 'package:navigateus/key.dart';
-import 'package:navigateus/widgets/bus_directions.dart';
+import 'package:navigateus/screens/map/widgets/bus_directions.dart';
 import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
-import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:navigateus/screens/map/widgets/bus_tile.dart';
+import 'package:navigateus/screens/map/widgets/detailed_directions.dart';
+import 'package:navigateus/screens/timetable/timetable_screen.dart';
 import 'package:collection/collection.dart';
-import 'package:navigateus/widgets/detailed_directions.dart';
+
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -47,6 +50,7 @@ class BusStop {
   }
 }
 
+
 class BusRoute {
   late final List<List<String>> route;
   late final String start;
@@ -73,7 +77,10 @@ class MapState extends State<MapScreen> {
   final FloatingSearchBarController floatingSearchBarController =
       FloatingSearchBarController();
   late GooglePlace googlePlace = GooglePlace(apiKey);
+  bool hasData = false;
   List<Place> predictions = [];
+  Map<Place, String> predictions2 = {};
+  List<List<String>> predictionClasses = [];
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -162,8 +169,8 @@ class MapState extends State<MapScreen> {
     }
   }
 
-  autoCompleteSearch(String query) {
-    final suggestions = locations.where((place) {
+  void autoCompleteSearch(String query) {
+    final suggestions = nusLocations.values.where((place) {
       final name = place.name.toLowerCase();
       final input = query.toLowerCase();
 
@@ -176,9 +183,15 @@ class MapState extends State<MapScreen> {
   // Search Bar
   Widget buildSearchBar(BuildContext context) {
     // Search Bar Functions
-
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
+
+    void resetPredictions() {
+      setState(() {
+        predictions2 = moduleDataSource.getPlaces();
+        predictions = predictions2.keys.toList();
+      });
+    }
 
     return FloatingSearchBar(
       hint: 'Where would you like to go?',
@@ -187,20 +200,21 @@ class MapState extends State<MapScreen> {
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
       transition: SlideFadeFloatingSearchBarTransition(),
       transitionDuration: const Duration(milliseconds: 300),
-      transitionCurve: Curves.bounceInOut,
+      transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
       iconColor: Colors.deepOrange,
-      onQueryChanged: (value) {
+      onFocusChanged: (apiKey) async{  //apiKey can be replaced by anything that results in true
+        await Future.delayed(const Duration(milliseconds: 100));
+        resetPredictions();
+      },
+      onQueryChanged: (value) async {
         if (value.isNotEmpty) {
           //places api
           autoCompleteSearch(value);
         } else {
-          //clear predictions
-          setState(() {
-            predictions = [];
-          });
+          resetPredictions();
         }
       },
       actions: [
@@ -231,11 +245,15 @@ class MapState extends State<MapScreen> {
                     child: Icon(Icons.pin_drop_outlined),
                   ),
                   title: Text(predictions[index].name),
+                  subtitle: predictions2.containsKey(predictions[index])
+                            ? Text(predictions2[predictions[index]]!)
+                            : const Text(""),
                   onTap: () async {
-                    LatLng position = predictions[index].latLng;
+                    var place = predictions[index];
+                    LatLng position = place.latLng;
                     goToPlace(position);
                     floatingSearchBarController.close();
-                    bottomSheet(context, predictions[index]);
+                    bottomSheet(context, place);
                   },
                 );
               },

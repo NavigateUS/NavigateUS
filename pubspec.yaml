@@ -46,6 +46,10 @@ dependencies:
   dio: ^4.0.6
   geopointer: ^0.0.2
   http_mock_adapter: ^0.3.3
+  syncfusion_flutter_calendar: ^20.2.36
+  provider: ^6.0.3
+  search_choices: ^2.0.21
+  path_provider: ^2.0.11
   quiver: ^3.1.0
 
 
