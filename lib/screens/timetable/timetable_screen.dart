@@ -48,11 +48,12 @@ class TimetableState extends State<TimetableScreen> {
 
   @override
   void initState() {
-    // widget.storage.readTimetable().then((value) {
-    //   setState(() {
-    //     modules = value;
-    //   });
-    // });
+    widget.storage.readTimetable().then((value) {
+      setState(() {
+        modules = value;
+      });
+    });
+
     _colorCollection.add(const Color(0xFFFC571D));
     _colorCollection.add(const Color(0xFF85461E));
     _colorCollection.add(const Color(0xFFFF00FF));

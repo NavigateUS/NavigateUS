@@ -96,8 +96,6 @@ class EventEditingPageState extends State<EventEditingPage> {
     _title = "";
     _location = "";
 
-    // save locally moduledatasource.appointments
-
 
     Navigator.pop(context);
   }
