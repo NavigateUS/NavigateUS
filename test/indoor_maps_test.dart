@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:navigateus/screens/indoor_maps/components/image_button.dart';
-import 'package:navigateus/screens/indoor_maps/detail_screen.dart';
 import 'package:navigateus/screens/indoor_maps/floor_map.dart';
 import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
 import 'package:photo_view/photo_view.dart';
@@ -27,26 +26,54 @@ void main() {
     expect(buildingFinder, findsWidgets);
   });
 
-  testWidgets('Indoor Maps building has title and floors', (tester) async {
-    Widget testWidget = const FloorMap(building: "COM1", floorNum: 3, hasBasement: true);
+  testWidgets('Indoor Maps has title, text field, and buildings', (tester) async {
+    Widget testWidget = const  FloorMap(building: "COM1", floorList: ['Basement', 'L1', 'L2', 'L3']);
     await tester.pumpWidget(createWidgetForTesting(child: testWidget));
 
     final titleFinder = find.text("COM1");
     expect(titleFinder, findsOneWidget);
 
-    final floorFinder = find.descendant(of: find.byWidget(testWidget), matching: find.byType(ImageButton));
-    expect(floorFinder, findsWidgets);
-  });
+    final basementFinder = find.text("B");
+    expect(basementFinder, findsOneWidget);
 
-  testWidgets('Details page has title and image', (tester) async {
-    Widget testWidget = const DetailScreen(floor: 'COM1 L1', image: "assets/indoor_maps/COM1_L1.jpg");
-    await tester.pumpWidget(createWidgetForTesting(child: testWidget));
+    final floor1Finder = find.text("L1");
+    expect(floor1Finder, findsOneWidget);
 
-    final titleFinder = find.text("COM1 L1");
-    expect(titleFinder, findsOneWidget);
+    final floor2Finder = find.text("L2");
+    expect(floor2Finder, findsOneWidget);
+
+    final floor3Finder = find.text("L3");
+    expect(floor3Finder, findsOneWidget);
 
     final imageFinder = find.descendant(of: find.byWidget(testWidget), matching: find.byType(PhotoView));
     expect(imageFinder, findsOneWidget);
   });
 
+  testWidgets('Main page search works', (tester) async {
+    Widget testWidget = const IndoorMap();
+    await tester.pumpWidget(createWidgetForTesting(child: testWidget));
+
+    await tester.enterText(find.byType(TextField), 'COM');
+
+    final com1Finder = find.text("COM1");
+    expect(com1Finder, findsOneWidget);
+
+    final com2Finder = find.text("COM2");
+    expect(com2Finder, findsOneWidget);
+  });
+
+  testWidgets('Pressing buildings navigates to the correct page', (tester) async {
+    Widget testWidget = const IndoorMap();
+    await tester.pumpWidget(createWidgetForTesting(child: testWidget));
+
+    await tester.enterText(find.byType(TextField), 'COM1');
+
+    await tester.pump();
+
+    await tester.tap(find.byType(ImageButton));
+
+    await tester.pump();
+
+    expect(find.byType(PhotoView), findsOneWidget);
+  });
 }

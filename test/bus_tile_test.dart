@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:navigateus/screens/map/widgets/bus_tile.dart';
 
 void main() {
   test('Given bus A1, expect Colors.red.shade400', () async {
