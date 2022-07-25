@@ -28,7 +28,6 @@ class TimetableStorage {
 
       print('text: $text');
 
-
       return parseToList(text);
     } catch (e) {
       // If encountering an error, return empty list
@@ -44,7 +43,12 @@ class TimetableStorage {
       print(line);
 
       List<String> attributes = line.split(',');
-      Module mod = Module(title: attributes[0], location: attributes[1], from: DateTime.parse(attributes[2]), to: DateTime.parse(attributes[3]), recurrenceRule: attributes[4]);
+      Module mod = Module(
+          title: attributes[0],
+          location: attributes[1],
+          from: DateTime.parse(attributes[2]),
+          to: DateTime.parse(attributes[3]),
+          recurrenceRule: attributes[4]);
       list.add(mod);
     });
 
@@ -57,11 +61,11 @@ class TimetableStorage {
 
     String save = "";
     for (Module mod in modules) {
-      save += '${mod.title},${mod.location},${mod.from},${mod.to},${mod.recurrenceRule}';
+      save +=
+          '${mod.title},${mod.location},${mod.from},${mod.to},${mod.recurrenceRule}';
       save += '\n';
     }
     print('save: $save');
-
 
     await file.writeAsString(save);
   }

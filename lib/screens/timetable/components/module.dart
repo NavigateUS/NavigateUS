@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Module {
-  // module name, location,
   final String title;
   final String location;
   final DateTime from;

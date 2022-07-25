@@ -48,11 +48,11 @@ class TimetableState extends State<TimetableScreen> {
 
   @override
   void initState() {
-    widget.storage.readTimetable().then((value) {
-      setState(() {
-        modules = value;
-      });
-    });
+    // widget.storage.readTimetable().then((value) {
+    //   setState(() {
+    //     modules = value;
+    //   });
+    // });
 
     _colorCollection.add(const Color(0xFFFC571D));
     _colorCollection.add(const Color(0xFF85461E));
@@ -73,6 +73,8 @@ class TimetableState extends State<TimetableScreen> {
     _location = '';
     _startDate = DateTime.now();
     _endDate = DateTime.now().add(const Duration(hours: 1));
+    _startTime = TimeOfDay(hour: _startDate.hour, minute: _startDate.minute);
+    _endTime = TimeOfDay(hour: _endDate.hour, minute: _endDate.minute);
     moduleDataSource = DataSource(appointments); //events
     super.initState();
   }
@@ -80,7 +82,11 @@ class TimetableState extends State<TimetableScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Timetable"), centerTitle: true, backgroundColor: Colors.deepOrange,),
+      appBar: AppBar(
+        title: const Text("Timetable"),
+        centerTitle: true,
+        backgroundColor: Colors.deepOrange,
+      ),
       body: Stack(
         children: [
           SfCalendar(
@@ -103,6 +109,7 @@ class TimetableState extends State<TimetableScreen> {
             child: Column(
               children: [
                 FloatingActionButton(
+                  heroTag: "btn1",
                   backgroundColor: Colors.deepOrange,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -115,6 +122,7 @@ class TimetableState extends State<TimetableScreen> {
                   height: 5,
                 ),
                 FloatingActionButton(
+                  heroTag: "btn2",
                   backgroundColor: Colors.deepOrange,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -142,24 +150,24 @@ class TimetableState extends State<TimetableScreen> {
       _selectedColorIndex = 0;
       _title = '';
       _location = '';
-      if (calendarTapDetails.appointments != null &&
-          calendarTapDetails.appointments!.length == 1) {
-        final Module moduleDetails = calendarTapDetails.appointments![0];
-        _startDate = moduleDetails.from;
-        _endDate = moduleDetails.to;
-        _selectedColorIndex =
-            _colorCollection.indexOf(moduleDetails.background);
-        _title = moduleDetails.title == '(No title)' ? '' : moduleDetails.title;
-        _location = moduleDetails.location;
-        _selectedAppointment = moduleDetails;
-      } else {
-        final DateTime date = calendarTapDetails.date!;
-        _startDate = date;
-        _endDate = date.add(const Duration(hours: 1));
-        selectedDay = DateFormat('EEEE').format(_startDate);
-      }
-      _startTime = TimeOfDay(hour: _startDate.hour, minute: _startDate.minute);
-      _endTime = TimeOfDay(hour: _endDate.hour, minute: _endDate.minute);
+      // if (calendarTapDetails.appointments != null &&
+      //     calendarTapDetails.appointments!.length == 1) {
+      //   final Module moduleDetails = calendarTapDetails.appointments![0];
+      //   _startDate = moduleDetails.from;
+      //   _endDate = moduleDetails.to;
+      //   _selectedColorIndex =
+      //       _colorCollection.indexOf(moduleDetails.background);
+      //   _title = moduleDetails.title == '(No title)' ? '' : moduleDetails.title;
+      //   _location = moduleDetails.location;
+      //   _selectedAppointment = moduleDetails;
+      // } else {
+      final DateTime date = calendarTapDetails.date!;
+      _startDate = date;
+      _endDate = date.add(const Duration(hours: 1));
+      selectedDay = DateFormat('EEEE').format(_startDate);
+      // }
+      // _startTime = TimeOfDay(hour: _startDate.hour, minute: _startDate.minute);
+      // _endTime = TimeOfDay(hour: _endDate.hour, minute: _endDate.minute);
       Navigator.push<Widget>(
         context,
         MaterialPageRoute(
