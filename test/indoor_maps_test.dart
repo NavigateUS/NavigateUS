@@ -33,17 +33,8 @@ void main() {
     final titleFinder = find.text("COM1");
     expect(titleFinder, findsOneWidget);
 
-    final basementFinder = find.text("B");
-    expect(basementFinder, findsOneWidget);
-
-    final floor1Finder = find.text("L1");
-    expect(floor1Finder, findsOneWidget);
-
-    final floor2Finder = find.text("L2");
-    expect(floor2Finder, findsOneWidget);
-
-    final floor3Finder = find.text("L3");
-    expect(floor3Finder, findsOneWidget);
+    final buttonFinder = find.byType(FloatingActionButton);
+    expect(buttonFinder, findsNWidgets(4));
 
     final imageFinder = find.descendant(of: find.byWidget(testWidget), matching: find.byType(PhotoView));
     expect(imageFinder, findsOneWidget);
