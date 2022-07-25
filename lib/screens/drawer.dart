@@ -42,13 +42,13 @@ Widget buildDrawer(BuildContext context) {
                         )));
           },
         ),
-        ListTile(
-          title: const Text('Settings'),
-          onTap: () {
-            // ToDo: Add settings here
-            // ...
-          },
-        ),
+        // ListTile(
+        //   title: const Text('Settings'),
+        //   onTap: () {
+        //     // ToDo: Add settings here
+        //     // ...
+        //   },
+        // ),
       ],
     ),
   );
