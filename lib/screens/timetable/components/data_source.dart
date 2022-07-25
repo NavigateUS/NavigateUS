@@ -39,8 +39,7 @@ class DataSource extends CalendarDataSource {
     for (int i = 0; i < appointments!.length; i++) {
       if (!search.keys.contains(getLocation(i))) {
         search[getLocation(i)] = [getSubject(i)];
-      }
-      else {
+      } else {
         search[getLocation(i)]?.add(getSubject(i));
       }
     }

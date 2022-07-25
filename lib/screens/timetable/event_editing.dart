@@ -96,7 +96,6 @@ class EventEditingPageState extends State<EventEditingPage> {
     _title = "";
     _location = "";
 
-
     Navigator.pop(context);
   }
 
@@ -143,7 +142,7 @@ class EventEditingPageState extends State<EventEditingPage> {
                     child: Text(
                       DateFormat('EEE, MMM dd yyyy').format(_startDate),
                       textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18),
                     ),
                     onTap: () async {
                       final DateTime? date = await showDatePicker(
@@ -224,7 +223,7 @@ class EventEditingPageState extends State<EventEditingPage> {
                     final DateTime? date = await showDatePicker(
                       context: context,
                       initialDate: _endDate,
-                      firstDate: DateTime(1900),
+                      firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
 

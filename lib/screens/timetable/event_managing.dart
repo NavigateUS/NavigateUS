@@ -19,11 +19,12 @@ class EventManagingPageState extends State<EventManagingPage> {
         body: ListView.builder(
           itemCount: moduleDataSource.appointments!.length,
           itemBuilder: (context, index) {
-            _selectedAppointment = moduleDataSource.appointments![index];
+            _selectedAppointment = moduleDataSource.appointments?[index];
             String modTitle = _selectedAppointment.toString();
             return Dismissible(
                 key: UniqueKey(),
                 onDismissed: (direction) {
+                  // Edit item
                   if (direction == DismissDirection.startToEnd) {
                     setState(() {
                       _startDate = _selectedAppointment!.from;
@@ -45,6 +46,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                             builder: (BuildContext context) =>
                                 const EventEditingPage()),
                       );
+                      _selectedAppointment = null;
                     });
                   } else {
                     // Remove the item from the data source.
