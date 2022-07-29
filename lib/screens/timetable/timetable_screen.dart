@@ -27,8 +27,8 @@ List<DropdownMenuItem> places = Place.getDropdownList();
 List<Color> _colorCollection = <Color>[];
 List<String> _colorNames = <String>[];
 int _selectedColorIndex = 0;
-late DataSource moduleDataSource;
 List<Module> modules = <Module>[];
+DataSource moduleDataSource = DataSource(modules);
 
 Module? _selectedAppointment;
 
