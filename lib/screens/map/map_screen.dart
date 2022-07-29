@@ -304,6 +304,7 @@ class MapState extends State<MapScreen> {
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Colors.deepOrange),
                         ),
+                        key: const Key('Walk'),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -328,6 +329,7 @@ class MapState extends State<MapScreen> {
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Colors.deepOrange),
                         ),
+                        key: const Key('Drive'),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -352,6 +354,7 @@ class MapState extends State<MapScreen> {
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Colors.deepOrange),
                         ),
+                        key: const Key('Transit'),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -376,6 +379,7 @@ class MapState extends State<MapScreen> {
                           MaterialStateProperty.all(Colors.deepOrange),
                       maximumSize:
                           MaterialStateProperty.all(const Size.fromWidth(300))),
+                  key: const Key('Indoor'),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [

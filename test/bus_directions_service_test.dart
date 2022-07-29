@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
 
 //Unit testing for bus_directions_service
 void main() {
@@ -27,16 +27,16 @@ void main() {
 
     final result = findRoute(start, end);
 
-    const route = [['A1', 'D1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
+    const route = [['A1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
 
     expect(result, route);
   });
 
   test('Given the above route, the correct instructions are returned', () async {
-    const route = [['A1', 'D1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
+    const route = [['A1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
 
-    final result = getBestRoute(route);
+    final result = getBestRoute(route, 'COM 2');
 
-    expect(result, [DirectionInstructions(['A1'], 4)]);
+    expect(result, [DirectionInstructions(['A1'], 4, 'COM 2', 'Kent Ridge MRT'),]);
   });
 }

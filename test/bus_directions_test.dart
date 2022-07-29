@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:navigateus/widgets/bus_directions.dart';
-import 'package:navigateus/mapFunctions/bus_directions_service.dart';
-import 'package:navigateus/widgets/bus_tile.dart';
+import 'package:navigateus/screens/map/widgets/bus_directions.dart';
+import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
 
 void main() {
   testWidgets('BusDirections widget gives widget for 1 direction instructions', (tester) async {
     const testKey = Key('K');
-    final List<DirectionInstructions> instructions = [DirectionInstructions(['A1'], 4)];
+    final List<DirectionInstructions> instructions = [DirectionInstructions(['A1'], 4, 'COM 2', 'Kent Ridge MRT')];
 
     await tester.pumpWidget(BusDirections(instructions: instructions, key: testKey));
     
@@ -18,7 +17,7 @@ void main() {
 
   testWidgets('BusDirections widget gives widget for multiple direction instructions', (tester) async {
     const testKey = Key('K');
-    final List<DirectionInstructions> instructions = [DirectionInstructions(['A1'], 2), DirectionInstructions(['A2'], 2)];
+    final List<DirectionInstructions> instructions = [DirectionInstructions(['A1'], 1, 'COM 2', 'BIZ 2'), DirectionInstructions(['D1'], 1, 'BIZ 2', 'COM 3')];
 
     await tester.pumpWidget(BusDirections(instructions: instructions, key: testKey));
 

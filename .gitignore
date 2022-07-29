@@ -49,4 +49,4 @@ app.*.map.json
 #Keys
 android/app/src/main/AndroidManifest.xml
 ios/Runner/AppDelegate.swift
-
+lib/key.dart

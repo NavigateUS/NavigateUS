@@ -39,13 +39,13 @@ Widget buildDrawer(BuildContext context) {
                     builder: (context) => const TimetableScreen()));
           },
         ),
-        ListTile(
-          title: const Text('Settings'),
-          onTap: () {
-            // ToDo: Add settings here
-            // ...
-          },
-        ),
+        // ListTile(
+        //   title: const Text('Settings'),
+        //   onTap: () {
+        //     // ToDo: Add settings here
+        //     // ...
+        //   },
+        // ),
       ],
     ),
   );
