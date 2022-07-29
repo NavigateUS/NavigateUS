@@ -15,6 +15,7 @@ class EventManagingPageState extends State<EventManagingPage> {
     return Scaffold(
         appBar: AppBar(
           title: const Text(title),
+          backgroundColor: Colors.deepOrange,
         ),
         body: ListView.builder(
           itemCount: moduleDataSource.appointments!.length,
@@ -57,6 +58,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       moduleDataSource.notifyListeners(
                           CalendarDataSourceAction.remove,
                           <Module>[_selectedAppointment!]);
+                      storage.writeTimetable(moduleDataSource.appointments);
                       _selectedAppointment = null;
                     });
                   }

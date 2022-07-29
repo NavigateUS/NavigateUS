@@ -1,34 +1,22 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:navigateus/screens/timetable/components/module.dart';
 import 'package:path_provider/path_provider.dart';
 
 class TimetableStorage {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/timetable.txt');
-  }
-
   Future<List<Module>> readTimetable() async {
     try {
       final Directory directory = await getApplicationDocumentsDirectory();
 
       // Read the file
       final File file = File('${directory.path}/timetable.txt');
-
       String text = await file.readAsString();
-
       print('text: $text');
-
-      return parseToList(text);
+      List<Module> list = parseToList(text);
+      return list;
     } catch (e) {
       // If encountering an error, return empty list
       return <Module>[];
@@ -37,10 +25,9 @@ class TimetableStorage {
 
   List<Module> parseToList(String contents) {
     List<Module> list = [];
-    print(contents);
 
     LineSplitter.split(contents).forEach((line) {
-      print(line);
+      print("line: $line");
 
       List<String> attributes = line.split(',');
       Module mod = Module(
@@ -48,21 +35,23 @@ class TimetableStorage {
           location: attributes[1],
           from: DateTime.parse(attributes[2]),
           to: DateTime.parse(attributes[3]),
-          recurrenceRule: attributes[4]);
+          recurrenceRule: attributes[4],
+          background: Color(int.parse(attributes[5])));
       list.add(mod);
     });
 
+    print(list);
     return list;
   }
 
-  void writeTimetable(List<Module> modules) async {
+  void writeTimetable(List<dynamic>? modules) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final File file = File('${directory.path}/timetable.txt');
 
     String save = "";
-    for (Module mod in modules) {
+    for (Module mod in modules!) {
       save +=
-          '${mod.title},${mod.location},${mod.from},${mod.to},${mod.recurrenceRule}';
+          '${mod.title},${mod.location},${mod.from},${mod.to},${mod.recurrenceRule},${mod.background.value}';
       save += '\n';
     }
     print('save: $save');

@@ -14,13 +14,13 @@ part 'color_picker.dart';
 part 'event_managing.dart';
 
 class TimetableScreen extends StatefulWidget {
-  const TimetableScreen({Key? key, required this.storage}) : super(key: key);
-
-  final TimetableStorage storage;
+  const TimetableScreen({Key? key}) : super(key: key);
 
   @override
   TimetableState createState() => TimetableState();
 }
+
+TimetableStorage storage = TimetableStorage();
 
 // initialization
 List<DropdownMenuItem> places = Place.getDropdownList();
@@ -29,11 +29,12 @@ List<String> _colorNames = <String>[];
 int _selectedColorIndex = 0;
 late DataSource moduleDataSource;
 List<Module> modules = <Module>[];
+
 Module? _selectedAppointment;
 
 // Module Details Editing
 String _title = '';
-String _location = '';
+String _location = ' ';
 late DateTime _startDate;
 late DateTime _endDate;
 late TimeOfDay _startTime;
@@ -48,12 +49,16 @@ class TimetableState extends State<TimetableScreen> {
 
   @override
   void initState() {
-    // widget.storage.readTimetable().then((value) {
-    //   setState(() {
-    //     modules = value;
-    //   });
-    // });
-
+    super.initState();
+    storage.readTimetable().then((value) {
+      setState(() {
+        modules = value;
+        print("modules: $modules");
+        appointments = modules;
+        print("appointments: $appointments");
+        moduleDataSource = DataSource(appointments);
+      });
+    });
     _colorCollection.add(const Color(0xFFFC571D));
     _colorCollection.add(const Color(0xFF85461E));
     _colorCollection.add(const Color(0xFFFF00FF));
@@ -66,7 +71,8 @@ class TimetableState extends State<TimetableScreen> {
     _colorNames.add('Blue');
     _colorNames.add('Peach');
     _colorNames.add('Gray');
-    appointments = modules;
+
+    //events
     _selectedAppointment = null;
     _selectedColorIndex = 0;
     _title = '';
@@ -75,8 +81,6 @@ class TimetableState extends State<TimetableScreen> {
     _endDate = DateTime.now().add(const Duration(hours: 1));
     _startTime = TimeOfDay(hour: _startDate.hour, minute: _startDate.minute);
     _endTime = TimeOfDay(hour: _endDate.hour, minute: _endDate.minute);
-    moduleDataSource = DataSource(appointments); //events
-    super.initState();
   }
 
   @override

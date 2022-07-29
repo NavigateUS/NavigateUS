@@ -16,7 +16,7 @@ class Module {
     required this.from,
     required this.to,
     required this.recurrenceRule,
-    this.background = Colors.lightBlue,
+    this.background = const Color(0xFFFC571D),
     this.isAllDay = false,
   });
 

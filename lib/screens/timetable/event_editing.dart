@@ -39,7 +39,7 @@ class EventEditingPageState extends State<EventEditingPage> {
               onPressed: () {
                 _selectedAppointment = null;
                 _title = "";
-                _location = "";
+                _location = " ";
                 Navigator.pop(context);
                 setState(() {});
               },
@@ -86,7 +86,7 @@ class EventEditingPageState extends State<EventEditingPage> {
       background: _colorCollection[_selectedColorIndex],
       location: _location,
       title: _title == '' ? '(No title)' : _title,
-      recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day",
+      recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day;COUNT=13",
     ));
 
     moduleDataSource.appointments!.add(mods[0]);
@@ -94,7 +94,9 @@ class EventEditingPageState extends State<EventEditingPage> {
     moduleDataSource.notifyListeners(CalendarDataSourceAction.add, mods);
     _selectedAppointment = null;
     _title = "";
-    _location = "";
+    _location = " ";
+
+    storage.writeTimetable(moduleDataSource.appointments);
 
     Navigator.pop(context);
   }
@@ -142,7 +144,7 @@ class EventEditingPageState extends State<EventEditingPage> {
                     child: Text(
                       DateFormat('EEE, MMM dd yyyy').format(_startDate),
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18),
                     ),
                     onTap: () async {
                       final DateTime? date = await showDatePicker(
@@ -237,6 +239,15 @@ class EventEditingPageState extends State<EventEditingPage> {
                           _startDate = _endDate.subtract(difference);
                           _startTime = TimeOfDay(
                               hour: _startDate.hour, minute: _startDate.minute);
+                        }
+                        if (_endDate.day != _startDate.day) {
+                          _startDate = DateTime(
+                              _endDate.year,
+                              _endDate.month,
+                              _endDate.day,
+                              _startTime.hour,
+                              _startTime.minute,
+                              0);
                         }
                       });
                     }
