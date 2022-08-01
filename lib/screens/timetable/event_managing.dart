@@ -28,6 +28,9 @@ class EventManagingPageState extends State<EventManagingPage> {
                   // Edit item
                   if (direction == DismissDirection.startToEnd) {
                     setState(() {
+                      _selectedAppointment =
+                          moduleDataSource.appointments?[index];
+
                       _startDate = _selectedAppointment!.from;
                       _endDate = _selectedAppointment!.to;
                       _selectedColorIndex = _colorCollection
@@ -41,17 +44,19 @@ class EventManagingPageState extends State<EventManagingPage> {
                           hour: _startDate.hour, minute: _startDate.minute);
                       _endTime = TimeOfDay(
                           hour: _endDate.hour, minute: _endDate.minute);
-                      Navigator.push<Widget>(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const EventEditingPage()),
-                      );
-                      _selectedAppointment = null;
                     });
+                    Navigator.push<Widget>(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              const EventEditingPage()),
+                    );
                   } else {
                     // Remove the item from the data source.
                     setState(() {
+                      _selectedAppointment =
+                          moduleDataSource.appointments?[index];
+
                       moduleDataSource.appointments!.removeAt(moduleDataSource
                           .appointments!
                           .indexOf(_selectedAppointment));
@@ -61,6 +66,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       storage.writeTimetable(moduleDataSource.appointments);
                       _selectedAppointment = null;
                     });
+                    setState(() {});
                   }
                 },
 
@@ -98,6 +104,10 @@ class EventManagingPageState extends State<EventManagingPage> {
                     borderRadius: const BorderRadius.all(Radius.circular(12)),
                   ),
                   child: ListTile(
+                    leading: Icon(
+                      Icons.circle_outlined,
+                      color: _selectedAppointment!.background,
+                    ),
                     title: Text(modTitle),
                   ),
                 ));

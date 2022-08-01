@@ -8,6 +8,12 @@ class EventEditingPage extends StatefulWidget {
 }
 
 class EventEditingPageState extends State<EventEditingPage> {
+  @override
+  void initState() {
+    super.initState();
+    selectedDay = DateFormat('EEEE').format(_startDate);
+  }
+
   Widget _getAppointmentEditor(BuildContext context) {
     return Container(
         color: Colors.white,
@@ -26,42 +32,43 @@ class EventEditingPageState extends State<EventEditingPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
         home: Scaffold(
-          appBar: AppBar(
-            title: Text(getTile()),
-            backgroundColor: _colorCollection[_selectedColorIndex],
-            leading: IconButton(
-              icon: const Icon(
-                Icons.close,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                _selectedAppointment = null;
-                _title = "";
-                _location = " ";
-                Navigator.pop(context);
-                setState(() {});
-              },
-            ),
-            actions: <Widget>[
-              IconButton(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                icon: const Icon(
-                  Icons.done,
-                  color: Colors.white,
-                ),
-                onPressed: save,
-              )
-            ],
+      appBar: AppBar(
+        title: Text(getTile()),
+        backgroundColor: _colorCollection[_selectedColorIndex],
+        leading: IconButton(
+          icon: const Icon(
+            Icons.close,
+            color: Colors.white,
           ),
-          body: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-            child: Stack(
-              children: <Widget>[_getAppointmentEditor(context)],
+          onPressed: () {
+            setState(() {
+              _selectedAppointment = null;
+              _title = "";
+              _location = "";
+            });
+            Navigator.pop(context);
+            setState(() {});
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+            icon: const Icon(
+              Icons.done,
+              color: Colors.white,
             ),
-          ),
-        ));
+            onPressed: save,
+          )
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        child: Stack(
+          children: <Widget>[_getAppointmentEditor(context)],
+        ),
+      ),
+    ));
   }
 
   String getTile() {
@@ -72,7 +79,6 @@ class EventEditingPageState extends State<EventEditingPage> {
     String day = selectedDay.substring(0, 2).toUpperCase();
 
     final List<Module> mods = <Module>[];
-
     if (_selectedAppointment != null) {
       moduleDataSource.appointments!.removeAt(
           moduleDataSource.appointments!.indexOf(_selectedAppointment));
@@ -92,13 +98,17 @@ class EventEditingPageState extends State<EventEditingPage> {
     moduleDataSource.appointments!.add(mods[0]);
 
     moduleDataSource.notifyListeners(CalendarDataSourceAction.add, mods);
-    _selectedAppointment = null;
-    _title = "";
-    _location = " ";
+
+    setState(() {
+      _selectedAppointment = null;
+      _title = "";
+      _location = "";
+    });
 
     storage.writeTimetable(moduleDataSource.appointments);
 
     Navigator.pop(context);
+    setState(() {});
   }
 
   Widget buildTitle() {
@@ -304,22 +314,23 @@ class EventEditingPageState extends State<EventEditingPage> {
       children: [
         const Expanded(
             flex: 1, child: Text("Weekday", style: TextStyle(fontSize: 20))),
-        DropdownButton(
-          value: selectedDay,
-          icon: const Icon(Icons.keyboard_arrow_down),
-          items: weekday.map((String items) {
-            return DropdownMenuItem(
-              value: items,
-              child: Text(items),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              selectedDay = newValue!;
-            });
-          },
-          style: const TextStyle(fontSize: 20, color: Colors.black),
-        ),
+        Text(selectedDay, style: const TextStyle(fontSize: 20)),
+        // DropdownButton(
+        //   value: DateFormat('EEEE').format(_startDate),
+        //   icon: const Icon(Icons.keyboard_arrow_down),
+        //   items: weekday.map((String items) {
+        //     return DropdownMenuItem(
+        //       value: items,
+        //       child: Text(items),
+        //     );
+        //   }).toList(),
+        //   onChanged: (String? newValue) {
+        //     setState(() {
+        //       selectedDay = newValue!;
+        //     });
+        //   },
+        //   style: const TextStyle(fontSize: 20, color: Colors.black),
+        // ),
       ],
     );
   }

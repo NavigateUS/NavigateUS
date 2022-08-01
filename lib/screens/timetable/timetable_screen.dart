@@ -34,12 +34,12 @@ Module? _selectedAppointment;
 
 // Module Details Editing
 String _title = '';
-String _location = ' ';
+String _location = '';
 late DateTime _startDate;
 late DateTime _endDate;
 late TimeOfDay _startTime;
 late TimeOfDay _endTime;
-String selectedDay = "Wednesday";
+String selectedDay = DateFormat('EEEE').format(_startDate);
 
 class TimetableState extends State<TimetableScreen> {
   TimetableState();
@@ -53,9 +53,7 @@ class TimetableState extends State<TimetableScreen> {
     storage.readTimetable().then((value) {
       setState(() {
         modules = value;
-        print("modules: $modules");
         appointments = modules;
-        print("appointments: $appointments");
         moduleDataSource = DataSource(appointments);
       });
     });
