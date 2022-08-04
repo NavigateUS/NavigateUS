@@ -20,8 +20,10 @@ class EventManagingPageState extends State<EventManagingPage> {
         body: ListView.builder(
           itemCount: moduleDataSource.appointments!.length,
           itemBuilder: (context, index) {
+
             Module tempAppointment = moduleDataSource.appointments?[index];
             String modTitle = tempAppointment.toString();
+
             return Dismissible(
                 key: UniqueKey(),
                 onDismissed: (direction) {

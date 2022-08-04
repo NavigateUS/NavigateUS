@@ -94,14 +94,15 @@ class MapState extends State<MapScreen> {
   String totalDuration2 = '';
   String startBusStop = '';
   late List<DirectionInstructions> instructions = [];
-  late StreamSubscription<Position> locationStream;
+  late StreamSubscription<Position>? locationStream;
+
   // Page Layout
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Listener(
             onPointerDown: (drag) {
-              locationStream.cancel();
+              locationStream?.cancel();
             },
             child: Stack(children: [
               buildMap(),
@@ -272,6 +273,7 @@ class MapState extends State<MapScreen> {
       destination = place;
       markers.add(marker);
     });
+    print(place);
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -280,118 +282,118 @@ class MapState extends State<MapScreen> {
           return Wrap(children: [
             Center(
                 child: Column(
-              children: [
-                Text(
-                  place.name,
-                  style: const TextStyle(fontSize: 20.0),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      //walk
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          getDirections(place, TravelMode.walking);
-                        },
-                        style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all(const StadiumBorder()),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.deepOrange),
-                        ),
-                        key: const Key('Walk'),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.directions_walk),
-                            Text('Walk')
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                  children: [
+                    Text(
+                      place.name,
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //walk
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              getDirections(place, TravelMode.walking);
+                            },
+                            style: ButtonStyle(
+                              shape:
+                                  MaterialStateProperty.all(const StadiumBorder()),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.deepOrange),
+                            ),
+                            key: const Key('Walk'),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.directions_walk),
+                                Text('Walk')
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
 
-                      //drive
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          getDirections(place, TravelMode.driving);
-                        },
-                        style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all(const StadiumBorder()),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.deepOrange),
-                        ),
-                        key: const Key('Drive'),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.directions_car),
-                            Text('Drive')
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                          //drive
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              getDirections(place, TravelMode.driving);
+                            },
+                            style: ButtonStyle(
+                              shape:
+                                  MaterialStateProperty.all(const StadiumBorder()),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.deepOrange),
+                            ),
+                            key: const Key('Drive'),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.directions_car),
+                                Text('Drive')
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
 
-                      //transit
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          getDirections(place, TravelMode.transit);
-                        },
-                        style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all(const StadiumBorder()),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.deepOrange),
-                        ),
-                        key: const Key('Transit'),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.directions_bus),
-                            Text('Transit')
-                          ],
-                        ),
+                          //transit
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              getDirections(place, TravelMode.transit);
+                            },
+                            style: ButtonStyle(
+                              shape:
+                                  MaterialStateProperty.all(const StadiumBorder()),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.deepOrange),
+                            ),
+                            key: const Key('Transit'),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.directions_bus),
+                                Text('Transit')
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 3,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    viewIndoorMap(place);
-                  },
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all(const StadiumBorder()),
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.deepOrange),
-                      maximumSize:
-                          MaterialStateProperty.all(const Size.fromWidth(300))),
-                  key: const Key('Indoor'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.map_outlined),
-                      Text('View Indoor Map')
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ],
+                    ),
+                    const SizedBox(
+                      height: 3,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        viewIndoorMap(place);
+                      },
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.deepOrange),
+                          maximumSize:
+                              MaterialStateProperty.all(const Size.fromWidth(300))),
+                      key: const Key('Indoor'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.map_outlined),
+                          Text('View Indoor Map')
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
             ))
           ]);
         }).whenComplete(() => setState(() => markers.remove(marker)));
@@ -429,10 +431,14 @@ class MapState extends State<MapScreen> {
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=$apiKey');
 
+      print('a');
+      print(response.data);
+
       String distance =
           response.data['rows'][0]['elements'][0]['distance']['text'];
       String duration =
           response.data['rows'][0]['elements'][0]['duration']['text'];
+
 
       setState(() {
         totalDistance = distance;
@@ -966,7 +972,7 @@ class MapState extends State<MapScreen> {
                                 child: const Icon(Icons.close),
                                 onPressed: () {
                                   closeDirections();
-                                  locationStream.cancel();
+                                  locationStream?.cancel();
                                 },
                               ),
                             )

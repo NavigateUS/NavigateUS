@@ -47,8 +47,8 @@ class EventEditingPageState extends State<EventEditingPage> {
                   _title = "";
                   _location = "";
                 });
-                setState(() {});
                 Navigator.pop(context);
+                setState(() {});
               },
             ),
             actions: <Widget>[
