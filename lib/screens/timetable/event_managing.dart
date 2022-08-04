@@ -51,7 +51,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
                               const EventEditingPage()),
-                    );
+                    ).then((value) => setState(() {}));
                   } else {
                     // Remove the item from the data source.
                     setState(() {
@@ -71,9 +71,9 @@ class EventManagingPageState extends State<EventManagingPage> {
                   }
                 },
 
-                // Show a red background as the item is swiped away.
+                // Show a green/red background as the item is swiped right/left.
                 background: Container(
-                    color: Colors.green,
+                    color: Colors.green,  //edit
                     child: Row(
                       children: const [
                         Icon(Icons.edit, color: Colors.white),
@@ -82,7 +82,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       ],
                     )),
                 secondaryBackground: Container(
-                  color: Colors.red,
+                  color: Colors.red,   //delete
                   child: Padding(
                     padding: const EdgeInsets.all(15),
                     child: Row(

@@ -47,8 +47,8 @@ class EventEditingPageState extends State<EventEditingPage> {
                   _title = "";
                   _location = "";
                 });
-                Navigator.pop(context);
                 setState(() {});
+                Navigator.pop(context);
               },
             ),
             actions: <Widget>[
@@ -111,8 +111,8 @@ class EventEditingPageState extends State<EventEditingPage> {
 
     storage.writeTimetable(moduleDataSource.appointments);
 
-    Navigator.pop(context);
     setState(() {});
+    Navigator.pop(context);
   }
 
   Widget buildTitle() {
