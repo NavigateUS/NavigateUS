@@ -44,13 +44,16 @@ class DataSource extends CalendarDataSource {
       }
     }
 
+
     for (String placeName in search.keys) {
       String mods = '';
       for (int i = 0; i < search[placeName]!.length; i++) {
-        String mod = search[placeName]![i];
-        mods += mod;
-        if (i != search[placeName]!.length - 1) {
-          mods += ', ';
+        if (search.containsKey(placeName) && search[placeName]!.isNotEmpty) {
+          String mod = search[placeName]![i];
+          mods += mod;
+          if (i != search[placeName]!.length - 1) {
+            mods += ', ';
+          }
         }
       }
       places[nusLocations[placeName]!] = mods;

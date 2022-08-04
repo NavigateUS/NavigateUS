@@ -112,6 +112,9 @@ class EventEditingPageState extends State<EventEditingPage> {
     storage.writeTimetable(moduleDataSource.appointments);
 
     setState(() {});
+
+    moduleDataSource.appointments!.sort((a, b) => a.from.compareTo(b.from));
+
     Navigator.pop(context);
   }
 

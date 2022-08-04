@@ -21,7 +21,6 @@ class EventManagingPageState extends State<EventManagingPage> {
           itemCount: moduleDataSource.appointments!.length,
           itemBuilder: (context, index) {
             Module tempAppointment = moduleDataSource.appointments?[index];
-            // _selectedAppointment = moduleDataSource.appointments?[index];
             String modTitle = tempAppointment.toString();
             return Dismissible(
                 key: UniqueKey(),
@@ -32,14 +31,14 @@ class EventManagingPageState extends State<EventManagingPage> {
                       _selectedAppointment =
                           tempAppointment;
 
-                      _startDate = tempAppointment!.from;
-                      _endDate = tempAppointment!.to;
+                      _startDate = tempAppointment.from;
+                      _endDate = tempAppointment.to;
                       _selectedColorIndex = _colorCollection
-                          .indexOf(tempAppointment!.background);
-                      _title = tempAppointment!.title == '(No title)'
+                          .indexOf(tempAppointment.background);
+                      _title = tempAppointment.title == '(No title)'
                           ? ''
-                          : tempAppointment!.title;
-                      _location = tempAppointment!.location;
+                          : tempAppointment.title;
+                      _location = tempAppointment.location;
 
                       _startTime = TimeOfDay(
                           hour: _startDate.hour, minute: _startDate.minute);
@@ -107,7 +106,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                   child: ListTile(
                     leading: Icon(
                       Icons.circle_outlined,
-                      color: tempAppointment!.background,
+                      color: tempAppointment.background,
                     ),
                     title: Text(modTitle),
                   ),
