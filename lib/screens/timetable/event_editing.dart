@@ -33,41 +33,41 @@ class EventEditingPageState extends State<EventEditingPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-      appBar: AppBar(
-        title: Text(getTile()),
-        backgroundColor: _colorCollection[_selectedColorIndex],
-        leading: IconButton(
-          icon: const Icon(
-            Icons.close,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            setState(() {
-              _selectedAppointment = null;
-              _title = "";
-              _location = "";
-            });
-            Navigator.pop(context);
-            setState(() {});
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-            icon: const Icon(
-              Icons.done,
-              color: Colors.white,
+          appBar: AppBar(
+            title: Text(getTile()),
+            backgroundColor: _colorCollection[_selectedColorIndex],
+            leading: IconButton(
+              icon: const Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  _selectedAppointment = null;
+                  _title = "";
+                  _location = "";
+                });
+                Navigator.pop(context);
+                setState(() {});
+              },
             ),
-            onPressed: save,
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-        child: Stack(
-          children: <Widget>[_getAppointmentEditor(context)],
-        ),
-      ),
+            actions: <Widget>[
+              IconButton(
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                icon: const Icon(
+                  Icons.done,
+                  color: Colors.white,
+                ),
+                onPressed: save,
+              )
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Stack(
+              children: <Widget>[_getAppointmentEditor(context)],
+            ),
+          ),
     ));
   }
 
@@ -80,8 +80,12 @@ class EventEditingPageState extends State<EventEditingPage> {
 
     final List<Module> mods = <Module>[];
     if (_selectedAppointment != null) {
-      moduleDataSource.appointments!.removeAt(
-          moduleDataSource.appointments!.indexOf(_selectedAppointment));
+      if (moduleDataSource.appointments!.contains(_selectedAppointment)) {
+        moduleDataSource.appointments!.remove(_selectedAppointment);
+      }
+      else {
+        throw Future.error('selected appointment not found');
+      }
       moduleDataSource.notifyListeners(
           CalendarDataSourceAction.remove, <Module>[_selectedAppointment!]);
     }
