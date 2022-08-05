@@ -19,8 +19,11 @@ import 'package:navigateus/places.dart';
 import 'package:geopointer/geopointer.dart';
 import 'package:navigateus/screens/map/widgets/bus_tile.dart';
 import 'package:navigateus/screens/map/widgets/detailed_directions.dart';
+import 'package:navigateus/screens/timetable/components/data_source.dart';
+import 'package:navigateus/screens/timetable/components/module.dart';
 import 'package:navigateus/screens/timetable/timetable_screen.dart';
 import 'package:collection/collection.dart';
+import 'package:navigateus/screens/timetable/timetable_storage.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -95,6 +98,21 @@ class MapState extends State<MapScreen> {
   String startBusStop = '';
   late List<DirectionInstructions> instructions = [];
   late StreamSubscription<Position>? locationStream;
+  late List<Module> appointments;
+  DataSource moduleDataSource = DataSource(modules);
+  TimetableStorage storage = TimetableStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    storage.readTimetable().then((value) {
+      setState(() {
+        modules = value;
+        appointments = modules;
+        moduleDataSource = DataSource(appointments);
+      });
+    });
+  }
 
   // Page Layout
   @override
