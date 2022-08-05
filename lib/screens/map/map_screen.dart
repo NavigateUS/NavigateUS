@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/bus_data/bus_stops.dart';
+import 'package:navigateus/bus_data/bus_stops_2.dart';
 import 'package:navigateus/screens/map/functions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
@@ -21,7 +22,7 @@ import 'package:navigateus/screens/map/widgets/bus_tile.dart';
 import 'package:navigateus/screens/map/widgets/detailed_directions.dart';
 import 'package:navigateus/screens/timetable/timetable_screen.dart';
 import 'package:collection/collection.dart';
-
+import 'package:navigateus/screens/setting.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -45,11 +46,10 @@ class BusStop {
     }
   }
 
-  void setTime (int time) {
+  void setTime(int time) {
     this.time = time;
   }
 }
-
 
 class BusRoute {
   late final List<List<String>> route;
@@ -66,7 +66,7 @@ class BusRoute {
     valid = false;
   }
 
-  void setTime (int time) {
+  void setTime(int time) {
     this.time = time;
   }
 }
@@ -85,8 +85,9 @@ class MapState extends State<MapScreen> {
   Set<Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
-  bool visibility = false;  //visibility of directions
-  bool detailedDirections = false;  //visibility of detailed directions and floating action button
+  bool visibility = false; //visibility of directions
+  bool detailedDirections =
+      false; //visibility of detailed directions and floating action button
   Place destination = Place('NUS', const LatLng(1.2966, 103.7764));
   String totalDistance = '';
   String totalDuration = '';
@@ -95,6 +96,9 @@ class MapState extends State<MapScreen> {
   String startBusStop = '';
   late List<DirectionInstructions> instructions = [];
   late StreamSubscription<Position> locationStream;
+  Map<String, PointLatLng> selectedBusStops = busStopsLatLng2;
+  Map<String, List<Map<String, String>>> selectedGraph = graph2;
+
   // Page Layout
   @override
   Widget build(BuildContext context) {
@@ -112,16 +116,15 @@ class MapState extends State<MapScreen> {
         floatingActionButton: detailedDirections
             ? null
             : Padding(
-              padding: visibility
-                  ? const EdgeInsets.only(bottom: 120)
-                  : const EdgeInsets.only(bottom: 0),
-              child: FloatingActionButton(
-                  child: const Icon(Icons.location_searching),
-                  onPressed: () {
-                    locateUserPosition();
-                  }),
-              )
-    );
+                padding: visibility
+                    ? const EdgeInsets.only(bottom: 120)
+                    : const EdgeInsets.only(bottom: 0),
+                child: FloatingActionButton(
+                    child: const Icon(Icons.location_searching),
+                    onPressed: () {
+                      locateUserPosition();
+                    }),
+              ));
   }
 
   // Initial camera position NUS
@@ -205,7 +208,8 @@ class MapState extends State<MapScreen> {
       axisAlignment: isPortrait ? 0.0 : -1.0,
       openAxisAlignment: 0.0,
       iconColor: Colors.deepOrange,
-      onFocusChanged: (apiKey) async{  //apiKey can be replaced by anything that results in true
+      onFocusChanged: (apiKey) async {
+        //apiKey can be replaced by anything that results in true
         await Future.delayed(const Duration(milliseconds: 100));
         resetPredictions();
       },
@@ -246,8 +250,8 @@ class MapState extends State<MapScreen> {
                   ),
                   title: Text(predictions[index].name),
                   subtitle: predictions2.containsKey(predictions[index])
-                            ? Text(predictions2[predictions[index]]!)
-                            : const Text(""),
+                      ? Text(predictions2[predictions[index]]!)
+                      : const Text(""),
                   onTap: () async {
                     var place = predictions[index];
                     LatLng position = place.latLng;
@@ -397,7 +401,6 @@ class MapState extends State<MapScreen> {
         }).whenComplete(() => setState(() => markers.remove(marker)));
   }
 
-
   Future<void> getDirections(Place place, TravelMode mode) async {
     Position userPosition = await GeolocatorService().getCurrentLocation();
     LatLng latLngPosStart =
@@ -464,10 +467,10 @@ class MapState extends State<MapScreen> {
       LatLng end2LatLng = busStopListEnd[1].values.first;
 
       Map<String, BusStop> busstops = {
-        "Start1" : BusStop(start1, start1LatLng),
-        "Start2" : BusStop(start2, start2LatLng),
-        "End1" : BusStop(end1, end1LatLng),
-        "End2" : BusStop(end2, end2LatLng)
+        "Start1": BusStop(start1, start1LatLng),
+        "Start2": BusStop(start2, start2LatLng),
+        "End1": BusStop(end1, end1LatLng),
+        "End2": BusStop(end2, end2LatLng)
       };
 
       //Get walk time to all 4 bus stops
@@ -480,8 +483,7 @@ class MapState extends State<MapScreen> {
         LatLng otherLatLng;
         if (K == "Start1" || K == "Start2") {
           otherLatLng = latLngPosStart;
-        }
-        else {
+        } else {
           otherLatLng = latLngPosEnd;
         }
 
@@ -495,25 +497,32 @@ class MapState extends State<MapScreen> {
         }
 
         String duration =
-        response.data['rows'][0]['elements'][0]['duration']['text'];
+            response.data['rows'][0]['elements'][0]['duration']['text'];
         int durationInt = int.parse(duration.substring(0, 2));
         V.setTime(durationInt);
 
         BusStop temp = V;
         busstops.update(K, (value) => temp);
 
-
         //Wait before sending next request, otherwise we will exceed request rate limit
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
+      List<List<String>>? route0 =
+          findRoute(busstops["Start1"]!.name, busstops["End1"]!.name);
+      List<List<String>>? route1 =
+          findRoute(busstops["Start1"]!.name, busstops["End2"]!.name);
+      List<List<String>>? route2 =
+          findRoute(busstops["Start2"]!.name, busstops["End1"]!.name);
+      List<List<String>>? route3 =
+          findRoute(busstops["Start2"]!.name, busstops["End2"]!.name);
 
-      List<List<String>>? route0 = findRoute(busstops["Start1"]!.name, busstops["End1"]!.name);
-      List<List<String>>? route1 = findRoute(busstops["Start1"]!.name, busstops["End2"]!.name);
-      List<List<String>>? route2 = findRoute(busstops["Start2"]!.name, busstops["End1"]!.name);
-      List<List<String>>? route3 = findRoute(busstops["Start2"]!.name, busstops["End2"]!.name);
-
-      var routes = [BusRoute(route0, "Start1", "End1"), BusRoute(route1, "Start1", "End2"), BusRoute(route2, "Start2", "End1"), BusRoute(route3, "Start2", "End2")];
+      var routes = [
+        BusRoute(route0, "Start1", "End1"),
+        BusRoute(route1, "Start1", "End2"),
+        BusRoute(route2, "Start2", "End1"),
+        BusRoute(route3, "Start2", "End2")
+      ];
       int invalid = 0;
 
       //do not consider impossible routes
@@ -528,19 +537,19 @@ class MapState extends State<MapScreen> {
         throw Exception('No routes found');
       }
 
-
       //For each valid route, calculate time taken, assumption: each stop ~ 2 mins, and take shortest time
       BusRoute bestRoute = routes[0];
 
       for (BusRoute busRoute in routes) {
-        int time = busstops[busRoute.start]!.time + busstops[busRoute.end]!.time + 2 * busRoute.route.length;
+        int time = busstops[busRoute.start]!.time +
+            busstops[busRoute.end]!.time +
+            2 * busRoute.route.length;
         busRoute.setTime(time);
 
         if (time < bestRoute.time) {
           bestRoute = busRoute;
         }
       }
-
 
       //check if just walking is faster
       response = await dio.get(
@@ -555,38 +564,39 @@ class MapState extends State<MapScreen> {
           response.data['rows'][0]['elements'][0]['duration']['text'];
       int durationWalkInt = int.parse(durationWalkStr.substring(0, 2));
 
-
       if (durationWalkInt < bestRoute.time) {
         //Walking is faster, walk
         getDirections(place, TravelMode.walking);
-      }
-      else {
+      } else {
         setState(() {
           if (busstops[bestRoute.start]!.time == 1) {
             totalDuration = '${busstops[bestRoute.start]!.time} min';
-          }
-          else {
+          } else {
             totalDuration = '${busstops[bestRoute.start]!.time} mins';
           }
 
           if (busstops[bestRoute.end]!.time == 1) {
             totalDuration2 = '${busstops[bestRoute.end]!.time} min';
-          }
-          else {
+          } else {
             totalDuration2 = '${busstops[bestRoute.end]!.time} mins';
           }
 
           markers = {startMarker, endMarker};
 
-          instructions = getBestRoute(bestRoute.route, busstops[bestRoute.start]!.name);
+          instructions =
+              getBestRoute(bestRoute.route, busstops[bestRoute.start]!.name);
           startBusStop = busstops[bestRoute.start]!.name;
         });
 
         _getPolylineTransit(
-            latLngPosStart, latLngPosEnd, busstops[bestRoute.start]!.name, busstops[bestRoute.end]!.name, bestRoute.route);
+            latLngPosStart,
+            latLngPosEnd,
+            busstops[bestRoute.start]!.name,
+            busstops[bestRoute.end]!.name,
+            bestRoute.route);
 
-        markSelectedBusStops([busstops[bestRoute.start]!.name, busstops[bestRoute.end]!.name]);
-
+        markSelectedBusStops(
+            [busstops[bestRoute.start]!.name, busstops[bestRoute.end]!.name]);
       }
     }
 
@@ -634,8 +644,19 @@ class MapState extends State<MapScreen> {
 
   _getPolylineTransit(LatLng start, LatLng end, String startStop,
       String endStop, List<List<String>> route) async {
-
     Set<Polyline> polylineSet = {};
+
+    if (SettingPageState.graphStatus) {
+      setState(() {
+        selectedBusStops = busStopsLatLng;
+        selectedGraph = graph;
+      });
+    } else {
+      setState(() {
+        selectedBusStops = busStopsLatLng2;
+        selectedGraph = graph2;
+      });
+    }
 
     //Points from walking from start to startStop
     List<LatLng> polylineCoordinatesStart = [];
@@ -643,10 +664,9 @@ class MapState extends State<MapScreen> {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       apiKey,
       PointLatLng(start.latitude, start.longitude),
-      busStopsLatLng[startStop]!,
+      selectedBusStops[startStop]!,
       travelMode: TravelMode.walking,
     );
-
 
     if (result.points.isNotEmpty) {
       for (var point in result.points) {
@@ -661,9 +681,7 @@ class MapState extends State<MapScreen> {
       width: 5,
     );
 
-
     polylineSet.add(newPolyline);
-
 
     //Points from startStop to endStop
     //Get route from 1 bus stop to another by getting driving instructions from startStop to its next bus stop,
@@ -685,15 +703,15 @@ class MapState extends State<MapScreen> {
       segments.add(stops);
     }
 
-
     for (int i = 0; i < route.length; i++) {
       var stop = route[i];
       //for each stop along the way
-      var nextStops = graph[currStop]; //get the list of stops that are next
+      var nextStops =
+          selectedGraph[currStop]; //get the list of stops that are next
       for (var busStop in nextStops!) {
         if (busStop["bus"] == stop[0]) {
           nextStop = busStop["nextBusStop"]!; //find the correct next stop
-          //Ignore warning. Without the \' dart will call e.g. busStopsLatLng[Prince George] instead
+          //Ignore warning. Without the \' dart will call e.g. selectedBusStops[Prince George] instead
           if (nextStop == "Prince George's Park") {
             nextStop = "Prince George\'s Park";
           }
@@ -704,11 +722,10 @@ class MapState extends State<MapScreen> {
         }
       }
 
-
       result = await polylinePoints.getRouteBetweenCoordinates(
         apiKey,
-        busStopsLatLng[currStop]!,
-        busStopsLatLng[nextStop]!,
+        selectedBusStops[currStop]!,
+        selectedBusStops[nextStop]!,
         travelMode: TravelMode.driving,
       ); //get driving instructions to the next stop
 
@@ -721,20 +738,18 @@ class MapState extends State<MapScreen> {
         throw Exception('Cannot find route from $currStop to $nextStop');
       }
 
-
       if (i == route.length - 1 || i == segments[counter]) {
         Color col = busColor('');
         if (instructions[counter].bus.length == 1) {
           col = busColor(instructions[counter].bus[0]);
         }
-        midPolylines.add(
-            Polyline(
-              polylineId: PolylineId("bus$counter"),
-              color: col,
-              points: polylineCoordinatesMid.sublist(lastStop, polylineCoordinatesMid.length),
-              width: 5,
-            )
-        );
+        midPolylines.add(Polyline(
+          polylineId: PolylineId("bus$counter"),
+          color: col,
+          points: polylineCoordinatesMid.sublist(
+              lastStop, polylineCoordinatesMid.length),
+          width: 5,
+        ));
 
         lastStop = polylineCoordinatesMid.length;
         counter++;
@@ -743,15 +758,14 @@ class MapState extends State<MapScreen> {
       currStop = nextStop;
     }
 
-
     polylineSet.addAll(midPolylines);
 
     //Points from walking from endStop to end
-    List<LatLng> polylineCoordinatesEnd= [];
+    List<LatLng> polylineCoordinatesEnd = [];
 
     result = await polylinePoints.getRouteBetweenCoordinates(
       apiKey,
-      busStopsLatLng[endStop]!,
+      selectedBusStops[endStop]!,
       PointLatLng(end.latitude, end.longitude),
       travelMode: TravelMode.walking,
     );
@@ -798,51 +812,107 @@ class MapState extends State<MapScreen> {
 
   Widget buildDirections() {
     return Positioned(
-          bottom: 0,
-          child: Visibility(
-              visible: visibility, // Set it to false
-              child: GestureDetector(
-                  onVerticalDragUpdate: (details) {
-                    int sensitivity = 3;
-                    if (details.delta.dy > sensitivity) {
-                      // Down Swipe
-                      setState(() {
-                        detailedDirections = false;
-                      });
-                    } else if(details.delta.dy < -sensitivity){
-                      // Up Swipe
-                      setState(() {
-                        detailedDirections = true;
-                      });
-                    }
-                  },
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.grey[300],
-                      ),
-                      child: Column(
-                          children: [
-                            Column(children: [
-                              Center(
-                                child: Text(
-                                  destination.name,
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              if (modeOfTransit == 'walking' && visibility) ...[
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+      bottom: 0,
+      child: Visibility(
+          visible: visibility, // Set it to false
+          child: GestureDetector(
+            onVerticalDragUpdate: (details) {
+              int sensitivity = 3;
+              if (details.delta.dy > sensitivity) {
+                // Down Swipe
+                setState(() {
+                  detailedDirections = false;
+                });
+              } else if (details.delta.dy < -sensitivity) {
+                // Up Swipe
+                setState(() {
+                  detailedDirections = true;
+                });
+              }
+            },
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.grey[300],
+                  ),
+                  child: Column(children: [
+                    Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            destination.name,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        if (modeOfTransit == 'walking' && visibility) ...[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.grey[400],
+                                  ),
+                                  child: Wrap(
                                     children: [
+                                      const Icon(
+                                        Icons.directions_walk,
+                                        size: 20,
+                                      ),
+                                      Text(
+                                        totalDuration,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ])
+                        ] else if (modeOfTransit == 'driving' &&
+                            visibility) ...[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.grey[400],
+                                  ),
+                                  child: Wrap(
+                                    children: [
+                                      const Icon(Icons.directions_car),
+                                      Text(
+                                        totalDuration,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ])
+                        ] else if (modeOfTransit == 'transit' &&
+                            visibility) ...[
+                          Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Wrap(
+                                    children: [
+                                      //Walk to nearest bus stop(s)
                                       Container(
                                         padding: const EdgeInsets.all(2),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                           color: Colors.grey[400],
                                         ),
                                         child: Wrap(
@@ -853,127 +923,81 @@ class MapState extends State<MapScreen> {
                                             ),
                                             Text(
                                               totalDuration,
-                                              style: const TextStyle(fontSize: 18),
+                                              style:
+                                                  const TextStyle(fontSize: 18),
                                             ),
                                           ],
                                         ),
-                                      )
-                                    ]
-                                )
-                              ] else if (modeOfTransit == 'driving' && visibility) ...[
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
+                                      ),
+
+                                      const Icon(
+                                          Icons.keyboard_arrow_right_sharp),
+
+                                      //Bus, use bus_directions_service
+                                      BusDirections(instructions: instructions),
+                                      //Walk to destination
                                       Container(
                                         padding: const EdgeInsets.all(2),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                           color: Colors.grey[400],
                                         ),
                                         child: Wrap(
                                           children: [
-                                            const Icon(Icons.directions_car),
+                                            const Icon(
+                                              Icons.directions_walk,
+                                              size: 20,
+                                            ),
                                             Text(
-                                              totalDuration,
-                                              style: const TextStyle(fontSize: 18),
+                                              totalDuration2,
+                                              style:
+                                                  const TextStyle(fontSize: 18),
                                             ),
                                           ],
                                         ),
                                       )
-                                    ])
-                              ] else if (modeOfTransit == 'transit' && visibility) ...[
-                                Scrollbar(
-                                  thumbVisibility: true,
-                                  trackVisibility: true,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Wrap(
-                                          children: [
-                                            //Walk to nearest bus stop(s)
-                                            Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(5),
-                                                color: Colors.grey[400],
-                                              ),
-                                              child: Wrap(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.directions_walk,
-                                                    size: 20,
-                                                  ),
-                                                  Text(
-                                                    totalDuration,
-                                                    style: const TextStyle(fontSize: 18),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            const Icon(Icons.keyboard_arrow_right_sharp),
-
-                                            //Bus, use bus_directions_service
-                                            BusDirections(instructions: instructions),
-                                            //Walk to destination
-                                            Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(5),
-                                                color: Colors.grey[400],
-                                              ),
-                                              child: Wrap(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.directions_walk,
-                                                    size: 20,
-                                                  ),
-                                                  Text(
-                                                    totalDuration2,
-                                                    style: const TextStyle(fontSize: 18),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                    ],
                                   ),
-                                )
-                              ],
-                              if (BusDirections(instructions: instructions).getLength() >=
-                                  3) ...[
-                                const SizedBox(height: 5),
-                                const Text("<<< Scroll >>>",
-                                    style: TextStyle(color: Colors.black54))
-                              ]
-                            ],
-                            ),
-                            Visibility(
-                              visible: detailedDirections && modeOfTransit == 'transit',
-                              child: DetailedDirections(instructions: instructions, startStop: startBusStop, destination: destination.name,),
-                            ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(10),
-                                ),
-                                child: const Icon(Icons.close),
-                                onPressed: () {
-                                  closeDirections();
-                                  locationStream.cancel();
-                                },
+                                ],
                               ),
-                            )
-                          ])),
-                ),
-              )
-          ),
+                            ),
+                          )
+                        ],
+                        if (BusDirections(instructions: instructions)
+                                .getLength() >=
+                            3) ...[
+                          const SizedBox(height: 5),
+                          const Text("<<< Scroll >>>",
+                              style: TextStyle(color: Colors.black54))
+                        ]
+                      ],
+                    ),
+                    Visibility(
+                      visible: detailedDirections && modeOfTransit == 'transit',
+                      child: DetailedDirections(
+                        instructions: instructions,
+                        startStop: startBusStop,
+                        destination: destination.name,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(10),
+                        ),
+                        child: const Icon(Icons.close),
+                        onPressed: () {
+                          closeDirections();
+                          locationStream.cancel();
+                        },
+                      ),
+                    )
+                  ])),
+            ),
+          )),
     );
   }
 
@@ -1003,7 +1027,19 @@ class MapState extends State<MapScreen> {
   List<Map<String, LatLng>> getNearestBusStop(LatLng givenLocation) {
     List<Map<String, double>> distances = [];
 
-    busStopsLatLng.forEach((key, value) {
+    if (SettingPageState.graphStatus == true) {
+      setState(() {
+        selectedBusStops = busStopsLatLng;
+        selectedGraph = graph;
+      });
+    } else {
+      setState(() {
+        selectedBusStops = busStopsLatLng2;
+        selectedGraph = graph2;
+      });
+    }
+
+    selectedBusStops.forEach((key, value) {
       double currDist = calculateDistance(givenLocation.latitude,
           givenLocation.longitude, value.latitude, value.longitude);
 
@@ -1028,10 +1064,10 @@ class MapState extends State<MapScreen> {
       }
     }
 
-    LatLng firstLocation = LatLng(busStopsLatLng[firstName]!.latitude,
-        busStopsLatLng[firstName]!.longitude);
-    LatLng secondLocation = LatLng(busStopsLatLng[secondName]!.latitude,
-        busStopsLatLng[secondName]!.longitude);
+    LatLng firstLocation = LatLng(selectedBusStops[firstName]!.latitude,
+        selectedBusStops[firstName]!.longitude);
+    LatLng secondLocation = LatLng(selectedBusStops[secondName]!.latitude,
+        selectedBusStops[secondName]!.longitude);
 
     List<Map<String, LatLng>> result = [
       {firstName: firstLocation},
@@ -1040,9 +1076,20 @@ class MapState extends State<MapScreen> {
     return result;
   }
 
-
   //Marks bus stops given (String of bus stop names)
   void markSelectedBusStops(List<String> locations) async {
+    if (SettingPageState.graphStatus) {
+      setState(() {
+        selectedBusStops = busStopsLatLng;
+        selectedGraph = graph;
+      });
+    } else {
+      setState(() {
+        selectedBusStops = busStopsLatLng2;
+        selectedGraph = graph2;
+      });
+    }
+
     BitmapDescriptor busIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(), 'assets/icons/bus.png');
     for (String location in locations) {
@@ -1056,8 +1103,8 @@ class MapState extends State<MapScreen> {
         setState(() {
           markers.add(Marker(
               markerId: MarkerId(location),
-              position: LatLng(busStopsLatLng[location]!.latitude,
-                  busStopsLatLng[location]!.longitude),
+              position: LatLng(selectedBusStops[location]!.latitude,
+                  selectedBusStops[location]!.longitude),
               icon: busIcon));
         });
       } catch (error) {
