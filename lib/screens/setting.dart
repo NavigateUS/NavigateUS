@@ -28,7 +28,7 @@ class SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Setting"),
+          title: const Text("Settings"),
           centerTitle: true,
           backgroundColor: Colors.deepOrange,
         ),
@@ -59,9 +59,9 @@ class SettingPageState extends State<SettingPage> {
                       const SizedBox(height: 10),
                       const Text(
                           "Would you like to include Bus K and E in the transit direction? This may affect the suggested routes."),
-                      Container(
-                          alignment: Alignment.centerRight,
-                          child: Text("Value: $graphStatus")),
+                      // Container(
+                      //     alignment: Alignment.centerRight,
+                      //     child: Text("Value: $graphStatus")),
                     ]))));
   }
 }

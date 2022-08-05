@@ -103,7 +103,6 @@ class MapState extends State<MapScreen> {
   late List<Module> appointments;
   DataSource moduleDataSource = DataSource(modules);
   TimetableStorage storage = TimetableStorage();
-  late StreamSubscription<Position> locationStream;
   Map<String, PointLatLng> selectedBusStops = busStopsLatLng2;
   Map<String, List<Map<String, String>>> selectedGraph = graph2;
 
@@ -849,7 +848,7 @@ class MapState extends State<MapScreen> {
                 setState(() {
                   detailedDirections = false;
                 });
-              } else if (details.delta.dy < -sensitivity) {
+              } else if(details.delta.dy < -sensitivity){
                 // Up Swipe
                 setState(() {
                   detailedDirections = true;
@@ -865,191 +864,155 @@ class MapState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.grey[300],
                   ),
-                  child: Column(children: [
-                    Column(
+                  child: Column(
                       children: [
-                        Center(
-                          child: Text(
-                            destination.name,
-                            style: const TextStyle(fontSize: 20),
+                        Column(children: [
+                          Center(
+                            child: Text(
+                              destination.name,
+                              style: const TextStyle(fontSize: 20),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (modeOfTransit == 'walking' && visibility) ...[
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.grey[400],
-                                  ),
-                                  child: Wrap(
-                                    children: [
-                                      const Icon(
-                                        Icons.directions_walk,
-                                        size: 20,
-                                      ),
-                                      Text(
-                                        totalDuration,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ])
-                        ] else if (modeOfTransit == 'driving' &&
-                            visibility) ...[
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.grey[400],
-                                  ),
-                                  child: Wrap(
-                                    children: [
-                                      const Icon(Icons.directions_car),
-                                      Text(
-                                        totalDuration,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ])
-                        ] else if (modeOfTransit == 'transit' &&
-                            visibility) ...[
-                          Scrollbar(
-                            thumbVisibility: true,
-                            trackVisibility: true,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
+                          const SizedBox(height: 10),
+                          if (modeOfTransit == 'walking' && visibility) ...[
+                            Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Wrap(
-                                    children: [
-                                      //Walk to nearest bus stop(s)
-                                      Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          color: Colors.grey[400],
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.grey[400],
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        const Icon(
+                                          Icons.directions_walk,
+                                          size: 20,
                                         ),
-                                        child: Wrap(
-                                          children: [
-                                            const Icon(
-                                              Icons.directions_walk,
-                                              size: 20,
-                                            ),
-                                            Text(
-                                              totalDuration,
-                                              style:
-                                                  const TextStyle(fontSize: 18),
-                                            ),
-                                          ],
+                                        Text(
+                                          totalDuration,
+                                          style: const TextStyle(fontSize: 18),
                                         ),
-                                      ),
+                                      ],
+                                    ),
+                                  )
+                                ]
+                            )
+                          ] else if (modeOfTransit == 'driving' && visibility) ...[
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.grey[400],
+                                    ),
+                                    child: Wrap(
+                                      children: [
+                                        const Icon(Icons.directions_car),
+                                        Text(
+                                          totalDuration,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ])
+                          ] else if (modeOfTransit == 'transit' && visibility) ...[
+                            Scrollbar(
+                              thumbVisibility: true,
+                              trackVisibility: true,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Wrap(
+                                      children: [
+                                        //Walk to nearest bus stop(s)
+                                        Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(5),
+                                            color: Colors.grey[400],
+                                          ),
+                                          child: Wrap(
+                                            children: [
+                                              const Icon(
+                                                Icons.directions_walk,
+                                                size: 20,
+                                              ),
+                                              Text(
+                                                totalDuration,
+                                                style: const TextStyle(fontSize: 18),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
 
-                                      const Icon(
-                                          Icons.keyboard_arrow_right_sharp),
+                                        const Icon(Icons.keyboard_arrow_right_sharp),
 
-                                      //Bus, use bus_directions_service
-                                      BusDirections(instructions: instructions),
-                                      //Walk to destination
-                                      Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          color: Colors.grey[400],
-                                        ),
-                                        child: Wrap(
-                                          children: [
-                                            const Icon(
-                                              Icons.directions_walk,
-                                              size: 20,
-                                            ),
-                                            Text(
-                                              totalDuration2,
-                                              style:
-                                                  const TextStyle(fontSize: 18),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                              if (BusDirections(instructions: instructions).getLength() >=
-                                  3) ...[
-                                const SizedBox(height: 5),
-                                const Text("<<< Scroll >>>",
-                                    style: TextStyle(color: Colors.black54))
-                              ]
-                            ],
-                            ),
-                            Visibility(
-                              visible: detailedDirections && modeOfTransit == 'transit',
-                              child: DetailedDirections(instructions: instructions, startStop: startBusStop, destination: destination.name,),
-                            ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(10),
+                                        //Bus, use bus_directions_service
+                                        BusDirections(instructions: instructions),
+                                        //Walk to destination
+                                        Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(5),
+                                            color: Colors.grey[400],
+                                          ),
+                                          child: Wrap(
+                                            children: [
+                                              const Icon(
+                                                Icons.directions_walk,
+                                                size: 20,
+                                              ),
+                                              Text(
+                                                totalDuration2,
+                                                style: const TextStyle(fontSize: 18),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                child: const Icon(Icons.close),
-                                onPressed: () {
-                                  closeDirections();
-                                  locationStream?.cancel();
-                                },
-                                ],
                               ),
-                            ),
-                          )
+                            )
+                          ],
+                          if (BusDirections(instructions: instructions).getLength() >=
+                              3) ...[
+                            const SizedBox(height: 5),
+                            const Text("<<< Scroll >>>",
+                                style: TextStyle(color: Colors.black54))
+                          ]
                         ],
-                        if (BusDirections(instructions: instructions)
-                                .getLength() >=
-                            3) ...[
-                          const SizedBox(height: 5),
-                          const Text("<<< Scroll >>>",
-                              style: TextStyle(color: Colors.black54))
-                        ]
-                      ],
-                    ),
-                    Visibility(
-                      visible: detailedDirections && modeOfTransit == 'transit',
-                      child: DetailedDirections(
-                        instructions: instructions,
-                        startStop: startBusStop,
-                        destination: destination.name,
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(10),
                         ),
-                        child: const Icon(Icons.close),
-                        onPressed: () {
-                          closeDirections();
-                          locationStream.cancel();
-                        },
-                      ),
-                    )
-                  ])),
+                        Visibility(
+                          visible: detailedDirections && modeOfTransit == 'transit',
+                          child: DetailedDirections(instructions: instructions, startStop: startBusStop, destination: destination.name,),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(10),
+                            ),
+                            child: const Icon(Icons.close),
+                            onPressed: () {
+                              closeDirections();
+                              locationStream?.cancel();
+                            },
+                          ),
+                        )
+                      ])),
             ),
-          )),
+          )
+      ),
     );
   }
 
