@@ -113,7 +113,7 @@ class EventEditingPageState extends State<EventEditingPage> {
 
     setState(() {});
 
-    moduleDataSource.appointments!.sort((a, b) => a.from.compareTo(b.from));
+    moduleDataSource.appointments!.sort((a, b) => a.title.compareTo(b.title));
 
     Navigator.pop(context);
   }
