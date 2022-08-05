@@ -20,8 +20,10 @@ class EventManagingPageState extends State<EventManagingPage> {
         body: ListView.builder(
           itemCount: moduleDataSource.appointments!.length,
           itemBuilder: (context, index) {
-            _selectedAppointment = moduleDataSource.appointments?[index];
-            String modTitle = _selectedAppointment.toString();
+
+            Module tempAppointment = moduleDataSource.appointments?[index];
+            String modTitle = tempAppointment.toString();
+
             return Dismissible(
                 key: UniqueKey(),
                 onDismissed: (direction) {
@@ -29,16 +31,16 @@ class EventManagingPageState extends State<EventManagingPage> {
                   if (direction == DismissDirection.startToEnd) {
                     setState(() {
                       _selectedAppointment =
-                          moduleDataSource.appointments?[index];
+                          tempAppointment;
 
-                      _startDate = _selectedAppointment!.from;
-                      _endDate = _selectedAppointment!.to;
+                      _startDate = tempAppointment.from;
+                      _endDate = tempAppointment.to;
                       _selectedColorIndex = _colorCollection
-                          .indexOf(_selectedAppointment!.background);
-                      _title = _selectedAppointment!.title == '(No title)'
+                          .indexOf(tempAppointment.background);
+                      _title = tempAppointment.title == '(No title)'
                           ? ''
-                          : _selectedAppointment!.title;
-                      _location = _selectedAppointment!.location;
+                          : tempAppointment.title;
+                      _location = tempAppointment.location;
 
                       _startTime = TimeOfDay(
                           hour: _startDate.hour, minute: _startDate.minute);
@@ -50,7 +52,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
                               const EventEditingPage()),
-                    );
+                    ).then((value) => setState(() {}));
                   } else {
                     // Remove the item from the data source.
                     setState(() {
@@ -70,9 +72,9 @@ class EventManagingPageState extends State<EventManagingPage> {
                   }
                 },
 
-                // Show a red background as the item is swiped away.
+                // Show a green/red background as the item is swiped right/left.
                 background: Container(
-                    color: Colors.green,
+                    color: Colors.green,  //edit
                     child: Row(
                       children: const [
                         Icon(Icons.edit, color: Colors.white),
@@ -81,7 +83,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       ],
                     )),
                 secondaryBackground: Container(
-                  color: Colors.red,
+                  color: Colors.red,   //delete
                   child: Padding(
                     padding: const EdgeInsets.all(15),
                     child: Row(
@@ -106,7 +108,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                   child: ListTile(
                     leading: Icon(
                       Icons.circle_outlined,
-                      color: _selectedAppointment!.background,
+                      color: tempAppointment.background,
                     ),
                     title: Text(modTitle),
                   ),

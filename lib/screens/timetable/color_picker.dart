@@ -15,7 +15,7 @@ class _ColorPickerState extends State<_ColorPicker> {
           width: double.maxFinite,
           child: ListView.builder(
             padding: const EdgeInsets.all(0),
-            itemCount: _colorCollection.length - 1,
+            itemCount: _colorCollection.length,
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
                 contentPadding: const EdgeInsets.all(0),

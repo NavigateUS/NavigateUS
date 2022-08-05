@@ -57,18 +57,42 @@ class TimetableState extends State<TimetableScreen> {
         moduleDataSource = DataSource(appointments);
       });
     });
-    _colorCollection.add(const Color(0xFFFC571D));
-    _colorCollection.add(const Color(0xFF85461E));
-    _colorCollection.add(const Color(0xFFFF00FF));
-    _colorCollection.add(const Color(0xFF3D4FB5));
-    _colorCollection.add(const Color(0xFFE47C73));
-    _colorCollection.add(const Color(0xFF636363));
-    _colorNames.add('Orange');
-    _colorNames.add('Caramel');
-    _colorNames.add('Magenta');
-    _colorNames.add('Blue');
-    _colorNames.add('Peach');
-    _colorNames.add('Gray');
+    // _colorCollection.add(const Color(0xFFFC571D));
+    // _colorCollection.add(const Color(0xFF85461E));
+    // _colorCollection.add(const Color(0xFFFF00FF));
+    // _colorCollection.add(const Color(0xFF3D4FB5));
+    // _colorCollection.add(const Color(0xFFE47C73));
+    // _colorCollection.add(const Color(0xFF636363));
+    // _colorNames.add('Orange');
+    // _colorNames.add('Caramel');
+    // _colorNames.add('Magenta');
+    // _colorNames.add('Blue');
+    // _colorNames.add('Peach');
+    // _colorNames.add('Gray');
+
+    _colorCollection.add(const Color(0xfff07878));
+    _colorNames.add('Light Coral');
+
+    _colorCollection.add(const Color(0xfff89154));
+    _colorNames.add('Faded Orange');
+
+    _colorCollection.add(const Color(0xffffcc65));
+    _colorNames.add('Light Mustard');
+
+    _colorCollection.add(const Color(0xff9bcb9a));
+    _colorNames.add('Frog Green');
+
+    _colorCollection.add(const Color(0xff6acccd));
+    _colorNames.add('Downy');
+
+    _colorCollection.add(const Color(0xff6699cc));
+    _colorNames.add('Blue Koi');
+
+    _colorCollection.add(const Color(0xffca9acc));
+    _colorNames.add('Pastel Violet');
+
+    _colorCollection.add(const Color(0xffd17b51));
+    _colorNames.add('Raw Sienna');
 
     //events
     _selectedAppointment = null;
