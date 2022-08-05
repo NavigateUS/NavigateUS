@@ -1,6 +1,7 @@
 import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:collection/collection.dart';
 import 'package:navigateus/bus_data/bus_stops_2.dart';
+import 'package:navigateus/screens/setting.dart';
 import 'package:quiver/core.dart';
 
 
@@ -45,23 +46,29 @@ class DirectionInstructions {
 }
 
 List<Map<String, String>>? getNeighbours(String stopName) {
-  return graph[stopName]!;
+  // return graph[stopName]!;
+  return SettingPageState.graphStatus ? graph[stopName]! : graph2[stopName]!;
 }
 
 List<List<String>> findRoute(String source, String destination) {
+  Map<String, List<Map<String, String>>> selectedGraph = graph2;
+  if (SettingPageState.graphStatus) {
+    selectedGraph = graph;
+  }
+
   //Djikstra's to find shortest path
   Map<String, int> D = {}; //Distance array
-  for (String key in graph.keys) {
+  for (String key in selectedGraph.keys) {
     D[key] = 1000;
   }
 
   Map<String, String> p = {}; //Predecessor array
-  for (String key in graph.keys) {
+  for (String key in selectedGraph.keys) {
     p[key] = "";
   }
 
   Map<String, List<String>> pBus = {}; //Predecessor array for bus taken
-  for (String key in graph.keys) {
+  for (String key in selectedGraph.keys) {
     pBus[key] = [];
   }
 
@@ -116,7 +123,12 @@ List<List<String>> findRoute(String source, String destination) {
 }
 
 String getNextStop(String currStop, String bus) {
-  List<Map<String, String>> nextStops = graph[currStop]!;
+  Map<String, List<Map<String, String>>> selectedGraph = graph2;
+  if (SettingPageState.graphStatus) {
+    selectedGraph = graph;
+  }
+
+  List<Map<String, String>> nextStops = selectedGraph[currStop]!;
 
   for (Map<String, String> next in nextStops) {
     if (next["bus"] == bus) {
