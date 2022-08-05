@@ -50,7 +50,6 @@ class DetailedDirectionsRowState extends State<DetailedDirectionsRow>{
     return FutureBuilder<Response?>(
       future: arriveData,
       builder: (context, snapshot) {
-        print(snapshot);
         if (snapshot.hasData) {
           Response data = snapshot.data!;
 
