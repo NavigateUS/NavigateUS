@@ -27,7 +27,6 @@ import 'package:collection/collection.dart';
 import 'package:navigateus/screens/timetable/timetable_storage.dart';
 import 'package:navigateus/screens/setting.dart';
 
-
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
 
@@ -112,13 +111,11 @@ class MapState extends State<MapScreen> {
     storage.readTimetable().then((value) {
       setState(() {
         modules = value;
-        appointments = modules;
-        moduleDataSource = DataSource(appointments);
+        moduleDataSource = DataSource(modules);
       });
     });
   }
 
-  
   // Page Layout
   @override
   Widget build(BuildContext context) {
@@ -210,9 +207,13 @@ class MapState extends State<MapScreen> {
         MediaQuery.of(context).orientation == Orientation.portrait;
 
     void resetPredictions() {
-      setState(() {
-        predictions2 = moduleDataSource.getPlaces();
-        predictions = predictions2.keys.toList();
+      storage.readTimetable().then((value) {
+        setState(() {
+          modules = value;
+          moduleDataSource = DataSource(modules);
+          predictions2 = moduleDataSource.getPlaces();
+          predictions = predictions2.keys.toList();
+        });
       });
     }
 
@@ -305,118 +306,118 @@ class MapState extends State<MapScreen> {
           return Wrap(children: [
             Center(
                 child: Column(
-                  children: [
-                    Text(
-                      place.name,
-                      style: const TextStyle(fontSize: 20.0),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          //walk
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              getDirections(place, TravelMode.walking);
-                            },
-                            style: ButtonStyle(
-                              shape:
-                                  MaterialStateProperty.all(const StadiumBorder()),
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange),
-                            ),
-                            key: const Key('Walk'),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.directions_walk),
-                                Text('Walk')
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-
-                          //drive
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              getDirections(place, TravelMode.driving);
-                            },
-                            style: ButtonStyle(
-                              shape:
-                                  MaterialStateProperty.all(const StadiumBorder()),
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange),
-                            ),
-                            key: const Key('Drive'),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.directions_car),
-                                Text('Drive')
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-
-                          //transit
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              getDirections(place, TravelMode.transit);
-                            },
-                            style: ButtonStyle(
-                              shape:
-                                  MaterialStateProperty.all(const StadiumBorder()),
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepOrange),
-                            ),
-                            key: const Key('Transit'),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.directions_bus),
-                                Text('Transit')
-                              ],
-                            ),
-                          ),
-                        ],
+              children: [
+                Text(
+                  place.name,
+                  style: const TextStyle(fontSize: 20.0),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //walk
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(place, TravelMode.walking);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
+                        ),
+                        key: const Key('Walk'),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_walk),
+                            Text('Walk')
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 3,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        viewIndoorMap(place);
-                      },
-                      style: ButtonStyle(
-                          shape: MaterialStateProperty.all(const StadiumBorder()),
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.deepOrange),
-                          maximumSize:
-                              MaterialStateProperty.all(const Size.fromWidth(300))),
-                      key: const Key('Indoor'),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.map_outlined),
-                          Text('View Indoor Map')
-                        ],
+                      const SizedBox(
+                        width: 10,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                  ],
+
+                      //drive
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(place, TravelMode.driving);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
+                        ),
+                        key: const Key('Drive'),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_car),
+                            Text('Drive')
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+
+                      //transit
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          getDirections(place, TravelMode.transit);
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.deepOrange),
+                        ),
+                        key: const Key('Transit'),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.directions_bus),
+                            Text('Transit')
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    viewIndoorMap(place);
+                  },
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all(const StadiumBorder()),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.deepOrange),
+                      maximumSize:
+                          MaterialStateProperty.all(const Size.fromWidth(300))),
+                  key: const Key('Indoor'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.map_outlined),
+                      Text('View Indoor Map')
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
             ))
           ]);
         }).whenComplete(() => setState(() => markers.remove(marker)));
@@ -460,7 +461,6 @@ class MapState extends State<MapScreen> {
           response.data['rows'][0]['elements'][0]['distance']['text'];
       String duration =
           response.data['rows'][0]['elements'][0]['duration']['text'];
-
 
       setState(() {
         totalDistance = distance;
@@ -848,7 +848,7 @@ class MapState extends State<MapScreen> {
                 setState(() {
                   detailedDirections = false;
                 });
-              } else if(details.delta.dy < -sensitivity){
+              } else if (details.delta.dy < -sensitivity) {
                 // Up Swipe
                 setState(() {
                   detailedDirections = true;
@@ -864,155 +864,165 @@ class MapState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.grey[300],
                   ),
-                  child: Column(
+                  child: Column(children: [
+                    Column(
                       children: [
-                        Column(children: [
-                          Center(
-                            child: Text(
-                              destination.name,
-                              style: const TextStyle(fontSize: 20),
-                            ),
+                        Center(
+                          child: Text(
+                            destination.name,
+                            style: const TextStyle(fontSize: 20),
                           ),
-                          const SizedBox(height: 10),
-                          if (modeOfTransit == 'walking' && visibility) ...[
-                            Row(
+                        ),
+                        const SizedBox(height: 10),
+                        if (modeOfTransit == 'walking' && visibility) ...[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.grey[400],
+                                  ),
+                                  child: Wrap(
+                                    children: [
+                                      const Icon(
+                                        Icons.directions_walk,
+                                        size: 20,
+                                      ),
+                                      Text(
+                                        totalDuration,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ])
+                        ] else if (modeOfTransit == 'driving' &&
+                            visibility) ...[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.grey[400],
+                                  ),
+                                  child: Wrap(
+                                    children: [
+                                      const Icon(Icons.directions_car),
+                                      Text(
+                                        totalDuration,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ])
+                        ] else if (modeOfTransit == 'transit' &&
+                            visibility) ...[
+                          Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Colors.grey[400],
-                                    ),
-                                    child: Wrap(
-                                      children: [
-                                        const Icon(
-                                          Icons.directions_walk,
-                                          size: 20,
+                                  Wrap(
+                                    children: [
+                                      //Walk to nearest bus stop(s)
+                                      Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Colors.grey[400],
                                         ),
-                                        Text(
-                                          totalDuration,
-                                          style: const TextStyle(fontSize: 18),
+                                        child: Wrap(
+                                          children: [
+                                            const Icon(
+                                              Icons.directions_walk,
+                                              size: 20,
+                                            ),
+                                            Text(
+                                              totalDuration,
+                                              style:
+                                                  const TextStyle(fontSize: 18),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  )
-                                ]
-                            )
-                          ] else if (modeOfTransit == 'driving' && visibility) ...[
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Colors.grey[400],
-                                    ),
-                                    child: Wrap(
-                                      children: [
-                                        const Icon(Icons.directions_car),
-                                        Text(
-                                          totalDuration,
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ])
-                          ] else if (modeOfTransit == 'transit' && visibility) ...[
-                            Scrollbar(
-                              thumbVisibility: true,
-                              trackVisibility: true,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Wrap(
-                                      children: [
-                                        //Walk to nearest bus stop(s)
-                                        Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(5),
-                                            color: Colors.grey[400],
-                                          ),
-                                          child: Wrap(
-                                            children: [
-                                              const Icon(
-                                                Icons.directions_walk,
-                                                size: 20,
-                                              ),
-                                              Text(
-                                                totalDuration,
-                                                style: const TextStyle(fontSize: 18),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                      ),
 
-                                        const Icon(Icons.keyboard_arrow_right_sharp),
+                                      const Icon(
+                                          Icons.keyboard_arrow_right_sharp),
 
-                                        //Bus, use bus_directions_service
-                                        BusDirections(instructions: instructions),
-                                        //Walk to destination
-                                        Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(5),
-                                            color: Colors.grey[400],
-                                          ),
-                                          child: Wrap(
-                                            children: [
-                                              const Icon(
-                                                Icons.directions_walk,
-                                                size: 20,
-                                              ),
-                                              Text(
-                                                totalDuration2,
-                                                style: const TextStyle(fontSize: 18),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                      //Bus, use bus_directions_service
+                                      BusDirections(instructions: instructions),
+                                      //Walk to destination
+                                      Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Colors.grey[400],
+                                        ),
+                                        child: Wrap(
+                                          children: [
+                                            const Icon(
+                                              Icons.directions_walk,
+                                              size: 20,
+                                            ),
+                                            Text(
+                                              totalDuration2,
+                                              style:
+                                                  const TextStyle(fontSize: 18),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
                               ),
-                            )
-                          ],
-                          if (BusDirections(instructions: instructions).getLength() >=
-                              3) ...[
-                            const SizedBox(height: 5),
-                            const Text("<<< Scroll >>>",
-                                style: TextStyle(color: Colors.black54))
-                          ]
-                        ],
-                        ),
-                        Visibility(
-                          visible: detailedDirections && modeOfTransit == 'transit',
-                          child: DetailedDirections(instructions: instructions, startStop: startBusStop, destination: destination.name,),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: const CircleBorder(),
-                              padding: const EdgeInsets.all(10),
                             ),
-                            child: const Icon(Icons.close),
-                            onPressed: () {
-                              closeDirections();
-                              locationStream?.cancel();
-                            },
-                          ),
-                        )
-                      ])),
+                          )
+                        ],
+                        if (BusDirections(instructions: instructions)
+                                .getLength() >=
+                            3) ...[
+                          const SizedBox(height: 5),
+                          const Text("<<< Scroll >>>",
+                              style: TextStyle(color: Colors.black54))
+                        ]
+                      ],
+                    ),
+                    Visibility(
+                      visible: detailedDirections && modeOfTransit == 'transit',
+                      child: DetailedDirections(
+                        instructions: instructions,
+                        startStop: startBusStop,
+                        destination: destination.name,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(10),
+                        ),
+                        child: const Icon(Icons.close),
+                        onPressed: () {
+                          closeDirections();
+                          locationStream?.cancel();
+                        },
+                      ),
+                    )
+                  ])),
             ),
-          )
-      ),
+          )),
     );
   }
 

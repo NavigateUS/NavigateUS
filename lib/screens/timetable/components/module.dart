@@ -6,6 +6,7 @@ class Module {
   final String location;
   final DateTime from;
   final DateTime to;
+  final String freq;
   final String recurrenceRule;
   final Color background;
   final bool isAllDay;
@@ -15,6 +16,7 @@ class Module {
     required this.location,
     required this.from,
     required this.to,
+    required this.freq,
     required this.recurrenceRule,
     this.background = const Color(0xFFFC571D),
     this.isAllDay = false,

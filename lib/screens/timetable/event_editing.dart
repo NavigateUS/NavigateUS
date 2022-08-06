@@ -23,7 +23,7 @@ class EventEditingPageState extends State<EventEditingPage> {
             buildLocation(),
             buildFromTimePicker(),
             buildToTimePicker(),
-            buildWeekday(),
+            buildRecurrence(),
             buildColorPicker(context)
           ],
         ));
@@ -33,41 +33,41 @@ class EventEditingPageState extends State<EventEditingPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-          appBar: AppBar(
-            title: Text(getTile()),
-            backgroundColor: _colorCollection[_selectedColorIndex],
-            leading: IconButton(
-              icon: const Icon(
-                Icons.close,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                setState(() {
-                  _selectedAppointment = null;
-                  _title = "";
-                  _location = "";
-                });
-                Navigator.pop(context);
-                setState(() {});
-              },
-            ),
-            actions: <Widget>[
-              IconButton(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                icon: const Icon(
-                  Icons.done,
-                  color: Colors.white,
-                ),
-                onPressed: save,
-              )
-            ],
+      appBar: AppBar(
+        title: Text(getTile()),
+        backgroundColor: _colorCollection[_selectedColorIndex],
+        leading: IconButton(
+          icon: const Icon(
+            Icons.close,
+            color: Colors.white,
           ),
-          body: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-            child: Stack(
-              children: <Widget>[_getAppointmentEditor(context)],
+          onPressed: () {
+            setState(() {
+              _selectedAppointment = null;
+              _title = "";
+              _location = "";
+            });
+            Navigator.pop(context);
+            setState(() {});
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+            icon: const Icon(
+              Icons.done,
+              color: Colors.white,
             ),
-          ),
+            onPressed: save,
+          )
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        child: Stack(
+          children: <Widget>[_getAppointmentEditor(context)],
+        ),
+      ),
     ));
   }
 
@@ -76,14 +76,11 @@ class EventEditingPageState extends State<EventEditingPage> {
   }
 
   void save() {
-    String day = selectedDay.substring(0, 2).toUpperCase();
-
     final List<Module> mods = <Module>[];
     if (_selectedAppointment != null) {
       if (moduleDataSource.appointments!.contains(_selectedAppointment)) {
         moduleDataSource.appointments!.remove(_selectedAppointment);
-      }
-      else {
+      } else {
         throw Future.error('selected appointment not found');
       }
       moduleDataSource.notifyListeners(
@@ -96,7 +93,8 @@ class EventEditingPageState extends State<EventEditingPage> {
       background: _colorCollection[_selectedColorIndex],
       location: _location,
       title: _title == '' ? '(No title)' : _title,
-      recurrenceRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day;COUNT=13",
+      freq: selectedFreq,
+      recurrenceRule: setRecurrence(),
     ));
 
     moduleDataSource.appointments!.add(mods[0]);
@@ -265,6 +263,7 @@ class EventEditingPageState extends State<EventEditingPage> {
                               _startTime.hour,
                               _startTime.minute,
                               0);
+                          selectedDay = DateFormat('EEEE').format(_startDate);
                         }
                       });
                     }
@@ -306,40 +305,47 @@ class EventEditingPageState extends State<EventEditingPage> {
     );
   }
 
-  var weekday = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
+  var recurrence = [
+    'Once',
+    'Weekly',
+    'Biweekly',
   ];
 
-  Widget buildWeekday() {
+  Widget buildRecurrence() {
     return Row(
       children: [
         const Expanded(
-            flex: 1, child: Text("Weekday", style: TextStyle(fontSize: 20))),
-        Text(selectedDay, style: const TextStyle(fontSize: 20)),
-        // DropdownButton(
-        //   value: DateFormat('EEEE').format(_startDate),
-        //   icon: const Icon(Icons.keyboard_arrow_down),
-        //   items: weekday.map((String items) {
-        //     return DropdownMenuItem(
-        //       value: items,
-        //       child: Text(items),
-        //     );
-        //   }).toList(),
-        //   onChanged: (String? newValue) {
-        //     setState(() {
-        //       selectedDay = newValue!;
-        //     });
-        //   },
-        //   style: const TextStyle(fontSize: 20, color: Colors.black),
-        // ),
+            flex: 1, child: Text("Recurrence", style: TextStyle(fontSize: 20))),
+        DropdownButton(
+          value: selectedFreq,
+          icon: const Icon(Icons.keyboard_arrow_down),
+          items: recurrence.map((String items) {
+            return DropdownMenuItem(
+              value: items,
+              child: Text(items),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedFreq = newValue!;
+            });
+          },
+          style: const TextStyle(fontSize: 20, color: Colors.black),
+        ),
       ],
     );
+  }
+
+  String setRecurrence() {
+    String day = selectedDay.substring(0, 2).toUpperCase();
+
+    if (selectedFreq.contains("Weekly")) {
+      return "FREQ=WEEKLY;INTERVAL=1;BYDAY=$day;COUNT=13";
+    } else if (selectedFreq.contains("Biweekly")) {
+      return "FREQ=WEEKLY;INTERVAL=2;BYDAY=$day;COUNT=6";
+    } else {
+      return "FREQ=DAILY;COUNT=1";
+    }
   }
 
   ListTile buildColorPicker(BuildContext context) {
