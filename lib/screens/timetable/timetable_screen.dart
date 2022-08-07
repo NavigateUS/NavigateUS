@@ -39,13 +39,13 @@ late DateTime _startDate;
 late DateTime _endDate;
 late TimeOfDay _startTime;
 late TimeOfDay _endTime;
+String selectedFreq = "Weekly";
 String selectedDay = DateFormat('EEEE').format(_startDate);
 
 class TimetableState extends State<TimetableScreen> {
   TimetableState();
 
   late List<String> eventNameCollection;
-  late List<Module> appointments;
 
   @override
   void initState() {
@@ -53,22 +53,9 @@ class TimetableState extends State<TimetableScreen> {
     storage.readTimetable().then((value) {
       setState(() {
         modules = value;
-        appointments = modules;
-        moduleDataSource = DataSource(appointments);
+        moduleDataSource = DataSource(modules);
       });
     });
-    // _colorCollection.add(const Color(0xFFFC571D));
-    // _colorCollection.add(const Color(0xFF85461E));
-    // _colorCollection.add(const Color(0xFFFF00FF));
-    // _colorCollection.add(const Color(0xFF3D4FB5));
-    // _colorCollection.add(const Color(0xFFE47C73));
-    // _colorCollection.add(const Color(0xFF636363));
-    // _colorNames.add('Orange');
-    // _colorNames.add('Caramel');
-    // _colorNames.add('Magenta');
-    // _colorNames.add('Blue');
-    // _colorNames.add('Peach');
-    // _colorNames.add('Gray');
 
     _colorCollection.add(const Color(0xfff07878));
     _colorNames.add('Light Coral');
@@ -176,24 +163,12 @@ class TimetableState extends State<TimetableScreen> {
       _selectedColorIndex = 0;
       _title = '';
       _location = '';
-      // if (calendarTapDetails.appointments != null &&
-      //     calendarTapDetails.appointments!.length == 1) {
-      //   final Module moduleDetails = calendarTapDetails.appointments![0];
-      //   _startDate = moduleDetails.from;
-      //   _endDate = moduleDetails.to;
-      //   _selectedColorIndex =
-      //       _colorCollection.indexOf(moduleDetails.background);
-      //   _title = moduleDetails.title == '(No title)' ? '' : moduleDetails.title;
-      //   _location = moduleDetails.location;
-      //   _selectedAppointment = moduleDetails;
-      // } else {
+
       final DateTime date = calendarTapDetails.date!;
       _startDate = date;
       _endDate = date.add(const Duration(hours: 1));
       selectedDay = DateFormat('EEEE').format(_startDate);
-      // }
-      // _startTime = TimeOfDay(hour: _startDate.hour, minute: _startDate.minute);
-      // _endTime = TimeOfDay(hour: _endDate.hour, minute: _endDate.minute);
+
       Navigator.push<Widget>(
         context,
         MaterialPageRoute(

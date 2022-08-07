@@ -20,7 +20,6 @@ class EventManagingPageState extends State<EventManagingPage> {
         body: ListView.builder(
           itemCount: moduleDataSource.appointments!.length,
           itemBuilder: (context, index) {
-
             Module tempAppointment = moduleDataSource.appointments?[index];
             String modTitle = tempAppointment.toString();
 
@@ -30,13 +29,12 @@ class EventManagingPageState extends State<EventManagingPage> {
                   // Edit item
                   if (direction == DismissDirection.startToEnd) {
                     setState(() {
-                      _selectedAppointment =
-                          tempAppointment;
+                      _selectedAppointment = tempAppointment;
 
                       _startDate = tempAppointment.from;
                       _endDate = tempAppointment.to;
-                      _selectedColorIndex = _colorCollection
-                          .indexOf(tempAppointment.background);
+                      _selectedColorIndex =
+                          _colorCollection.indexOf(tempAppointment.background);
                       _title = tempAppointment.title == '(No title)'
                           ? ''
                           : tempAppointment.title;
@@ -46,6 +44,8 @@ class EventManagingPageState extends State<EventManagingPage> {
                           hour: _startDate.hour, minute: _startDate.minute);
                       _endTime = TimeOfDay(
                           hour: _endDate.hour, minute: _endDate.minute);
+
+                      selectedFreq = tempAppointment.freq;
                     });
                     Navigator.push<Widget>(
                       context,
@@ -74,7 +74,7 @@ class EventManagingPageState extends State<EventManagingPage> {
 
                 // Show a green/red background as the item is swiped right/left.
                 background: Container(
-                    color: Colors.green,  //edit
+                    color: Colors.green, //edit
                     child: Row(
                       children: const [
                         Icon(Icons.edit, color: Colors.white),
@@ -83,7 +83,7 @@ class EventManagingPageState extends State<EventManagingPage> {
                       ],
                     )),
                 secondaryBackground: Container(
-                  color: Colors.red,   //delete
+                  color: Colors.red, //delete
                   child: Padding(
                     padding: const EdgeInsets.all(15),
                     child: Row(

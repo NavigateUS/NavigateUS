@@ -24,6 +24,8 @@ class DataSource extends CalendarDataSource {
   @override
   String getLocation(int index) => appointments![index].location;
 
+  String getFreq(int index) => appointments![index].freq;
+
   @override
   String getRecurrenceRule(int index) => appointments![index].recurrenceRule;
 
@@ -43,7 +45,6 @@ class DataSource extends CalendarDataSource {
         search[getLocation(i)]?.add(getSubject(i));
       }
     }
-
 
     for (String placeName in search.keys) {
       String mods = '';

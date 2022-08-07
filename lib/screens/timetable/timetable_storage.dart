@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:navigateus/screens/timetable/components/module.dart';
+import 'package:navigateus/screens/timetable/timetable_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 class TimetableStorage {
@@ -35,8 +36,9 @@ class TimetableStorage {
           location: attributes[1],
           from: DateTime.parse(attributes[2]),
           to: DateTime.parse(attributes[3]),
-          recurrenceRule: attributes[4],
-          background: Color(int.parse(attributes[5])));
+          freq: attributes[4],
+          recurrenceRule: attributes[5],
+          background: Color(int.parse(attributes[6])));
       list.add(mod);
     });
 
@@ -51,7 +53,7 @@ class TimetableStorage {
     String save = "";
     for (Module mod in modules!) {
       save +=
-          '${mod.title},${mod.location},${mod.from},${mod.to},${mod.recurrenceRule},${mod.background.value}';
+          '${mod.title},${mod.location},${mod.from},${mod.to},${mod.freq},${mod.recurrenceRule},${mod.background.value}';
       save += '\n';
     }
     print('save: $save');
