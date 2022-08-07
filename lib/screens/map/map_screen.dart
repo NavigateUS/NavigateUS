@@ -987,15 +987,18 @@ class MapState extends State<MapScreen> {
                                 ],
                               ),
                             ),
-                          )
+                          ),
+                          if (BusDirections(instructions: instructions)
+                                  .getLength() >=
+                              3) ...[
+                            const SizedBox(height: 5),
+                            const Text("<<< Scroll >>>",
+                                style: TextStyle(color: Colors.black54))
+                          ],
+                          const SizedBox(height: 10),
+                          const Text("PULL OUT FOR DETAILS",
+                              style: TextStyle(color: Colors.black54)),
                         ],
-                        if (BusDirections(instructions: instructions)
-                                .getLength() >=
-                            3) ...[
-                          const SizedBox(height: 5),
-                          const Text("<<< Scroll >>>",
-                              style: TextStyle(color: Colors.black54))
-                        ]
                       ],
                     ),
                     Visibility(
