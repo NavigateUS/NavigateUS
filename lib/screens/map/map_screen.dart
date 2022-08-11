@@ -1031,6 +1031,9 @@ class MapState extends State<MapScreen> {
 
   void closeDirections() {
     floatingSearchBarController.show();
+    goToPlace(destination.latLng);
+    bottomSheet(context, destination);
+    locationStream?.cancel();
     setState(() {
       visibility = false;
       detailedDirections = false;
