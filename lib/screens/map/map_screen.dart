@@ -9,6 +9,7 @@ import 'package:google_place/google_place.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:navigateus/bus_data/bus_stops.dart';
 import 'package:navigateus/bus_data/bus_stops_2.dart';
+import 'package:navigateus/bus_data/mock_bus_arrival.dart';
 import 'package:navigateus/screens/map/functions/geolocator_service.dart';
 import 'package:navigateus/screens/drawer.dart';
 import 'package:navigateus/screens/map/functions/bus_directions_service.dart';
@@ -104,6 +105,7 @@ class MapState extends State<MapScreen> {
   TimetableStorage storage = TimetableStorage();
   Map<String, PointLatLng> selectedBusStops = busStopsLatLng2;
   Map<String, List<Map<String, String>>> selectedGraph = graph2;
+  String estimatedArrival = '';
 
   @override
   void initState() {
@@ -644,6 +646,8 @@ class MapState extends State<MapScreen> {
       }
     }
 
+    getEstimatedArrival(totalDuration, totalDuration2, instructions);
+
     floatingSearchBarController.hide();
     visibility = true;
     if (locationStream!.isPaused) {
@@ -856,6 +860,7 @@ class MapState extends State<MapScreen> {
     }
   }
 
+
   Widget buildDirections() {
     return Positioned(
       bottom: 0,
@@ -863,7 +868,7 @@ class MapState extends State<MapScreen> {
           visible: visibility, // Set it to false
           child: GestureDetector(
             onVerticalDragUpdate: (details) {
-              int sensitivity = 3;
+              int sensitivity = 2;
               if (details.delta.dy > sensitivity) {
                 // Down Swipe
                 setState(() {
@@ -1034,18 +1039,42 @@ class MapState extends State<MapScreen> {
                         destination: destination.name,
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(10),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: Colors.deepOrange,),
+                                  padding: const EdgeInsets.all(5),
+                                  margin: const EdgeInsets.all(5),
+                                  child: Text(
+                                    'Estimated arrival: $estimatedArrival',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16
+                                    ),
+                                  ),
+                                )
+                            ),
                         ),
-                        child: const Icon(Icons.close),
-                        onPressed: () {
-                          closeDirections();
-                        },
-                      ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(10),
+                              primary: Colors.deepOrange,
+                            ),
+                            child: const Icon(Icons.close),
+                            onPressed: () {
+                              closeDirections();
+                            },
+                          ),
+                        )
+                      ],
                     )
                   ])),
             ),
@@ -1165,6 +1194,78 @@ class MapState extends State<MapScreen> {
         rethrow;
       }
     }
+  }
+
+  Future<void> getEstimatedArrival(String durationWalk1, String durationWalk2, List<DirectionInstructions> directions) async {
+    int total = 0;
+    //Add 2 walk times
+    total += int.parse(durationWalk1.substring(0,2));
+    total += int.parse(durationWalk2.substring(0,2));
+
+    //Add time for every bus
+    for (DirectionInstructions instruction in directions) {
+      //Assumption: every stop takes 2 min
+      total += instruction.stops * 2;
+      Response data = await getArrival(instruction.board, instruction.bus);
+
+      //Get shortest arrival and add to total
+      int shortest = 100;
+
+      for (int i = 0; i < instruction.bus.length; i++) {
+        String service = instruction.bus[i];
+        String result = data.data[service];
+        if (result == 'Arr') {
+          result = '0 mins';
+        }
+        int resultInt = int.parse(result.substring(0,2));
+        if (resultInt < shortest) {
+          shortest = resultInt;
+        }
+      }
+
+      total += shortest;
+    }
+
+    //To get estimated arrival time
+    DateTime timeNow = DateTime.now();
+    DateTime timeArrive = timeNow.add(Duration(minutes: total));
+    String timeString = '';
+
+    //check am/pm
+    bool pm = false;
+    if (timeArrive.hour >= 12) {
+      pm = true;
+    }
+
+    String hour;
+
+    //change to 12 hour format
+    if (pm) {
+      hour = (timeArrive.hour - 12).toString();
+    }
+    else {
+      hour = timeArrive.hour.toString();
+    }
+
+    //0 hour = 12 am
+    if (hour == '0') {
+      hour = '12';
+      pm = false;
+    }
+
+    String min = timeArrive.minute.toString();
+    //Add 0 infront of mins if needed
+    if (min.length == 1) {
+      min = '0$min';
+    }
+
+
+    timeString = "$hour : $min ${pm ? 'pm' : 'am'}";
+
+    String arrival = "$timeString | $total mins";
+    setState(() {
+      estimatedArrival = arrival;
+    });
   }
 }
 //<a target="_blank" href="https://icons8.com/icon/SIvn6TBf7q6F/bus-stop">Bus Stop</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
