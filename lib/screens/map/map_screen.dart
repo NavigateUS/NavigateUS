@@ -98,7 +98,7 @@ class MapState extends State<MapScreen> {
   String totalDuration2 = '';
   String startBusStop = '';
   late List<DirectionInstructions> instructions = [];
-  late StreamSubscription<Position>? locationStream;
+  StreamSubscription<Position>? locationStream;
   late List<Module> appointments;
   DataSource moduleDataSource = DataSource(modules);
   TimetableStorage storage = TimetableStorage();
@@ -122,7 +122,10 @@ class MapState extends State<MapScreen> {
     return Scaffold(
         body: Listener(
             onPointerDown: (drag) {
-              locationStream?.cancel();
+              if (locationStream != null && ! locationStream!.isPaused) {
+                locationStream!.pause();
+                setState(() {});
+              }
             },
             child: Stack(children: [
               buildMap(),
@@ -137,7 +140,13 @@ class MapState extends State<MapScreen> {
                     ? const EdgeInsets.only(bottom: 120)
                     : const EdgeInsets.only(bottom: 0),
                 child: FloatingActionButton(
-                    child: const Icon(Icons.location_searching),
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.location_searching,
+                      color: locationStream == null
+                          ? Colors.black
+                          : locationStream!.isPaused
+                          ? Colors.black
+                          : Colors.blue,),
                     onPressed: () {
                       locateUserPosition();
                     }),
@@ -168,15 +177,26 @@ class MapState extends State<MapScreen> {
 
   // Map Functions
   void locateUserPosition() async {
-    try {
-      await GeolocatorService().getCurrentLocation();
-      locationStream =
-          GeolocatorService().getLocationStream().listen((latLngPos) {
-        goToPlace(LatLng(latLngPos.latitude, latLngPos.longitude));
-      });
-    } catch (error) {
-      rethrow;
+    if (locationStream == null) {
+      try {
+        await GeolocatorService().getCurrentLocation();
+        locationStream =
+            GeolocatorService().getLocationStream().listen((latLngPos) {
+              goToPlace(LatLng(latLngPos.latitude, latLngPos.longitude));
+            });
+      } catch (error) {
+        rethrow;
+      }
     }
+    else if (locationStream!.isPaused) {
+      print('location stream is paused, ${locationStream!.isPaused}');
+      locationStream!.resume();
+    }
+    else {
+      print('location stream is not paused, ${locationStream!.isPaused}');
+      locationStream!.pause();
+    }
+    setState(() {});
   }
 
   void goToPlace(LatLng latLngPos) async {
@@ -297,7 +317,6 @@ class MapState extends State<MapScreen> {
       destination = place;
       markers.add(marker);
     });
-    print(place);
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -627,7 +646,9 @@ class MapState extends State<MapScreen> {
 
     floatingSearchBarController.hide();
     visibility = true;
-    locateUserPosition();
+    if (locationStream!.isPaused) {
+      locationStream!.resume();
+    }
   }
 
   _addPolyLine() {
@@ -867,6 +888,13 @@ class MapState extends State<MapScreen> {
                   child: Column(children: [
                     Column(
                       children: [
+                        Visibility(
+                            visible: modeOfTransit == 'transit',
+                            child: Icon(detailedDirections ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_rounded,
+                              size: 30,
+                              color: Colors.black54,
+                            ),
+                        ),
                         Center(
                           child: Text(
                             destination.name,
@@ -995,9 +1023,6 @@ class MapState extends State<MapScreen> {
                             const Text("<<< Scroll >>>",
                                 style: TextStyle(color: Colors.black54))
                           ],
-                          const SizedBox(height: 10),
-                          const Text("PULL OUT FOR DETAILS",
-                              style: TextStyle(color: Colors.black54)),
                         ],
                       ],
                     ),
@@ -1019,7 +1044,6 @@ class MapState extends State<MapScreen> {
                         child: const Icon(Icons.close),
                         onPressed: () {
                           closeDirections();
-                          locationStream?.cancel();
                         },
                       ),
                     )
@@ -1033,7 +1057,6 @@ class MapState extends State<MapScreen> {
     floatingSearchBarController.show();
     goToPlace(destination.latLng);
     bottomSheet(context, destination);
-    locationStream?.cancel();
     setState(() {
       visibility = false;
       detailedDirections = false;
