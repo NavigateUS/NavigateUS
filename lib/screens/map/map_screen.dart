@@ -137,7 +137,7 @@ class MapState extends State<MapScreen> {
             ? null
             : Padding(
                 padding: visibility
-                    ? const EdgeInsets.only(bottom: 120)
+                    ? const EdgeInsets.only(bottom: 135)
                     : const EdgeInsets.only(bottom: 0),
                 child: FloatingActionButton(
                     backgroundColor: Colors.white,
