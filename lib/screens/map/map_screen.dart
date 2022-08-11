@@ -191,11 +191,9 @@ class MapState extends State<MapScreen> {
       }
     }
     else if (locationStream!.isPaused) {
-      print('location stream is paused, ${locationStream!.isPaused}');
       locationStream!.resume();
     }
     else {
-      print('location stream is not paused, ${locationStream!.isPaused}');
       locationStream!.pause();
     }
     setState(() {});
@@ -474,9 +472,6 @@ class MapState extends State<MapScreen> {
       _getPolyline(latLngPosStart, latLngPosEnd, mode);
       Response response = await dio.get(
           'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$endLat,$endLng&origins=$stLat,$stLng&mode=$modeOfTransit&key=$apiKey');
-
-      print('a');
-      print(response.data);
 
       String distance =
           response.data['rows'][0]['elements'][0]['distance']['text'];
@@ -1198,32 +1193,34 @@ class MapState extends State<MapScreen> {
 
   Future<void> getEstimatedArrival(String durationWalk1, String durationWalk2, List<DirectionInstructions> directions) async {
     int total = 0;
-    //Add 2 walk times
+    //Add walk/drive time
     total += int.parse(durationWalk1.substring(0,2));
-    total += int.parse(durationWalk2.substring(0,2));
 
-    //Add time for every bus
-    for (DirectionInstructions instruction in directions) {
-      //Assumption: every stop takes 2 min
-      total += instruction.stops * 2;
-      Response data = await getArrival(instruction.board, instruction.bus);
+    //Add time for every bus if mode is transit, add second walk time for transit
+    if (modeOfTransit == 'transit') {
+      total += int.parse(durationWalk2.substring(0,2));
+      for (DirectionInstructions instruction in directions) {
+        //Assumption: every stop takes 2 min
+        total += instruction.stops * 2;
+        Response data = await getArrival(instruction.board, instruction.bus);
 
-      //Get shortest arrival and add to total
-      int shortest = 100;
+        //Get shortest arrival and add to total
+        int shortest = 100;
 
-      for (int i = 0; i < instruction.bus.length; i++) {
-        String service = instruction.bus[i];
-        String result = data.data[service];
-        if (result == 'Arr') {
-          result = '0 mins';
+        for (int i = 0; i < instruction.bus.length; i++) {
+          String service = instruction.bus[i];
+          String result = data.data[service];
+          if (result == 'Arr') {
+            result = '0 mins';
+          }
+          int resultInt = int.parse(result.substring(0,2));
+          if (resultInt < shortest) {
+            shortest = resultInt;
+          }
         }
-        int resultInt = int.parse(result.substring(0,2));
-        if (resultInt < shortest) {
-          shortest = resultInt;
-        }
+
+        total += shortest;
       }
-
-      total += shortest;
     }
 
     //To get estimated arrival time
@@ -1260,7 +1257,7 @@ class MapState extends State<MapScreen> {
     }
 
 
-    timeString = "$hour : $min ${pm ? 'pm' : 'am'}";
+    timeString = "$hour:$min ${pm ? 'pm' : 'am'}";
 
     String arrival = "$timeString | $total mins";
     setState(() {
