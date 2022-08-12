@@ -14,7 +14,10 @@ class BusPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(service),
         backgroundColor: Colors.deepOrange,),
-      body: PhotoView(imageProvider: AssetImage('assets/bus_routes/$service.jpg'),),
+      body: PhotoView(
+        imageProvider: AssetImage('assets/bus_routes/$service.jpg'),
+        maxScale: PhotoViewComputedScale.contained * 2.0,
+        minScale: PhotoViewComputedScale.contained,),
       );
   }
 }
