@@ -29,6 +29,13 @@ class GeolocatorService {
         desiredAccuracy: LocationAccuracy.high);
   }
 
+  Future<bool> locationAvailable() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    return (permission == LocationPermission.whileInUse || permission == LocationPermission.always) && serviceEnabled;
+  }
+
   Stream<Position> getLocationStream() {
     return Geolocator.getPositionStream();
   }

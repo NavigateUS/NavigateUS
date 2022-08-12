@@ -106,6 +106,7 @@ class MapState extends State<MapScreen> {
   Map<String, PointLatLng> selectedBusStops = busStopsLatLng2;
   Map<String, List<Map<String, String>>> selectedGraph = graph2;
   String estimatedArrival = '';
+  bool locationAvailable = false;
 
   @override
   void initState() {
@@ -116,7 +117,14 @@ class MapState extends State<MapScreen> {
         moduleDataSource = DataSource(modules);
       });
     });
+    updateLocationAvailability();
   }
+
+  void updateLocationAvailability() async {
+    bool available = await GeolocatorService().locationAvailable();
+    setState(() => locationAvailable = available);
+  }
+
 
   // Page Layout
   @override
@@ -169,7 +177,7 @@ class MapState extends State<MapScreen> {
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
-      myLocationEnabled: true,
+      myLocationEnabled: locationAvailable,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       indoorViewEnabled: true,
@@ -188,6 +196,7 @@ class MapState extends State<MapScreen> {
               goToPlace(LatLng(latLngPos.latitude, latLngPos.longitude));
             });
       } catch (error) {
+        updateLocationAvailability();
         rethrow;
       }
     }
@@ -196,6 +205,9 @@ class MapState extends State<MapScreen> {
     }
     else {
       locationStream!.pause();
+    }
+    if (!locationAvailable) {
+      updateLocationAvailability();
     }
     setState(() {});
   }

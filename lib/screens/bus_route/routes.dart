@@ -32,7 +32,7 @@ class _BusRoutesState extends State<BusRoutes> {
                     scrollPhysics: const BouncingScrollPhysics(),
                     builder: (BuildContext context, int index) {
                       return PhotoViewGalleryPageOptions(
-                        maxScale: PhotoViewComputedScale.contained * 2.0,
+                        maxScale: PhotoViewComputedScale.contained * 3.0,
                         minScale: PhotoViewComputedScale.contained,
                         imageProvider: const AssetImage("assets/bus_routes/Map.jpg"),
                         initialScale: PhotoViewComputedScale.contained,
