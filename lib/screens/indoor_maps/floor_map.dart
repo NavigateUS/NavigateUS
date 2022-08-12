@@ -35,7 +35,9 @@ class FloorMapState extends State<FloorMap> {
           backgroundColor: Colors.deepOrange,
         ),
         body: Stack(alignment: Alignment.center, children: [
-          PhotoView(imageProvider: AssetImage(imagePath)),
+          PhotoView(imageProvider: AssetImage(imagePath),
+                    maxScale: PhotoViewComputedScale.contained * 3.0,
+                    minScale: PhotoViewComputedScale.contained,),
           Positioned(
             top: 40,
             child: (Text(
