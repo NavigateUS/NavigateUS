@@ -172,6 +172,7 @@ class MapState extends State<MapScreen> {
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
+      indoorViewEnabled: true,
       markers: Set.from(markers),
       polylines: polylines,
     );
@@ -782,6 +783,7 @@ class MapState extends State<MapScreen> {
       else {
         throw Exception('Cannot find route from $currStop to $nextStop');
       }
+
 
       if (i == route.length - 1 || i == segments[counter]) {
         Color col = busColor('');

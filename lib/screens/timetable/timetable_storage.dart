@@ -15,7 +15,6 @@ class TimetableStorage {
       // Read the file
       final File file = File('${directory.path}/timetable.txt');
       String text = await file.readAsString();
-      print('text: $text');
       List<Module> list = parseToList(text);
       return list;
     } catch (e) {
@@ -28,7 +27,6 @@ class TimetableStorage {
     List<Module> list = [];
 
     LineSplitter.split(contents).forEach((line) {
-      print("line: $line");
 
       List<String> attributes = line.split(',');
       Module mod = Module(
@@ -42,7 +40,6 @@ class TimetableStorage {
       list.add(mod);
     });
 
-    print(list);
     return list;
   }
 
@@ -56,7 +53,6 @@ class TimetableStorage {
           '${mod.title},${mod.location},${mod.from},${mod.to},${mod.freq},${mod.recurrenceRule},${mod.background.value}';
       save += '\n';
     }
-    print('save: $save');
 
     await file.writeAsString(save);
   }
