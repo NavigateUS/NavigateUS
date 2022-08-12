@@ -90,6 +90,13 @@ flutter:
     - assets/indoor_maps/
     - assets/icons/
     - assets/bus_arrival.json
+    - assets/bus_routes/Map.jpg
+    - assets/bus_routes/A1.jpg
+    - assets/bus_routes/A2.jpg
+    - assets/bus_routes/D1.jpg
+    - assets/bus_routes/D2.jpg
+    - assets/bus_routes/E.jpg
+    - assets/bus_routes/K.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

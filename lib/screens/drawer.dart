@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:navigateus/screens/bus_route/routes.dart';
 import 'package:navigateus/screens/indoor_maps/indoor_maps.dart';
 import 'package:navigateus/screens/setting.dart';
 
@@ -37,6 +38,14 @@ Widget buildDrawer(BuildContext context) {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const TimetableScreen()));
+          },
+        ),
+        ListTile(
+          title: const Text('Bus Routes'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const BusRoutes()));
           },
         ),
         ListTile(
