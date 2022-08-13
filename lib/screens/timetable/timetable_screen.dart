@@ -24,8 +24,26 @@ TimetableStorage storage = TimetableStorage();
 
 // initialization
 List<DropdownMenuItem> places = Place.getDropdownList();
-List<Color> _colorCollection = <Color>[];
-List<String> _colorNames = <String>[];
+List<Color> _colorCollection = <Color>[
+  const Color(0xfff07878),
+  const Color(0xfff89154),
+  const Color(0xffffcc65),
+  const Color(0xff9bcb9a),
+  const Color(0xff6acccd),
+  const Color(0xff6699cc),
+  const Color(0xffca9acc),
+  const Color(0xffd17b51),
+];
+List<String> _colorNames = <String>[
+  'Light Coral',
+  'Faded Orange',
+  'Light Mustard',
+  'Frog Green',
+  'Downy',
+  'Blue Koi',
+  'Pastel Violet',
+  'Raw Sienna',
+];
 int _selectedColorIndex = 0;
 List<Module> modules = <Module>[];
 DataSource moduleDataSource = DataSource(modules);
@@ -56,30 +74,6 @@ class TimetableState extends State<TimetableScreen> {
         moduleDataSource = DataSource(modules);
       });
     });
-
-    _colorCollection.add(const Color(0xfff07878));
-    _colorNames.add('Light Coral');
-
-    _colorCollection.add(const Color(0xfff89154));
-    _colorNames.add('Faded Orange');
-
-    _colorCollection.add(const Color(0xffffcc65));
-    _colorNames.add('Light Mustard');
-
-    _colorCollection.add(const Color(0xff9bcb9a));
-    _colorNames.add('Frog Green');
-
-    _colorCollection.add(const Color(0xff6acccd));
-    _colorNames.add('Downy');
-
-    _colorCollection.add(const Color(0xff6699cc));
-    _colorNames.add('Blue Koi');
-
-    _colorCollection.add(const Color(0xffca9acc));
-    _colorNames.add('Pastel Violet');
-
-    _colorCollection.add(const Color(0xffd17b51));
-    _colorNames.add('Raw Sienna');
 
     //events
     _selectedAppointment = null;

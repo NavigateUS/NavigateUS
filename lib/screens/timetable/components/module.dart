@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Module {
   final String title;
@@ -25,7 +24,7 @@ class Module {
   @override
   String toString() {
     if (location == "") {
-      return "$title";
+      return title;
     }
     return "$title @ $location";
   }

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:navigateus/screens/timetable/components/module.dart';
-import 'package:navigateus/screens/timetable/timetable_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 class TimetableStorage {
@@ -27,7 +26,6 @@ class TimetableStorage {
     List<Module> list = [];
 
     LineSplitter.split(contents).forEach((line) {
-
       List<String> attributes = line.split(',');
       Module mod = Module(
           title: attributes[0],
