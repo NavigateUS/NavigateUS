@@ -58,20 +58,4 @@ void main() {
     final com2Finder = find.text("COM2");
     expect(com2Finder, findsOneWidget);
   });
-
-  testWidgets('Pressing buildings navigates to the correct page',
-      (tester) async {
-    Widget testWidget = const IndoorMap();
-    await tester.pumpWidget(createWidgetForTesting(child: testWidget));
-
-    await tester.enterText(find.byType(TextField), 'COM1');
-
-    await tester.pump();
-
-    await tester.tap(find.byType(ImageButton));
-
-    await tester.pump();
-
-    expect(find.byType(PhotoView), findsOneWidget);
-  });
 }

@@ -27,13 +27,13 @@ void main() {
 
     final result = findRoute(start, end);
 
-    const route = [['A1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
+    const route = [['A1'], ['A1'], ['A1'], ['D2', 'A1']];
 
     expect(result, route);
   });
 
   test('Given the above route, the correct instructions are returned', () async {
-    const route = [['A1'], ['A1'], ['A1'], ['D2', 'K', 'A1']];
+    const route = [['A1'], ['A1'], ['A1'], ['D2', 'A1']];
 
     final result = getBestRoute(route, 'COM 2');
 
